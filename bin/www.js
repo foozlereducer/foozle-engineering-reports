@@ -3,10 +3,9 @@
 /**
  * Module dependencies.
  */
-
-const app = require('../app');
-const debug = require('debug')('acto-product-engineering-reports:server');
-const http = require('http');
+import {app} from '../app.js';
+import {debug} from 'console';
+import http from 'http';
 
 /**
  * Get port from environment and store in Express.

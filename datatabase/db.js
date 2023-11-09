@@ -1,5 +1,5 @@
-const mongoose = require('mongoose') ;
-const dotenv = require('dotenv')
+import mongoose from 'mongoose';
+import * as dotenv from 'dotenv';
 dotenv.config()
 
 // Set `strictQuery: false` to globally opt into filtering by properties that aren't in the schema
@@ -7,7 +7,7 @@ dotenv.config()
 // See: https://mongoosejs.com/docs/migrating_to_6.html#strictquery-is-removed-and-replaced-by-strict
 mongoose.set("strictQuery", false);
 
-const connectDB = async () => {
+const mongoDBConnect = async () => {
   try {
     await mongoose.connect(process.env.DATABASE_URI, {
       useNewUrlParser: true,
@@ -21,4 +21,4 @@ const connectDB = async () => {
   }
  };
 
-module.exports = connectDB;
+ export const connectDB =  mongoDBConnect;
