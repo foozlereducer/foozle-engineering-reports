@@ -7,7 +7,7 @@ const Schema = mongoose.Schema;
  * Story Point Report Schema
  */
 export const sprintsSchema = new Schema([{
-    sprintName: {
+    name: {
         type: String
     },
     desc: {type: String},
