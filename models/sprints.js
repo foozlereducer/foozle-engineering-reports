@@ -8,14 +8,19 @@ const Schema = mongoose.Schema;
  */
 export const sprintsSchema = new Schema([{
     name: {
-        type: String
+        type: String,
+        required: true
     },
     desc: {type: String},
     goal: {type: String},
     startDate: {
-        type: Date
+        type: Date,
+        required: true
     },
     endDate: {
-        type: Date
+        type: Date,
+        required: true
     },
 }])
+
+export const Sprints =  mongoose.model('Sprints', sprintsSchema)

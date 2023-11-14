@@ -61,7 +61,6 @@ test("notEmpty() non-chainable returns true when a field is not empty", async t 
     Validator.setChainable = false;
     
     const validateThis = Validator.notEmpty("issues");
-    console.log(validateThis)
     t.is('','')
     // t.true(validateThis)
 })
