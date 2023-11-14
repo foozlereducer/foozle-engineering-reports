@@ -1,5 +1,6 @@
 // Require Mongoose
 import mongoose from "mongoose";
+import { rolesSchema } from "./roles.js";
 
 // Define a schema
 const Schema = mongoose.Schema;
@@ -9,22 +10,12 @@ const Schema = mongoose.Schema;
 export const issuesSchema = new Schema({
     team: {
         required: true, 
-        type: String}
-    ,
-    teamRoles: [{
-        firstName: {
-            type: String,
-            required: true
-        },
-        lastName:{
-            type: String,
-            required: true
-        },
-        role: {
-            type:String,
-            required: true
-        }
-    }],
+        type: String
+    },
+    teamRoles: {
+        type: [rolesSchema],
+        required: true
+    },
     ticketId: {
         type: String,
         required: true
@@ -73,9 +64,9 @@ export const issuesSchema = new Schema({
             enum: [0,1, 2, 3, 5, 8, 12],
             default: 0,
             required: true
-        } 
+        }
     }
-})
+}, {_id: false})
 
 /**
  * Calculate Full Name
@@ -88,5 +79,11 @@ issuesSchema.virtual('fullname').get(function () {
     }
     return fullName
 })
+
+issuesSchema.path('teamRoles').validate(function(teamRoles){
+    if(!teamRoles){return false}
+    else if(teamRoles.length === 0){return false}
+    return true;
+}, 'There must be at least one team role');
 
 export const Issues =  mongoose.model('Issues', issuesSchema)
