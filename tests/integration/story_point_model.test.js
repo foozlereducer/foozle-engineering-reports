@@ -1,5 +1,5 @@
 import test from 'ava';
-import {StoryPoints} from '../../models/story_points.js';
+import {StoryPoints} from '../../models/storyPoints.js';
 import { Issues } from '../../models/issues.js';
 import * as dotenv from 'dotenv';
 dotenv.config()

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import {StoryPoints} from '../models/story_points.js';
+import {StoryPoints} from '../models/storyPoints.js';
 
 export const index = async (req, res, next) => {
     res.render('metrics', { title: 'ACTO Product & Engineering Metrics' });
