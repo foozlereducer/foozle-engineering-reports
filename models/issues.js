@@ -1,6 +1,7 @@
 // Require Mongoose
 import mongoose from "mongoose";
 import { rolesSchema } from "./roles.js";
+// import { runValidation } from "../validators/issues.js";
 
 // Define a schema
 const Schema = mongoose.Schema;
@@ -80,10 +81,6 @@ issuesSchema.virtual('fullname').get(function () {
     return fullName
 })
 
-issuesSchema.path('teamRoles').validate(function(teamRoles){
-    if(!teamRoles){return false}
-    else if(teamRoles.length === 0){return false}
-    return true;
-}, 'There must be at least one team role');
+// runValidation();
 
 export const Issues =  mongoose.model('Issues', issuesSchema)
