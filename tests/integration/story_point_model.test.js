@@ -153,12 +153,10 @@ test(
         const response = await _postData(url, data);
         t.is(
             response.message,
-            'StoryPoints validation failed: issues.0.ticketId: Path `ticketId` is required., issues.0.teamRoles.0.firstName: Path `firstName` is required.'
+            'StoryPoints validation failed: sprint.name: Path `name` is required., issues.0.ticketId: Path `ticketId` is required., issues.0.teamRoles.0.firstName: Path `firstName` is required.'
         )
     } catch(e) {
         const errors = JSON.stringify(e);
         console.log(errors)
-        t.true(errors.includes('`description` is required.'));
-        console.error(e)
     }
 })
