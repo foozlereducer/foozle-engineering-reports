@@ -1,7 +1,7 @@
 /**
  * Class Props Validator - verified the mongoose schema properties in this app
  */
-export class PropsValidator {
+export class PropValidator {
     /**
      * Constructor
      * @param {mixed} val 
@@ -13,21 +13,26 @@ export class PropsValidator {
         this.val = val;
         this.errors = errors;
         this.propName = propName;
+        this.status = true;
         this.verifyDefined();
         this.verifyLength();
     }
 
+    getErrorStatus() {
+        return this.status;
+    }
+
     /**
      * Verify prop is defined
-     * @returns bool - true if prop is defined otherwise false
+     * @returns void
      */
     verifyDefined() {
-        if (typeof this.val === 'undefined') {
+        if (typeof this.val === "undefined") {
             this.errors += `${this.propName} is undefined and is required. `;
             this.errorSwitch = true;
-            return false
+            this.status =  false
         }
-        return true;
+        this.status = true;
     }
 
     /**
@@ -36,10 +41,13 @@ export class PropsValidator {
     verifyLength() {
         if (typeof this.val !== "undefined"){
             if (this.val.length === 0) {
-                this.errors += this.wrongValue();
+                this.wrongValue();
                 this.errorSwitch = true;
+                this.status = false;
+                return;
             }
         }
+        this.status = true;
     }
     /**
      * Get the Prop's value
@@ -71,6 +79,6 @@ export class PropsValidator {
      * @returns string - the error
      */
     wrongValue(errorExtention='') {
-        return `${this.propName} is wrong, it has zero length. ${errorExtention}`
+        this.errors += `${this.propName} is wrong, it has zero length. ${errorExtention}`
     }
 }

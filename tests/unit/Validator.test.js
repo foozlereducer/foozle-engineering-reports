@@ -1,5 +1,5 @@
 import test from 'ava';
-import {ActoValidator} from '../../validators/ActoValidator.js';
+import { ActoValidator } from '../../services/validators/ActoValidator.js';
 
 
 
