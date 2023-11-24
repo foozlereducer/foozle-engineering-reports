@@ -31,6 +31,7 @@ export class PropValidator {
             this.errors += `${this.propName} is undefined and is required. `;
             this.errorSwitch = true;
             this.status =  false
+            return;
         }
         this.status = true;
     }
