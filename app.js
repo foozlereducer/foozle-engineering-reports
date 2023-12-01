@@ -22,6 +22,7 @@ export const app = express();
 // view engine setup
 app.disable('x-powered-by')
 app.set('views', path.join(__dirname, 'views'));
+app.use(express.static('views'));
 app.set('view engine', 'pug');
 app.use(logger('dev'));
 app.use(express.json());
