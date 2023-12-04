@@ -9,9 +9,9 @@ export class ActoValidator {
     constructor() {
         
         // @prop {number} value - is the value being validated
-        // it is initialized as a negative value so it must be mutated to 
+        // it is initialized as a null  so it must be mutated to 
         // a positive number
-        this.value = -1;
+        this.value = null;
 
         // @prop {boolean} chainable - defines if or if not a method is chaninable
         this.chainable = true;
@@ -76,13 +76,16 @@ export class ActoValidator {
         return this;
     }
    
-    notEmpty(val) {
+    notEmpty(val = null) {
+        if( '' !== val && null == this.value) {
+            this.value = val;
+        }
         let error = {statusCode: 204, message:`notEmpty(val): val is empty, it needs a value to test`};
         if (typeof val === 'string') {
-            val.trim()
+            this.value.trim()
         }
         // verify val is not either null or empty. Trim in-case of leading whitespace
-        if(val === null || val.length === 0) {
+        if(this.value === null || this.value.length === 0) {
             throw error;
         }
         
@@ -90,7 +93,7 @@ export class ActoValidator {
             console.log(`inside chainable`)
             return this
         } else {
-            this.field = val;
+            this.field = this.value;
             return this.field.length !== 0
         }
     }

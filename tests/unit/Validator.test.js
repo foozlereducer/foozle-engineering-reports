@@ -77,6 +77,24 @@ test('notEmpty()', async t => {
     t.true(Validator.notEmpty({}))
 })
 
+test('Validation should chain', async t => {
+    const Validator = new ActoValidator();
+    const validateThis = Validator.validate(2).notEmpty().num();
+    t.is(validateThis.value, 2);
+    t.true(validateThis.chainable);
+    t.true(validateThis.pass)
+})
+
+test('Validation should throw validation error at any point in the chained functions', async t => {
+    const Validator = new ActoValidator();
+    try {
+        Validator.validate('2').notEmpty().num();
+    } catch(e) {
+        t.is(e.statusCode, 406);
+        t.is(e.message, 'Expect checked value to be number, string given')
+    }
+})
+
 // test(".notEmpty(val) should error when val is empty", async t => {
 //     const Validator = new ActoValidator();
 //     try {

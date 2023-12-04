@@ -10,6 +10,7 @@ test("Validate should throw all validation errors with none of the required issu
         await except();
     } catch(e) {
         const errors = JSON.stringify(e);
+        console.log(errors)
         /**
          * {"errors":{"description":{"name":"ValidatorError",
          * "message":"Path `description` is required.",
