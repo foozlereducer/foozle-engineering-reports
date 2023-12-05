@@ -52,7 +52,7 @@ test("valide(value): value must be a positive integer", async t => {
     try {
         Validator.validate(boundary2).min(4)
     } catch(e) {
-        t.is(e.message,`Expect checked value to be a positive integer, ${boundary2} given`)
+        t.is(e.message,`Number expected to be a least 4`)
     }
 });
 

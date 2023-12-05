@@ -47,14 +47,13 @@ export class ActoValidator {
         this.value = value;
         return this;
     }
-    #validateValue() {
+    #validateNumber() {
+        if('undefined' === typeof this.value) {
+            this.notEmpty(this.value)
+        }
         if(typeof this.value !== "number" ) {
             this.pass = false;
             throw {statusCode: 406, message:`Expect checked value to be number, ${typeof this.value} given`}
-        }
-        if (this.value < 0 ) {
-            this.pass = false;
-            throw {statusCode: 406, message:`Expect checked value to be a positive integer, ${this.value} given`}
         }
     }
     /**
@@ -62,12 +61,12 @@ export class ActoValidator {
      * @returns this - instance of this object for the ability to chain
      */
     num() {
-        this.#validateValue();
+        this.#validateNumber();
         this.pass = true;
         return this;
     };
     min(minValue) {
-        this.#validateValue();
+        this.#validateNumber();
         this.pass = false;
         if(this.value <= minValue) {
             throw new Error( `Number expected to be a least ${minValue}`);
@@ -77,15 +76,15 @@ export class ActoValidator {
     }
    
     notEmpty(val = null) {
-        if( '' !== val && null == this.value) {
+        if( null !== val && null == this.value) {
             this.value = val;
         }
         let error = {statusCode: 204, message:`notEmpty(val): val is empty, it needs a value to test`};
-        if (typeof val === 'string') {
+        if (typeof this.value === 'string') {
             this.value.trim()
         }
         // verify val is not either null or empty. Trim in-case of leading whitespace
-        if(this.value === null || this.value.length === 0) {
+        if(typeof this.value === undefined || this.value === null || this.value.length === 0) {
             throw error;
         }
         

@@ -1,7 +1,7 @@
 // Require Mongoose
 import mongoose from "mongoose";
 import { rolesSchema } from "./roles.js";
-// import { runValidation } from "../validators/issues.js";
+import { storyPointSchema } from "./storyPoint.js";
 
 // Define a schema
 const Schema = mongoose.Schema;
@@ -36,36 +36,8 @@ export const issuesSchema = new Schema({
         required: true
     },
     storyPoints: {
-        accepted: {
-            type: Number,
-            enum: [0,1, 2, 3, 5, 8, 12],
-            default: 0,
-            required: true
-        },
-        committed: {
-            type: Number,
-            enum: [0,1, 2, 3, 5, 8, 12],
-            default: 0,
-            required: true
-        },
-        completed: {
-            type: Number,
-            enum: [0,1, 2, 3, 5, 8, 12],
-            default: 0,
-            required: true
-        },
-        estimated: {
-            type: Number,
-            enum: [0,1, 2, 3, 5, 8, 12],
-            default: 0,
-            required: true,
-        }, 
-        actual: {
-            type: Number,
-            enum: [0,1, 2, 3, 5, 8, 12],
-            default: 0,
-            required: true
-        }
+        type: storyPointSchema,
+        required: [true,  "`the estimated story point field` is required, either 0, 1, 2, 3, 5, 8, or 13"],
     }
 }, {_id: false})
 
@@ -81,6 +53,11 @@ issuesSchema.virtual('fullname').get(function () {
     return fullName
 })
 
-// runValidation();
+issuesSchema.path('teamRoles').validate(function(teamRoles){
+    if(!teamRoles){return false}
+    else if(teamRoles.length === 0){return false}
+    return true;
+}, '`issueRole` is required. There must be at least one role added to each issue');
+
 
 export const Issues =  mongoose.model('Issues', issuesSchema)
