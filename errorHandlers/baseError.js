@@ -1,4 +1,4 @@
-import { HttpStatusCode } from "./httpStatusCodes";
+import { HttpStatusCodes } from "./httpStatusCodes.js";
 
 export class BaseError extends Error {
     name;
@@ -7,7 +7,7 @@ export class BaseError extends Error {
     
     constructor(name, httpCode, description, isOperational) {
         super(description);
-        if (httpCode instanceof HttpStatusCode) {
+        if (httpCode.OK) {
             if ( typeof httpCode === number) {
                 this.httpCode = httpCode;
             } else {
@@ -20,7 +20,9 @@ export class BaseError extends Error {
         
         this.name = name;
         this.httpCode = httpCode;
+        this.description = description
         this.isOperational = isOperational;
+        
         
         Error.captureStackTrace(this);
     }
