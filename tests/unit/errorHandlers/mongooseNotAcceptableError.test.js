@@ -1,11 +1,10 @@
 import test from 'ava';
-import { MongooseNotAcceptable } from '../../errorHandlers/MongooseNotAcceptableError.js';
-import { HttpStatusCodes } from '../../errorHandlers/httpStatusCodes.js';
-import { BaseError } from '../../errorHandlers/baseError.js';
+import { MongooseNotAcceptable } from '../../../errorHandlers/MongooseNotAcceptableError.js';
+import { HttpStatusCodes } from '../../../errorHandlers/httpStatusCodes.js';
+import { BaseError } from '../../../errorHandlers/baseError.js';
 
 test('MongooseNotAcceptable should be a subclass of BaseError and have correct values', t => {
     const mongooseError = new MongooseNotAcceptable('Custom description');
-    console.log(mongooseError.name)
     t.true(mongooseError instanceof BaseError);
     t.is(mongooseError.name, 'NOT ACCEPTABLE');
     t.is(mongooseError.httpCode, HttpStatusCodes.NOT_ACCEPTABLE);

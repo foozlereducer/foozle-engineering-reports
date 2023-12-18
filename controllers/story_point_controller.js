@@ -18,9 +18,7 @@ export const story_points_create_post = async (req, res) => {
     })
 
     try {
-       
         const savedStoryPoint = await storyPoints.save();
-        console.log(storyPoints.toObject({virtuals: true}))
         res.send(savedStoryPoint)
     } catch(e) {
         console.log(e);

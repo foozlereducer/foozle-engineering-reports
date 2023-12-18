@@ -47,13 +47,13 @@ export class ActoValidator {
         this.value = value;
         return this;
     }
-    #validateNumber() {
+    #validateIt(type='number') {
         if('undefined' === typeof this.value) {
             this.notEmpty(this.value)
         }
-        if(typeof this.value !== "number" ) {
+        if(typeof this.value !== type ) {
             this.pass = false;
-            throw {statusCode: 406, message:`Expect checked value to be number, ${typeof this.value} given`}
+            throw {statusCode: 406, message:`Expect checked value to be a ${type}, ${typeof this.value} given`}
         }
     }
     /**
@@ -61,12 +61,21 @@ export class ActoValidator {
      * @returns this - instance of this object for the ability to chain
      */
     num() {
-        this.#validateNumber();
+        this.#validateIt();
         this.pass = true;
         return this;
     };
+    /**
+     * String check - validates the value is a string
+     * @returns this - instance of this object for the ability to chain
+     */
+    String() {
+        this.#validateIt('string');
+        this.pass = true;
+        return this;
+    }
     min(minValue) {
-        this.#validateNumber();
+        this.#validateIt();
         this.pass = false;
         if(this.value <= minValue) {
             throw new Error( `Number expected to be a least ${minValue}`);
@@ -79,12 +88,12 @@ export class ActoValidator {
         if( null !== val && null == this.value) {
             this.value = val;
         }
-        let error = {statusCode: 204, message:`notEmpty(val): val is empty, it needs a value to test`};
+        let error = {statusCode: 204, message:`notEmpty(val): the value passed into validate is empty, it needs a value to test`};
         if (typeof this.value === 'string') {
             this.value.trim()
         }
         // verify val is not either null or empty. Trim in-case of leading whitespace
-        if(typeof this.value === undefined || this.value === null || this.value.length === 0) {
+        if(typeof this.value === 'undefined' || this.value === null || this.value.length === 0) {
             throw error;
         }
         

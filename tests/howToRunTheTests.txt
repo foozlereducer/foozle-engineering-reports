@@ -1,0 +1,14 @@
+Running The Tests
+
+To run the tests you need to do the following:
+1. Ensure that the app is started, at the 
+   root of the project, in the terminal type - npm run start. This will allow
+   the integration tests to run.
+2. Test options:
+    a. in a new terminal run - npm run test 
+       ( this will run it is test watch mode) and will run all tests
+    b. Or use - npm run debug ( this will run the tests once )
+    c. to run a single test, in terminal type - ava --match='*foo*' 
+       ( matches test titles containing foo) or move the wildcard around like:
+       ava --match='foo*' ( names starting with foo)
+3. Here are ava docs for more options: https://github.com/avajs/ava/blob/main/docs/05-command-line.md

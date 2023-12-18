@@ -1,6 +1,6 @@
 import test from 'ava';
-import { PropsValidationAggregator } from '../../services/validators/PropsValidationAggregator.js';
-import { PropValidator } from '../../services/validators/PropValidator.js';
+import { PropsValidationAggregator } from '../../../services/validators/PropsValidationAggregator.js';
+import { PropValidator } from '../../../services/validators/PropValidator.js';
 
 
 test("PropsValidationAggregator should generate PostValidators", t=> {
