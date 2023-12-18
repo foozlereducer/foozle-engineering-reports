@@ -1,5 +1,5 @@
 import test from 'ava';
-import { HttpStatusCodes } from '../../errorHandlers/httpStatusCodes.js';
+import { HttpStatusCodes } from '../../../errorHandlers/httpStatusCodes.js';
 
 test('HttpStatusCodes constants should have correct values', t => {
     t.is(HttpStatusCodes.OK, 200);
@@ -15,5 +15,4 @@ test('HttpStatusCodes constants should be read-only', t => {
     };
 
     t.throws(attemptToModify, { instanceOf: TypeError });
-  
 });

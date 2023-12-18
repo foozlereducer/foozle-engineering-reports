@@ -1,5 +1,5 @@
 import test from 'ava';
-import { Sprints } from '../../models/sprints.js';
+import { Sprints } from '../../../models/sprints.js';
 
 test("Validate should throw all validation errors with none of the required issue fields set", async t => {
     const s = new Sprints();

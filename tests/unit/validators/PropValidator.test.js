@@ -1,5 +1,5 @@
 import test from 'ava';
-import { PropValidator } from '../../services/validators/PropValidator.js';
+import { PropValidator } from '../../../services/validators/PropValidator.js';
 
 test("getVal should return the constructor given parameter value", async t=> {
     var undefinedVal;

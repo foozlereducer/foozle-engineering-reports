@@ -1,5 +1,5 @@
 import test from 'ava';
-import { ActoValidator } from '../../services/validators/ActoValidator.js';
+import { ActoValidator } from '../../../services/validators/ActoValidator.js';
 
 
 
@@ -10,13 +10,13 @@ test("The validator should validate a number is an number", async t=> {
     try {
         Validator.validate('5').num()
     } catch(e) {
-        t.is(e.message, 'Expect checked value to be number, string given')
+        t.is(e.message, 'Expect checked value to be a number, string given')
     }
 
     try {
         Validator.validate({}).num()
     } catch(e) {
-        t.is(e.message, 'Expect checked value to be number, object given')
+        t.is(e.message, 'Expect checked value to be a number, object given')
     }
 })
 
@@ -45,7 +45,7 @@ test("valide(value): value must be a positive integer", async t => {
     try {
         Validator.validate(boundary).min(4)
     } catch(e) {
-        t.is(e.message,`Expect checked value to be number, ${typeof boundary} given`)
+        t.is(e.message,`Expect checked value to be a number, ${typeof boundary} given`)
     }
 
     const boundary2 = -4;
@@ -91,7 +91,7 @@ test('Validation should throw validation error at any point in the chained funct
         Validator.validate('2').notEmpty().num();
     } catch(e) {
         t.is(e.statusCode, 406);
-        t.is(e.message, 'Expect checked value to be number, string given')
+        t.is(e.message, 'Expect checked value to be a number, string given')
     }
 })
 
