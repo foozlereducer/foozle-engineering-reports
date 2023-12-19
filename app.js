@@ -3,20 +3,12 @@ import express from 'express';
 import * as path from 'path';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
-
-
-/**
- * Database - MongoDB using Mongoose ORM
- */
+import { errHandle } from './services/errorHandlers/errorMiddleware.js';
+import { logger } from './services/logger.js';
 import {connectDB} from './datatabase/db.js'
-// Connect to MongoDB
-connectDB();
-
 import {indexRouter} from './routes/index.js';
 import {storyPointsRouter} from './routes/metrics.js';
 import {catalogRouter} from './routes/catalog.js';
-import { logger } from './services/logger.js';
-import { getErrorSeverity } from './services/errorSeverity.js'
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const app = express();
 
@@ -33,25 +25,23 @@ app.use('/', indexRouter);
 app.use('/storyPoints', storyPointsRouter)
 app.use('/metrics', catalogRouter)
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
+// Catch-all route for undefined routes
+app.all('*', (req, res) => {
+  logger(404, `Route ${req.url} is not found`)
+  res.status(404).send(`Route ${req.url} is not found`);
 });
+
+/**
+ * Database - MongoDB using Mongoose ORM
+ */
+// Connect to MongoDB
+connectDB();
 
 // error handler
-app.use( async (err, req, res, next) => {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+app.use(errHandle);
 
- 
-  // render the error page
-  res.status(err.status || 500);
 
-  await logger(err.status, err.message,getErrorSeverity(err.status))
 
-  res.render('error');
-});
 
 
 

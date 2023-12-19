@@ -1,5 +1,5 @@
 import test from 'ava';
-import { HttpStatusCodes } from '../../../errorHandlers/httpStatusCodes.js';
+import { HttpStatusCodes } from '../../../services/errorHandlers/httpStatusCodes.js';
 
 test('HttpStatusCodes constants should have correct values', t => {
     t.is(HttpStatusCodes.OK, 200);
