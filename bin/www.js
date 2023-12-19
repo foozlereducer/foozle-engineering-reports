@@ -6,6 +6,7 @@
 import {app} from '../app.js';
 import {debug} from 'console';
 import http from 'http';
+import { logger } from '../services/logger.js';
 
 /**
  * Get port from environment and store in Express.
@@ -27,6 +28,23 @@ const server = http.createServer(app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
+// deal with any uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.log('Uncaught exception, application is attempting to exit gracefully',)
+  logger(500, 'Uncaught exception, application is attempting to exit gracefully', 'fatal')
+  // attempt a gracefully shutdown
+  server.close(() => {
+    console.log('graceful shutdown success')
+    process.exit(1); // then exit
+  });
+  // A graceful shutdown was not achieved after 1 second,
+  // shut down the process completely
+  setTimeout(() => {
+    console.log('graceful shutdown failed, app crashed, core dump created')
+    process.abort(); // exit immediately and generate a core dump file
+  }, 1000).unref()
+});
 
 /**
  * Normalize a port into a number, string, or false.
@@ -54,6 +72,7 @@ function normalizePort(val) {
 
 function onError(error) {
   if (error.syscall !== 'listen') {
+    logger(500, error, 'fatal')
     throw error;
   }
 
@@ -68,7 +87,9 @@ function onError(error) {
       process.exit(1);
       break;
     case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
+      const error  = bind + ' is already in use'
+      console.error(error);
+      logger(500, error, 'fatal')
       process.exit(1);
       break;
     default:

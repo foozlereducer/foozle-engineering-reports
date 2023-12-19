@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 import {StoryPoints} from '../models/storyPoints.js';
+import { logger } from '../services/logger.js';
+import { getErrorSeverity } from '../services/errorSeverity.js'
 
 export const index = async (req, res, next) => {
     res.render('metrics', { title: 'ACTO Product & Engineering Metrics' });
@@ -21,8 +23,8 @@ export const story_points_create_post = async (req, res) => {
         const savedStoryPoint = await storyPoints.save();
         res.send(savedStoryPoint)
     } catch(e) {
-        console.log(e);
-        res.status(500)
+        const severity = getErrorSeverity(res.status);
+        logger(500, e, severity)
         res.send(e)
     }
     

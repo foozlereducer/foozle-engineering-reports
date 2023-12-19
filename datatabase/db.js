@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
+import { logger } from '../services/logger.js';
 dotenv.config()
 
 // Set `strictQuery: false` to globally opt into filtering by properties that aren't in the schema
@@ -17,6 +18,7 @@ const mongoDBConnect = async () => {
     return 'Connected to MongoDB'
   } catch (error) {
     console.log('Error connecting to MongoDB:', error);
+    logger(500, error, 'fatal' )
     return JSON.stringify(`Error connecting to MongoDB: ${error}`)
   }
  };
