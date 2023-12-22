@@ -1,7 +1,7 @@
 import test from "ava";
 import mongoose from "mongoose";
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { effortPerformanceIndexSchema } from "../../models/effortPerformanceIndex.js";
+import { effortPerformanceIndexSchema } from "../../../models/effortPerformanceIndex.js";
 
 let mongoServer;
 let mongo;

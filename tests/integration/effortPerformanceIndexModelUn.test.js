@@ -1,6 +1,6 @@
 import test from "ava";
-import { effortPerformanceIndex } from "../../../models/effortPerformanceIndex.js";
-import { connectDB } from "../../../datatabase/db.js";
+import { effortPerformanceIndex } from "../../models/effortPerformanceIndex.js";
+import { connectDB } from "../../datatabase/db.js";
 
 test('effortPerformanceIndex schema validates and transforms data', async (t) => {
     // Create an instance of the Mongoose model
