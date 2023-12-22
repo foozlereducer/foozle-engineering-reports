@@ -1,7 +1,8 @@
-import mongoose from 'mongoose';
+import { connectDB } from '../datatabase/db.js';
 import {StoryPoints} from '../models/storyPoints.js';
 import { logger } from '../services/logger.js';
 import { getErrorSeverity } from '../services/errorSeverity.js'
+
 
 export const index = async (req, res, next) => {
     res.render('metrics', { title: 'ACTO Product & Engineering Metrics' });
@@ -14,6 +15,9 @@ export const story_point_get = async (req, res) => {
 }
 
 export const story_points_create_post = async (req, res) => {
+    console.log('req', req)
+    console.log('res', res)
+    connectDB();
     let storyPoints = new StoryPoints({
         sprint: req.body.sprint,
         issues: req.body.issues 
@@ -24,7 +28,7 @@ export const story_points_create_post = async (req, res) => {
         res.send(savedStoryPoint)
     } catch(e) {
         const severity = getErrorSeverity(res.status);
-        logger(500, e, severity)
+        await logger(500, e, severity)
         res.send(e)
     }
     

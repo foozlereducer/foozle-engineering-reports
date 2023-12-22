@@ -1,4 +1,3 @@
-import createError from 'http-errors';
 import express from 'express';
 import * as path from 'path';
 import { dirname } from 'path';
@@ -25,20 +24,20 @@ app.use('/', indexRouter);
 app.use('/storyPoints', storyPointsRouter)
 app.use('/metrics', catalogRouter)
 
-// Catch-all route for undefined routes
-app.all('*', (req, res) => {
-  logger(404, `Route ${req.url} is not found`)
-  res.status(404).send(`Route ${req.url} is not found`);
-});
-
 /**
  * Database - MongoDB using Mongoose ORM
  */
 // Connect to MongoDB
 connectDB();
 
-// error handler
+// last stop error handler
 app.use(errHandle);
+
+// Catch-all route for undefined routes
+app.all('*', async (req, res) => {
+  res.status(404).send(`Route ${req.url} is not found`);
+  await logger(404, `Route ${req.url} is not found`)
+});
 
 
 
