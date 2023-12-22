@@ -1,25 +1,27 @@
 import { LogSchema } from "../models/log.js";
+import { connectDB } from "../datatabase/db.js";
 
-export const logger = (statusCode, errorMessage, severity = 'error') => {
-
+export const logger = async (statusCode, errorMessage, severity = 'error') => {
+    let res = null;
+   
     const severities = ['fatal', 'error', 'debug', 'info'];
-
-    if ( !severities.includes(severity)) {
-        severity = 'error'
-    }
-
-    const setLog = async (statusCode, errorMessage, severity) => {
-        let log = new LogSchema({
-            statusCode: statusCode,
-            message: errorMessage,
-            severity: severity,
-            createdAt: new Date()
-        })
     
-        await log.save();
-        log = null;
+    // Ensure the severity is one of the enumerated values.
+    if (!severities.includes(severity)) {
+        severity = 'error';
     }
+    const createdAt =  new Date();
+    let log = new LogSchema({
+        statusCode: statusCode,
+        message: errorMessage,
+        severity: severity,
+        createdAt:createdAt
+    });
 
-    setLog(statusCode, errorMessage, severity)
-    
-}
+    try {
+        connectDB();
+        return await log.save();
+    } catch(e) {
+        console.log(e)
+    }   
+};
