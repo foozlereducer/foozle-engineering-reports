@@ -93,9 +93,6 @@ test("a Post to the story_points route saves a document", async t => {
         console.error(e)
     }
 
-    const issuesId = response.issues[0]._id;
-    const samuelsId = response.issues[0].teamRoles[0]._id;
-    const jimsId = response.issues[0].teamRoles[1]._id;
     t.is(response.issues[0].teamRoles[0].firstName,'Dr. Samuel')
     t.is(response.issues[0].teamRoles[0].lastName,'Oliva')
     t.is(response.issues[0].teamRoles[0].role,'engineer')
