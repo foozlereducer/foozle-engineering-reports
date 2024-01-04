@@ -6,7 +6,6 @@ import { PropValidator } from '../../../services/validators/PropValidator.js';
 test("PropsValidationAggregator should generate PostValidators", t=> {
     const PVA = new PropsValidationAggregator();
     const aPV = PVA.generatePropValidator("Joe's first big story", "issueName");
-    console.log(aPV);
     t.is(typeof aPV,'object')
     t.true(aPV instanceof PropValidator)
 })

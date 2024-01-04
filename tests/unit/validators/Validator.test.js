@@ -1,8 +1,6 @@
 import test from 'ava';
 import { ActoValidator } from '../../../services/validators/ActoValidator.js';
 
-
-
 test("The validator should validate a number is an number", async t=> {
     const Validator = new ActoValidator();
     let result = Validator.validate(5).num()
