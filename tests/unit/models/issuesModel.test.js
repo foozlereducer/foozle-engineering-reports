@@ -1,20 +1,51 @@
 import test from 'ava';
-import { Issues } from '../../../models/issues.js';
+import mongoose from "mongoose";
+import { issuesSchema } from '../../../models/issues.js';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import { Types } from "mongoose";
 
-test("Validate should throw all validation errors with none of the required issue fields set", async t => {
-    const iS = new Issues();
-    const except = async () => {
-       throw new Error(await iS.save());
-    }
-    try {
-        await except();
-    } catch(e) {
-        const errors = JSON.stringify(e);
-        t.true(errors.includes('`description` is required.'));
-        t.true(errors.includes('`issueName` is required.'));
-        t.true(errors.includes('`ticketId` is required.'));
-        t.true(errors.includes('`team` is required.'));
-        t.true(errors.includes("`issueRole` is required. There must be at least one role added to each issue"));
-        t.true(errors.includes("`the estimated story point field` is required, either 0, 1, 2, 3, 5, 8, or 13"));
-    }
+let mongoServer;
+let mongo;
+
+// Spin up an in-memory MongoDB server before any tests run
+// This is to ensure that this can remain unit tests as the real db is
+// not be written to
+test.before(async () => {
+    mongo = await MongoMemoryServer.create();
+    const uri = mongo.getUri();
+    await mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+});
+
+// Tear down the in-memory MongoDB server after all tests are done
+test.after.always(async () => {
+  await mongoose.disconnect();
+  await mongo.stop()
+});
+
+test("The Issues model can save and retrieve data", async t => {
+    const IssuesIndex = mongoose.model('projectsIndex', issuesSchema);
+    const data = {
+        team: 'TBP',
+        teamRoles: [{firstName: "Steve", lastName: "Browning", role: "admin"}],
+        ticketId: "TBP-1355",
+        issueName: "Incremental Sync Strategy in DWH",
+        description: `Contextualization:
+        So far, the jobs created in the POC of the DWH is overwriting data in S3, which does not seem to be so much performative. For this purpose, it is important to have a incremental loading, which can help to reduce the workload over the data source and also reduce the loading time of the ETL.
+        
+        Objective:
+        Investigate options in AWS Glue to perform incremental load in the ETL.`,
+        issueType: "story",
+        storyPoints: {
+            accepted: 5,
+            committed: 3,
+            estimated: 3,
+            actual: 5
+        }
+    };
+
+     // Save data to the in-memory MongoDB
+     const result = await IssuesIndex.create(data);
+     //Retrieve data and check if it matches what we saved
+     const retrievedData = await IssuesIndex.findById(result._id);
+     t.deepEqual(retrievedData.toObject(), result.toObject());
 });

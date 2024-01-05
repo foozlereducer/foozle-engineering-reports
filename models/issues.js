@@ -39,8 +39,8 @@ export const issuesSchema = new Schema({
         type: storyPointSchema,
         required: [true,  "`the estimated story point field` is required, either 0, 1, 2, 3, 5, 8, or 13"],
     }
-}, {_id: false})
-
+})
+//, {_id: false})
 /**
  * Calculate Full Name
  * Virtual for ticket assignee's full name

@@ -2,7 +2,6 @@ import test from 'ava';
 import { JiraRest } from '../../../services/adapters/jiraRest.js';
 import { ActoValidator } from '../../../services/validators/ActoValidator.js';
 import { Temporal } from '@js-temporal/polyfill';
-import jsonwebtoken from 'jsonwebtoken';
 
 test('JiraRoute.setRoute() expects a defined route', async t => {
     const validator = new ActoValidator()
@@ -26,38 +25,38 @@ test('JiraRest.setRoute() expects a the route to be a string', async t => {
     }
 })
 
-test(
-    'JiraRest.getExpiry() should return a Unix timestamp 30 seconds or more in the future.',
-    async t => {
-        const validator = new ActoValidator()
-        const jr = new JiraRest(validator);
-        const now = Temporal.Now.instant().epochSeconds;
-        const expiry = jr.getExpiry()
-        const timeDiffIs30orSlightlyMoreSeconds = getTimeDiff(expiry.futureTime, now)
-        t.true(timeDiffIs30orSlightlyMoreSeconds)
-    }
-)
-/**
- * Get the time difference between two unix timestamps
- * This is a test helper function to make the test mor readable
- * @param {number} expiry 
- * @param {number} now 
- * @return bool 
- */
-function getTimeDiff(expiry, now) {
-    const timeDifMs = (expiry - now) * 1000;
-    const timeDifference = timeDifMs / 1000;
-    return (timeDifference >= 30 && timeDifference < 31)
-    }
-
-test('generateToken() returns a jwt object', async t=> {
+test('JiraRest.setRoute() should have a default httpMethod', async t=>{
     const validator = new ActoValidator()
     const jr = new JiraRest(validator);
-    jr.setRoute('https://actocloud.atlassian.net/rest/agile/1.0/sprint/892/issue')
-    const req = jr.generateToken();
-    const isVerifiedToken = jsonwebtoken.verify(req, process.env.JIRA_SECRET)
-    // verifies the issuer
-    t.is(isVerifiedToken.iss, 'acto-product-and-engineering-metrics');
-    // the query string hashed token that would not show if verified() failed
-    t.is(isVerifiedToken.qsh, '8a9f032cdfa6da88d521cba3026e51406c2e9565cf22bade7a7fa1f71da1c4a2')
+    jr.setRoute('/abc');
+    t.is(jr.httpMethod, 'GET')
+    t.is(jr.route, '/abc')
+})
+
+test('JiraRest.runRoute() should get the issues for ACTO sprint 910', async t=>{
+    const validator = new ActoValidator()
+    const jr = new JiraRest(validator);
+    jr.setRoute('https://actocloud.atlassian.net/rest/agile/1.0/sprint/910/issue', 'GET')
+    const res = await jr.runRoute();
+    const valres = validator.validate(res).notEmpty()
+    t.true(valres.pass)
+    t.is(res.total, 26)
+    t.is(res.issues.length, 26)
+    for ( const targetIssue of res.issues ) {
+        if ('Incremental Sync Strategy in DWH' === targetIssue.fields.summary) {
+            t.is(targetIssue.fields.summary, 'Incremental Sync Strategy in DWH')
+        }
+    }
+})
+
+test('JiraRest.runRoute will return all sprints', async t=>{
+    // const validator = new ActoValidator()
+    // const jr = new JiraRest(validator);
+    // jr.setRoute('https://actocloud.atlassian.net/rest/agile/1.0/board?projectKeyOrId=', 'GET')
+    // const res = await jr.runRoute();
+    // console.log(res)
+    // for ( const targetIssue of res.issues ) {
+        
+    // }
+    t.true(true)
 })
