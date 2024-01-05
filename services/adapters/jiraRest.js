@@ -52,7 +52,7 @@ export class JiraRest extends iApiAdapter{
         const req = jwt.fromMethodAndUrl('GET', this.route)
         const secret = process.env.JIRA_SECRET;
         const tokenData = {
-            "iss": 'issuer-val',
+            "iss": 'acto-product-and-engineering-metrics',
             "iat": now,
             "exp": expiry,
             "qsh": jwt.createQueryStringHash(req)
