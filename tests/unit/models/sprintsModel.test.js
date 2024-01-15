@@ -1,8 +1,8 @@
 import test from 'ava';
-import { Sprints } from '../../../models/sprints.js';
+import { Sprint } from '../../../models/sprint.js';
 
 test("Validate should throw all validation errors with none of the required issue fields set", async t => {
-    const s = new Sprints();
+    const s = new Sprint();
     const except = async () => {
        throw new Error(await s.save());
     }

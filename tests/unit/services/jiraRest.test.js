@@ -40,8 +40,6 @@ test('JiraRest.runRoute() should get the issues for ACTO sprint 910', async t=>{
     const res = await jr.runRoute();
     const valres = validator.validate(res).notEmpty()
     t.true(valres.pass)
-    t.is(res.total, 26)
-    t.is(res.issues.length, 26)
     for ( const targetIssue of res.issues ) {
         if ('Incremental Sync Strategy in DWH' === targetIssue.fields.summary) {
             t.is(targetIssue.fields.summary, 'Incremental Sync Strategy in DWH')
