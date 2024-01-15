@@ -1,6 +1,5 @@
 // Require Mongoose
 import mongoose from "mongoose";
-import { rolesSchema } from "./roles.js";
 import { storyPointSchema } from "./storyPoint.js";
 
 // Define a schema
@@ -9,14 +8,6 @@ const Schema = mongoose.Schema;
  * Issues Report Schema
  */
 export const issuesSchema = new Schema({
-    team: {
-        required: true, 
-        type: String
-    },
-    teamRoles: {
-        type: [rolesSchema],
-        required: true
-    },
     ticketId: {
         type: String,
         required: true
@@ -24,6 +15,20 @@ export const issuesSchema = new Schema({
     issueName: {
         type: String,
         required: true,
+    },
+    assignee: {
+        type: String,
+        required: true,
+    },
+    engineers: [{
+        name: {
+            type: String,
+            required: true
+        }
+    }],
+    qe: {
+        type: String,
+        required:true,
     },
     description: {
         type: String,
@@ -52,12 +57,6 @@ issuesSchema.virtual('fullname').get(function () {
     }
     return fullName
 })
-
-issuesSchema.path('teamRoles').validate(function(teamRoles){
-    if(!teamRoles){return false}
-    else if(teamRoles.length === 0){return false}
-    return true;
-}, '`issueRole` is required. There must be at least one role added to each issue');
 
 
 export const Issues =  mongoose.model('Issues', issuesSchema)
