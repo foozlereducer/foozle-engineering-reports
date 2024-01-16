@@ -2,25 +2,25 @@ import test from 'ava';
 import mongoose from "mongoose";
 import { issuesSchema } from '../../../models/issues.js';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Types } from "mongoose";
+
 
 let mongoServer;
 let mongo;
 
-// Spin up an in-memory MongoDB server before any tests run
-// This is to ensure that this can remain unit tests as the real db is
-// not be written to
+/**
+ * Spring up a memory mongoDb to isulate it from the prod / dev environment.
+ */
 test.before(async () => {
     mongo = await MongoMemoryServer.create();
     const uri = mongo.getUri();
     await mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-});
+;});
 
 // Tear down the in-memory MongoDB server after all tests are done
 test.after.always(async () => {
   await mongoose.disconnect();
   await mongo.stop()
-});
+})
 
 test("The Issues model can save and retrieve data", async t => {
     const IssuesIndex = mongoose.model('projectsIndex', issuesSchema);
