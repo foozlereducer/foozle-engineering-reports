@@ -1,5 +1,5 @@
 import { connectDB } from '../datatabase/db.js';
-import {StoryPoints} from '../models/storyPoints.js';
+import { Sprints } from '../models/sprints.js'
 import { logger } from '../services/logger.js';
 import { getErrorSeverity } from '../services/errorSeverity.js'
 
@@ -15,23 +15,23 @@ export const story_point_get = async (req, res) => {
 }
 
 export const story_points_create_post = async (req, res) => {
-    console.log('req', req)
-    console.log('res', res)
-    connectDB();
-    let storyPoints = new StoryPoints({
-        sprint: req.body.sprint,
-        issues: req.body.issues 
-    })
+    // console.log('req', req)
+    // console.log('res', res)
+    // connectDB();
+    // let storyPoints = new StoryPoints({
+    //     sprint: req.body.sprint,
+    //     issues: req.body.issues 
+    // })
 
-    try {
-        const savedStoryPoint = await storyPoints.save();
-        res.send(savedStoryPoint)
-    } catch(e) {
-        const severity = getErrorSeverity(res.status);
-        await logger(500, e, severity)
-        res.send(e)
-    }
-    
+    // try {
+    //     const savedStoryPoint = await storyPoints.save();
+    //     res.send(savedStoryPoint)
+    // } catch(e) {
+    //     const severity = getErrorSeverity(res.status);
+    //     await logger(500, e, severity)
+    //     res.send(e)
+    // }
+    res.send('Made it to story_point_post');
 };
 
 

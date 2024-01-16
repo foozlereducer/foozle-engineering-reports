@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
 /**
  * Story Point Report Schema
  */
-export const sprintSchema = new Schema([{
+export const sprintSchema = new Schema({
     id:{
         type: Number,
         required: true
@@ -24,7 +24,7 @@ export const sprintSchema = new Schema([{
     endDate: {
         type: Date,
         required: true
-    },
-}])
+    }
+})
 
 export const Sprint =  mongoose.model('Sprint', sprintSchema)

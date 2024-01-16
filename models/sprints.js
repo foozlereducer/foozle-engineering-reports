@@ -10,21 +10,21 @@ const Schema = mongoose.Schema;
  * Sprints Schema - this holds most the metric data pulled from Jira api
  * 
  */
-const sprintssSchema = new Schema({
+export const sprintsSchema = new Schema({
     team: String,
-    team_roles: [rolesSchema],
     sprint: sprintSchema,
+    teamRoles: [rolesSchema],
     issues: [issuesSchema]
 }, {timestamps: true });
 
-sprintSchema.path('teamRoles').validate(function(teamRoles){
+sprintsSchema.path('teamRoles').validate(function(teamRoles){
     if(!teamRoles){return false}
     else if(teamRoles.length === 0){return false}
     return true;
-}, '`issueRole` is required. There must be at least one role added to each sprint');
+}, '`teamRole` is required. There must be at least one role added to each sprint');
 
 // Virtual for author's URL
-storyPointsSchema.virtual("url").get(function () {
+sprintsSchema.virtual("url").get(function () {
     // We don't use an arrow function as we'll need the this object
     return `/story_points/${this._id}`;
 });
@@ -46,7 +46,7 @@ export function convertDateToReadableFormat(dateStr) {
     return year+'-' + month + '-'+dt;
 }
 
-storyPointsSchema.virtual('prety_dates').get(function () {
+sprintsSchema.virtual('prety_dates').get(function () {
    return {
         sprintStartDateF: convertDateToReadableFormat(this.sprint.startDate),
         sprintEndDateF: convertDateToReadableFormat(this.sprint.endDate),
@@ -54,4 +54,4 @@ storyPointsSchema.virtual('prety_dates').get(function () {
     }
 })
 
-export const StoryPoints =  mongoose.model('StoryPoints', storyPointsSchema)
+export const Sprints =  mongoose.model('Sprints', sprintsSchema)
