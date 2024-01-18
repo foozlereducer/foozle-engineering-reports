@@ -7,10 +7,9 @@ export class SprintBoards {
 
     async getSprintBoards(boardIds) {
         for(const id of boardIds) {
-            this.JiraRest.setRoute(this.baseRoutePath + `/rest/agile/1.0/board/${id}/sprint?state=active`);
+            this.JiraRest.setRoute(this.baseRoutePath + `/rest/agile/1.0/board/${id[1][0]}/sprint?state=active`);
             let sprints = await this.JiraRest.runRoute();
-
-            this.sprintBoards.push({boardId: id, sprints: sprints})
+            this.sprintBoards.push({boardId: id[1][0], sprints: sprints})
         }
 
         return this.sprintBoards;

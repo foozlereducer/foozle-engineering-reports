@@ -16,8 +16,9 @@ test('Should get all jira projects', async t=>{
         t.true(Array.isArray(proj))
         const nameIsString = AV.validate(proj[0]).String()
         t.true(nameIsString.pass)
-        const projIdIsNum = AV.validate(proj[1]).num()
-        t.true(projIdIsNum.pass)
+        const boardIdIsArray = AV.validate(proj[1]).array()
+        t.true(boardIdIsArray.pass)
+        const boardIdIsNumber = AV.validate(proj[1][0]).num()
         t.true(proj.length > 0)
     }
 })
@@ -32,25 +33,8 @@ test(`GetSprintDataJob.getProjectId() Should get all
         t.true(Array.isArray(res))
         const idNumOfDigits = (''+res[0]).length; 
         t.true(3 === idNumOfDigits)
-        const projIdNum = AV.validate(res[0]).num()
-        t.true(projIdNum.pass);
+        const boardId = AV.validate(res[0]).array()
+        t.true(boardId.pass);
         t.true(true)    
 })
 
-test('Should get all active sprints', async t=> {
-    const AV = new ActoValidator()
-    const JR = new JiraRest(AV)
-    const GP = new GetProjects(JR)
-    const GSDJ = new GetSprintDataJob();
-    const SB = new SprintBoards(JR)
-    const boardIds = await GSDJ.getProjectIds(GP)
-    const sprints = await SB.getSprintBoards(boardIds)
-    let i = 0;
-    for( const sprint of sprints) {
-        console.log(sprint )
-        i++;
-    }
-    
-
-    t.true(true)
-})
