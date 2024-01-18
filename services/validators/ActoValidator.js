@@ -69,7 +69,16 @@ export class ActoValidator {
         this.pass = true;
         return this;
     };
+    array() {
+        if(Array.isArray(this.value)) {
+            this.pass = true;
+        } else {
+            throw new Error( `Array expected ${typeof this.value} given.`); 
+        }
+        return this;
+    }
     /**
+     *
      * String check - validates the value is a string
      * @returns this - instance of this object for the ability to chain
      */

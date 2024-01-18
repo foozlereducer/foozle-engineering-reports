@@ -9,21 +9,21 @@ const Schema = mongoose.Schema;
 export const projectsSchema = new Schema({
     key: {
         type: String,
-        required: true
+        required: true,
     },
     name:{
         type: String,
-        required: true
+        required: true,
     },
    
     core: {
         type: Boolean,
-        defalut: false
+        defalut: false,
     },
-    boardId: {
-        type:Number,
-        required: false
-    },
+    boardId: [{
+        type: Number,
+        required: true,
+    }],
 }, {timestamps: true });
 
 export const Projects =  mongoose.model('Projects', projectsSchema)
