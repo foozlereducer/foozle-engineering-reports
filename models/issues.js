@@ -16,6 +16,10 @@ export const issuesSchema = new Schema({
         type: String,
         required: true,
     },
+    issueLink: {
+        type:String,
+        required: false,
+    },
     assignee: {
         type: String,
         required: true,
@@ -26,13 +30,17 @@ export const issuesSchema = new Schema({
             required: true
         }
     }],
-    qe: {
+    qe: [{
         type: String,
         required:true,
-    },
+    }],
     description: {
         type: String,
         required: true
+    },
+    status: {
+        type: String,
+        required: false
     },
     issueType: {
         type: String,

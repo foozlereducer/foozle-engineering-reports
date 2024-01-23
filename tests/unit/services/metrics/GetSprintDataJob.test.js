@@ -31,10 +31,9 @@ test(`GetSprintDataJob.getProjectId() Should get all
         const GSDJ = new GetSprintDataJob();
         const res = await GSDJ.getProjectIds(GP)
         t.true(Array.isArray(res))
-        const idNumOfDigits = (''+res[0]).length; 
+        const idNumOfDigits = (''+res[0]).length;
         t.true(3 === idNumOfDigits)
         const boardId = AV.validate(res[0]).array()
         t.true(boardId.pass);
-        t.true(true)    
 })
 

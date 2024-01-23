@@ -12,7 +12,7 @@ export class GetSprintDataJob {
     async getProjectIds(GetProjects) {
         const projs = await this.getProjects(GetProjects)
         for(const proj of projs) {
-            if(Array.isArray(proj) && 2 == proj.length ) {
+            if(Array.isArray(proj) && 3 == proj.length ) {
                 this.projectIds.push(proj[1])
             }
         }

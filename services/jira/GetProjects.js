@@ -20,18 +20,20 @@ export class GetProjects {
     async run() {
         connectDB()
         const projects = await Projects.find({})
+        
         const targetBoardIds = [];
         for(let proj of projects) {
-            const name = proj.name.replace('Team ', '')
+            
             if ( true === this.isCore) {
                 if (true === proj.core) {
-                    targetBoardIds.push([name, proj.boardId])
+                    targetBoardIds.push([proj.name, proj.boardId, proj.key])
 
                 }
             } else {
-                targetBoardIds.push([name, proj.boardId])
+                targetBoardIds.push([proj.name, proj.boardId, proj.key])
             }
         }
+
        return targetBoardIds;
     }
 
