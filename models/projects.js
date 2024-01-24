@@ -19,10 +19,10 @@ export const projectsSchema = new Schema({
         type: Boolean,
         defalut: false,
     },
-    boardId: {
+    boardId: [{
         type: Number,
         required: true,
-    }
+    }]
 }, {timestamps: true });
 
 export const Projects =  mongoose.model('Projects', projectsSchema)

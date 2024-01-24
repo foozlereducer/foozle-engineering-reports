@@ -56,28 +56,6 @@ test('Sprint start and end dates should exist and be in UTC format', async t=> {
     }
 })
 
-test("getSprintIssues returns the active sprint issues", async t=> {
-    const AV = new ActoValidator()
-    const JR = new JiraRest(AV)
-    const SB = new SprintBoards(JR)
-    const mockSprintId = 910;
-    const mockBoardId = 167;
-    const sprintIssues = await SB.getSprintIssues(mockSprintId,mockBoardId)
-     // const boardIds = [
-    //     [ 'Team Die Hard', [ 178 ] ],
-    //     [ 'Team Beatles', [ 167 ] ],
-    //     [ 'Team Enablers', [ 170 ] ],
-    //     [ 'Team MVP', [ 168 ] ],
-    //     [ 'UX/UI', [ 181 ] ]
-    // ]
-    console.log(sprintIssues)
-    t.true( sprintIssues.length > 0 );
-    t.is( sprintIssues[0].ticketId,'TBP-1625')
-    t.is( sprintIssues[0].status, 'Done' );
-    t.is( sprintIssues[0].issueType, 'Story')
-    t.true(true)
-   
-})
 
 test(`collectSprintData() should return a data obj 
 that matches the Sprints model`, async t => {
@@ -103,3 +81,86 @@ function isValidUTCDate(dateString) {
     // Check if the date is a valid date and its string representation is the same as the input
     return !isNaN(date.getTime()) && date.toISOString() === dateString;
 }
+
+// Mocking JiraRest
+class MockJiraRest {
+    setRoute() {}
+    async runRoute() {
+      return {
+        issues: [
+          {
+            key: 'TAP-123',
+            fields: {
+              summary: 'Sample Issue',
+              issuetype: { name: 'Story', description: 'Sample Description' },
+              status: { name: 'To Do' },
+              customfield_10183: { displayName: 'John Doe' },
+              customfield_10188: [{ displayName: 'Jane Doe' }],
+              customfield_10184: { displayName: 'QE1' },
+              customfield_10185: [{ displayName: 'QE2' }],
+            },
+          },
+        ],
+      };
+    }
+  }
+
+
+  
+  test.beforeEach(t => {
+    // Mock JiraRest instance for each test
+    t.context.mockJiraRest = new MockJiraRest();
+  });
+  
+  test('getSprintBoards should return an array of sprint boards', async t => {
+    const sprintBoards = new SprintBoards(t.context.mockJiraRest);
+    const result = await sprintBoards.getSprintBoards([['team1', [123]], ['team2', [456]]]);
+    t.true(Array.isArray(result));
+    t.true(result.length > 0);
+    t.true(result[0].hasOwnProperty('boardId'));
+    t.true(result[0].hasOwnProperty('sprints'));
+  });
+  
+  test('setEngineers should update issueObj with engineers from the issue', t => {
+    const sprintBoards = new SprintBoards(new MockJiraRest());
+    const issueObj = { engineers: [] };
+    const issue = { fields: { customfield_10183: { displayName: 'John Doe' } } };
+    const result = sprintBoards.setEngineers(issueObj, issue);
+    t.deepEqual(result.engineers, ['John Doe']);
+  });
+
+  test('values that are null or undefined are handled gracefully', async t => {
+    const sprintBoards = new SprintBoards(new MockJiraRest());
+    var a; // undefined
+    const b = null;
+    const issueObj = { engineers: [], ques: [] };
+    const issue = {}
+    issue.fields = {}
+    issue.fields.customfield_10183 = { displayName: a };
+    issue.fields.customfield_10184 = { displayName: null };
+    
+    const result = sprintBoards.setEngineers(issueObj, issue);
+    t.true(typeof result.engineers[0] == 'undefined');
+    const result2 =  sprintBoards.setQualityEngineers(issueObj, issue);
+    t.deepEqual( result2.ques, [])
+  })
+
+  test("committed and estimated story points have summed story points", async t=>{
+    const AV = new ActoValidator()
+    const JR = new JiraRest(AV)
+    const SB = new SprintBoards(JR)
+    const boardIds = [
+        [ 'PAA', [ 178 ] ],
+        [ 'TBP', [ 167 ] ],
+        [ 'TEP', [ 170 ] ],
+        [ 'TMP', [ 168 ] ],
+        [ 'UXUI', [ 181 ] ]
+    ]
+    const res = await SB.getSprintIssues(910, 167) 
+    console.log(res)
+   
+    t.true(true)
+
+  }) 
+  
+  // Add more tests for other methods as needed

@@ -17,6 +17,29 @@ export const sprintSchema = new Schema({
     },
     desc: {type: String},
     goal: {type: String},
+    storyPointTotals:{
+        accepted:{
+            type: Number,
+            required: false
+        },
+        committed: {
+            type: Number,
+            required: false
+        },
+        completed: {
+            type: Number,
+            required: false
+        },
+        estimated: {
+            type: Number,
+            required: false
+    
+        },
+        actual: {
+            type: Number,
+            required: false
+        },  
+    },
     startDate: {
         type: Date,
         required: true
