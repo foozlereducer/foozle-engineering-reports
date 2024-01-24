@@ -35,47 +35,89 @@ export class SprintBoards {
         }
         return boardIdsOnly;
     }
-
-    setEngineersOrQEs(issueObj, issue, isEng = true) {
-        if (true === isEng) {
-            // customfield_10188 == engineer (is array of objects)
+    /**
+     * Set Engineers Filter
+     * @param {obj} issueObj - this issues object that has all issue schema
+     * @param {obj} issue - the current issue
+     * @returns {obj} - the issueObj with the now set engineers
+     */
+    setEngineers(issueObj, issue) {
+         // customfield_10188 == engineer (is array of objects)
             // customfield_10183 = engineer
-            issueObj.engineers.push(issue.fields.customfield_10183.displayName)
-            if(Array.isArray(issue.fields.customfield_10188)) {
-                for(engineerData of issue.fields.customfield_10188) {
-                    engineerData.displayName
-                    if (-1 ===  issueObj.engineers.indexOf(engineerData.displayName)) {
-                        issueObj.engineers.push(engineerData.displayName)
+
+            // The custom fields have many undefined and null values so
+            // every level has to be checked
+            if (
+                null != issue.fields && 
+                null != issue.fields.customfield_10183 &&
+                null != issue.fields.customfield_10183.displayName
+            ) {
+                issueObj.engineers.push(issue.fields.customfield_10183.displayName)
+            }
+            if ( null != issue.fields && null !== issue.fields.customfield_10188) {
+                if(Array.isArray(issue.fields.customfield_10188)) {
+                    for(let engineerData of issue.fields.customfield_10188) {
+                        if( null != engineerData && null != engineerData.displayName) {
+                            if (-1 ===  issueObj.engineers.indexOf(engineerData.displayName)) {
+                                issueObj.engineers.push(engineerData.displayName)
+                            }
+                        }
+                    }
+                } else {
+                    if (
+                        null != issue.fields && 
+                        null != issue.fields.customfield_10188 &&
+                        null != issue.fields.customfield_10188.displayName
+                    ) {
+                        issueObj.engineers.push(issue.fields.customfield_10188.displayName)   
                     }
                 }
-            } else {
-                issueObj.engineers.push(issue.fields.customfield_10188.displayName)
+            }
+
+            return issueObj;
+    }
+
+    setQualityEngineers(issueObj, issue) {
+        // customfield_10184 == qe 
+        // customfield_10185 == qes (is an array of objects)
+
+        // The custom fields have many undefined and null values so
+        // every level has to be checked
+        if (
+            null != issue.fields && 
+            null != issue.fields.customfield_10185 &&
+            null != issue.fields.customfield_10185.displayName
+        ) {
+            console.log(issue.fields.customfield_10185)
+            issueObj.qes.push(issue.fields.customfield_10185.displayName)  
+        }
+
+        if ( null != issue.fields && null != issue.fields.customfield_10185) {
+            if(Array.isArray(issue.fields.customfield_10185)) {
+                for(let qeData of issue.fields.customfield_10185) {
+                    if(null != qeData.displayName) {
+                        if (-1 ===  issueObj.qes.indexOf(qeData.displayName)) {
+                            issueObj.qes.push(qeData.displayName)
+                        }
+                    } 
+                }
             }
         } else {
-            // customfield_10184 == qe 
-            // customfield_10185 == qes (is an array of objects)
-            issueObj.qes.push(issue.fields.customfield_10184.displayName)
-            if(Array.isArray(issue.fields.customfield_10185)) {
-                for(qeData of issue.fields.customfield_10185) {
-                    qeData.displayName
-                    if (-1 ===  issueObj.qes.indexOf(qeData.displayName)) {
-                        issueObj.qes.push(qeData.displayName)
-                    }
-                }
-            } else {
-                issueObj.qes.push(issue.fields.customfield_10188.displayName)
+            if(
+                null != issue.fields &&
+                null != issue.fields.customfield_10184 &&
+                'undefined' !== typeof issue.fields.customfield_10184 &&
+                null != issue.fields.customfield_10184.displayName
+            ) {
+                issueObj.qes.push(issue.fields.customfield_10184.displayName)
             }
         }
-        return issueObj
+        return issueObj;
     }
+
     async getSprintIssues(sprintId, boardId) {
         const sprintIssues = []
 
-        // customfield_10023 == story point
-        // customfield_10188 == engineer (is array of objects)
-        // customfield_10183 = engineer
-        // customfield_10184 == qe 
-        // customfield_10185 == qes (is an array of objects)
         this.JiraRest.setRoute(
             this.baseRoutePath + 
             `/rest/agile/1.0/board/${boardId}/sprint/${sprintId}/issue?
@@ -88,7 +130,7 @@ export class SprintBoards {
      
         for( const issue of data.issues) {
             if( boardId === issue.fields.customfield_10020[0].boardId ) {
-                const iss = this.getIssueShell();
+                let iss = this.getIssueShell();
                 iss.ticketId = issue.key;
                 iss.issueName = issue.fields.summary;
                 iss.issueLink = this.baseRoutePath +
@@ -103,8 +145,8 @@ export class SprintBoards {
                     iss.assignee = issue.fields.assignee.displayName;
                 }
 
-            //     iss = this.setEngineersOrQEs(iss, issue, true);
-            //     iss = this.setEngineersOrQEs(iss, issue, false);
+                iss = this.setEngineers(iss, issue);
+                iss = this.setQualityEngineers(iss, issue);
 
             //     if(isNaN(issue.fields.customfield_10023)) {
             //         issue.fields.customfield_10023 = 0.0
@@ -210,8 +252,7 @@ export class SprintBoards {
                 completed: 0,
                 estimated: 0,
             }
-        }
-        
+        }   
     }
     getIssueModelShell() {
         return {
