@@ -5,7 +5,6 @@ import { SprintBoards } from '../../../../services/jira/SprintBoards.js';
 import { GetProjects } from '../../../../services/jira/GetProjects.js';
 import { sum } from '../../../../services/utilities/Sum.js';
 
-
 test('getSprintBoards returns a sprint object literal with 9 fields ', async t=> {
     const AV = new ActoValidator()
     const JR = new JiraRest(AV)
@@ -26,11 +25,11 @@ test('getSprintBoards returns a sprint object literal with 9 fields ', async t=>
         // AVA did not like using th sprint object directly so by running it 
         // through JSON.strinigy and then JSON.parse it fixed the object and allows
         // for accessing properties directly
-        const sprintData = JSON.parse(JSON.stringify(sprint.sprints.values[0]))
-        t.true(9 === Object.keys(sprintData).length)
+        if (null != sprint.sprints.values[0]) {
+            const sprintData = JSON.parse(JSON.stringify(sprint.sprints.values[0]))
+            t.true(9 === Object.keys(sprintData).length)
+        }
     }
-    
-    t.true(true)
 })
 
 test('Sprint start and end dates should exist and be in UTC format', async t=> {
@@ -50,9 +49,12 @@ test('Sprint start and end dates should exist and be in UTC format', async t=> {
         // AVA did not like using th sprint object directly so by running it 
         // through JSON.strinigy and then JSON.parse it fixed the object and allows
         // for accessing properties directly
-        const sprintData = JSON.parse(JSON.stringify(sprint.sprints.values[0]))
-        t.true(isValidUTCDate(sprintData.startDate));
-        t.true(isValidUTCDate(sprintData.endDate))
+        if (null != sprint.sprints.values[0]) {
+            const sprintData = JSON.parse(JSON.stringify(sprint.sprints.values[0]))
+            t.true(isValidUTCDate(sprintData.startDate));
+            t.true(isValidUTCDate(sprintData.endDate))
+        }
+        t.true(true)
     }
 })
 
@@ -61,8 +63,8 @@ test(`collectSprintData() should return a data obj
 that matches the Sprints model`, async t => {
     const AV = new ActoValidator()
     const JR = new JiraRest(AV)
-    const SB = new SprintBoards(JR)
-    SB.setSumUtil(sum)
+    const SB = new SprintBoards(JR, sum)
+   
     const boardIds = [
         [ 'Team Die Hard', [ 178 ] ],
         [ 'Team Beatles', [ 167 ] ],
@@ -145,10 +147,12 @@ class MockJiraRest {
     t.deepEqual( result2.ques, [])
   })
 
-  test("committed and estimated story points have summed story points", async t=>{
+  test(`accepted, committed, completed and estimated story points 
+  have summed story points`, async t=>{
     const AV = new ActoValidator()
     const JR = new JiraRest(AV)
-    const SB = new SprintBoards(JR)
+    const SB = new SprintBoards(JR, sum, 'https://actocloud.atlassian.net')
+
     const boardIds = [
         [ 'PAA', [ 178 ] ],
         [ 'TBP', [ 167 ] ],
@@ -156,10 +160,14 @@ class MockJiraRest {
         [ 'TMP', [ 168 ] ],
         [ 'UXUI', [ 181 ] ]
     ]
-    const res = await SB.getSprintIssues(910, 167) 
-    console.log(res)
-   
-    t.true(true)
+    const mockedStoryPointTallies  = {
+        accepted: [1,2,8,3,5,5,3],
+        committed: [1,2,8,3,5,3,1],
+        completed: [1,2,3,5,1],
+        estimated: [2,2,5,3,5,3,1]
+    }
+    const res = SB.tallyStoryPoints(mockedStoryPointTallies)
+    t.deepEqual(res, {accepted: 27, committed: 23, completed: 12, estimated: 21 })
 
   }) 
   

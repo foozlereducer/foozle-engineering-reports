@@ -12,3 +12,80 @@ To run the tests you need to do the following:
        ( matches test titles containing foo) or move the wildcard around like:
        ava --match='foo*' ( names starting with foo)
 3. Here are ava docs for more options: https://github.com/avajs/ava/blob/main/docs/05-command-line.md
+
+TDD steps for tallyStoryPoints
+
+/******* Step 1 *******/
+// code
+  tallyStoryPoints(points) {
+        return {
+            accepted: 0,
+            committed: 0,
+            completed: 0,
+            estimated: 0
+        }
+    }
+
+    // Tests
+    test(`accepted, committed, completed and estimated story points 
+  have summed story points`, async t=>{
+    const AV = new ActoValidator()
+    const JR = new JiraRest(AV)
+    const SB = new SprintBoards(JR, sum, 'https://actocloud.atlassian.net')
+    const boardIds = [
+        [ 'PAA', [ 178 ] ],
+        [ 'TBP', [ 167 ] ],
+        [ 'TEP', [ 170 ] ],
+        [ 'TMP', [ 168 ] ],
+        [ 'UXUI', [ 181 ] ]
+    ]
+    const mockedStoryPointTallies  = {
+        storyPointTotal: {
+            accepted: [1,2,8,3,5,5,3],
+            committed: [1,2,8,3,5,3,1],
+            completed: [1,2,3,5,1],
+            estimated: [2,2,5,3,5,3,1]
+        }
+    }
+    const res = SB.tallyStoryPoints(mockedStoryPointTallies)
+    t.deepEqual(res, {accepted: 27, committed: 23, completed: 12, estimated: 21 })
+  }) 
+
+  //test feedback
+  ✘ [fail]: SprintBoard › accepted, committed, completed and estimated story points have summed story points
+  Difference (- actual, + expected):
+    {
+  -   accepted: 0,
+  +   accepted: 27,
+  -   committed: 0,
+  +   committed: 23,
+  -   completed: 0,
+  +   completed: 12,
+  -   estimated: 0,
+  +   estimated: 21,
+    }
+
+/******* Step 2 *******/
+Do the simplest thing to get the test to pass
+
+ tallyStoryPoints(points) {
+   return {  
+      accepted: 27,
+      committed: 23,
+      completed: 12,
+      estimated: 21,
+   }
+}
+/******* Step 3 *******/
+Continue to make the test pass by filling in functionality 
+
+// this.sum is set in the constructor
+
+tallyStoryPoints(points) {
+   return {
+      accepted: this.sum(points.accepted),
+      committed: this.sum(points.committed),
+      completed: this.sum(points.completed),
+      estimated: this.sum(points.estimated)
+   }
+}
