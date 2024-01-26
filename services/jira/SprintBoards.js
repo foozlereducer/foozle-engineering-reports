@@ -1,17 +1,13 @@
 import { MergeObjs } from "../utilities/MergeObjects.js";
 import { sum } from "../utilities/Sum.js";
 export class SprintBoards {
-    sum;
 
-    constructor(jiraRest,  basePath = 'https://actocloud.atlassian.net', ) {
+    constructor(jiraRest, sum, basePath = 'https://actocloud.atlassian.net', ) {
         this.JiraRest = jiraRest;
         this.baseRoutePath = basePath;
         this.sprintBoards = [];
         this.completedStoryPoints = [];
         this.committedStoryPoints = [];
-      
-    }
-    setSumUtil(sum) {
         this.sum = sum;
     }
 
@@ -176,6 +172,15 @@ export class SprintBoards {
         return sprintIssues;
     }
 
+    tallyStoryPoints(points) {
+        return {
+            accepted: this.sum(points.accepted),
+            committed: this.sum(points.committed),
+            completed: this.sum(points.completed),
+            estimated: this.sum(points.estimated)
+        }
+    }
+
     async collectSprintData(boardIds) {
         const sprints = await this.getSprintBoards(boardIds);
         const boardIdsOnly = this.getBoardIdsOnly(boardIds);
@@ -186,24 +191,25 @@ export class SprintBoards {
         // on how the boardIds are set.
         let index = -1;
         let i = 0;
+        let issueModelShellObj;
         let sprintModelShellObj;
         for(const sprint of sprints) {
-            sprintModelShellObj = this.getIssueModelShell();
-            sprintModelShellObj.team = boardIds[0];
-            i++;
-            let sprintObj = { 
-                id: sprint.id, 
-                name: sprint.name,
-                desc: sprint.description,
-                goal: sprint.goal,
-                startDate: sprint.startDate,
-                endDate: sprint.endDate,
-            }
+            issueModelShellObj = this.getIssueModelShell();
+            issueModelShellObj.team = boardIds[0];
+            // Set Sprint properties
+            sprintModelShellObj = this.getSprintModelShell();
+            sprintModelShellObj.id = sprint.id;
+            sprintModelShellObj.name = sprint.name;
+            sprintModelShellObj.desc = sprint.description;
+            sprintModelShellObj.goal = sprint.goal;
+            sprintModelShellObj.startDate = sprint.startDate;
+            sprintModelShellObj.endDate = sprint.endDate;
+            // sprintModelShellObj.
+      
+            issueModelShellObj.team = boardIds[0];
+            issueModelShellObj.sprint = sprintModelShellObj;
 
-            sprintModelShellObj.team = boardIds[0];
-            sprintModelShellObj.sprint = sprintObj;
-
-
+            // Include only the board ids that are our core boards 
             index = boardIdsOnly.indexOf(sprint.sprints.values[0].originBoardId);
             if (-1 !== index) {
               
@@ -233,6 +239,24 @@ export class SprintBoards {
                 //     issue.storyPoints.committed = this.sum(this.committedStoryPoints)
                 // }
                 
+            }
+        }
+    }
+    getSprintModelShell() {
+        return {
+            sprint: { 
+                id: 0, 
+                name: '',
+                desc: '',
+                goal: '',
+                storyPoointTotal: {
+                    accepted: 0,
+                    committed: 0,
+                    completed: 0,
+                    estimated: 0,
+                },
+                startDate: new Date(),
+                endDate: new Date(),
             }
         }
     }
