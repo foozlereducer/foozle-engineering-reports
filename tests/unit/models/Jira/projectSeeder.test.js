@@ -1,6 +1,6 @@
 import test from 'ava';
 import { Projects } from '../../../../models/Jira/projects.js';
-import { ProjectsSeeder } from '../../../../services/metrics/projects-seeder.js';
+import { ProjectsSeeder } from '../../../../seeders/projects-seeder.js'
 import { connectDB } from '../../../../datatabase/db.js';
 
 test("Project seeder runner", async t=> {
