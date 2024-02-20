@@ -16,6 +16,12 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login,
+  },
+  {
+    path: '/sampleMetric',
+    name: 'sampleMetric',
+    component: () => import('../src/views/SampleMetric.vue'),
+    meta: {requiresAuth: true}
   }
   
 ];

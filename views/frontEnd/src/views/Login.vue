@@ -3,8 +3,7 @@
     <h1>Login Page</h1>
     <button @click="handleSignIn" v-if="!isAuthenticated">Sign In with Google</button>
   </div>
-  <router-link :to="{ name: 'Home' }" >Home</router-link> 
-  <router-link :to="{ name: 'Login' }" v-if="!isAuthenticated">| Login</router-link>
+  
 </template>
 
 <script setup>
