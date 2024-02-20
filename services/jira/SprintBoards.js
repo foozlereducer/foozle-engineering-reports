@@ -2,18 +2,18 @@ import { MergeObjs } from "../utilities/MergeObjects.js";
 import { sum } from "../utilities/Sum.js";
 export class SprintBoards {
 
-    constructor(jiraRest, sum, basePath = 'https://actocloud.atlassian.net', ) {
+    constructor(jiraRest, StoryPoints, basePath = 'https://actocloud.atlassian.net' ) {
         this.JiraRest = jiraRest;
         this.baseRoutePath = basePath;
         this.sprintBoards = [];
         this.completedStoryPoints = [];
         this.committedStoryPoints = [];
-        this.sum = sum;
+        this.SP = StoryPoints;
     }
 
-    async getSprintBoards(boardIds) {
+    async getSprintBoards(boardIds, state = 'active') {
         for(const id of boardIds) {
-            this.JiraRest.setRoute(this.baseRoutePath + `/rest/agile/1.0/board/${id[1][0]}/sprint?state=active`);
+            this.JiraRest.setRoute(this.baseRoutePath + `/rest/agile/1.0/board/${id[1][0]}/sprint?state=${state}`);
             let sprints = await this.JiraRest.runRoute();
             this.sprintBoards.push({
                 boardId: id[1][0], 
@@ -24,6 +24,16 @@ export class SprintBoards {
 
         return this.sprintBoards;
     }
+
+    async getEstimatedStoryPoints(boardIds) {
+        
+        for(const id of boardIds) {
+            let sprint = await this.getSprintBoards(boardIds, 'future');
+            
+        }
+        return futureSprintBoards;
+    }
+
     getBoardIdsOnly(boardIds) {
         let boardIdsOnly = []
         for(const obj of boardIds) {
@@ -84,7 +94,6 @@ export class SprintBoards {
             null != issue.fields.customfield_10185 &&
             null != issue.fields.customfield_10185.displayName
         ) {
-            console.log(issue.fields.customfield_10185)
             issueObj.qes.push(issue.fields.customfield_10185.displayName)  
         }
 
@@ -144,20 +153,11 @@ export class SprintBoards {
                 iss = this.setEngineers(iss, issue);
                 iss = this.setQualityEngineers(iss, issue);
 
-            //     if(isNaN(issue.fields.customfield_10023)) {
-            //         issue.fields.customfield_10023 = 0.0
-            //     }
+                if(isNaN(issue.fields.customfield_10023)) {
+                    issue.fields.customfield_10023 = 0.0
+                }
             
-            //     // customfield_10023 === story point field
-            //     if( 
-            //         issue.fields.status.name === 'Done' ||
-            //         issue.fields.status.name === 'Ready To Release'
-            //     ) {
-            //         this.completedStoryPoints.push(issue.fields.customfield_10023) 
-
-            //     } else {
-            //         this.committedStoryPoints.push(issue.fields.customfield_10023) 
-            //     }
+               
 
             //     if ( 'undefined' === typeof this.sum ) {
             //         this.sum = sum;
@@ -171,15 +171,7 @@ export class SprintBoards {
         
         return sprintIssues;
     }
-
-    tallyStoryPoints(points) {
-        return {
-            accepted: this.sum(points.accepted),
-            committed: this.sum(points.committed),
-            completed: this.sum(points.completed),
-            estimated: this.sum(points.estimated)
-        }
-    }
+    
 
     async collectSprintData(boardIds) {
         const sprints = await this.getSprintBoards(boardIds);

@@ -28,12 +28,13 @@ test('Project model can save and retrieve data', async t=> {
         boardId: [167]
     };
 
-     // Save data to the in-memory MongoDB
-     const result = await ProjectIndex.create(data);
+    // Save data to the in-memory MongoDB
+    const result = await ProjectIndex.create(data);
 
-     // Retrieve data and check if it matches what we saved
-     const retrievedData = await ProjectIndex.findById(result._id);
-     console.log(retrievedData)
-     //t.deepEqual(retrievedData.toObject(), result.toObject());
-     t.true(true)
+    // Retrieve data and check if it matches what we saved
+    const retrievedData = await ProjectIndex.findById(result._id);
+    t.is(retrievedData.key, data.key)
+    t.is(retrievedData.name, data.name)
+    t.is(retrievedData.core, data.core)
+    t.deepEqual(retrievedData.boardId, data.boardId)
 })

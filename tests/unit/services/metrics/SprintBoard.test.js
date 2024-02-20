@@ -147,28 +147,6 @@ class MockJiraRest {
     t.deepEqual( result2.ques, [])
   })
 
-  test(`accepted, committed, completed and estimated story points 
-  have summed story points`, async t=>{
-    const AV = new ActoValidator()
-    const JR = new JiraRest(AV)
-    const SB = new SprintBoards(JR, sum, 'https://actocloud.atlassian.net')
-
-    const boardIds = [
-        [ 'PAA', [ 178 ] ],
-        [ 'TBP', [ 167 ] ],
-        [ 'TEP', [ 170 ] ],
-        [ 'TMP', [ 168 ] ],
-        [ 'UXUI', [ 181 ] ]
-    ]
-    const mockedStoryPointTallies  = {
-        accepted: [1,2,8,3,5,5,3],
-        committed: [1,2,8,3,5,3,1],
-        completed: [1,2,3,5,1],
-        estimated: [2,2,5,3,5,3,1]
-    }
-    const res = SB.tallyStoryPoints(mockedStoryPointTallies)
-    t.deepEqual(res, {accepted: 27, committed: 23, completed: 12, estimated: 21 })
-
-  }) 
+ 
   
   // Add more tests for other methods as needed
