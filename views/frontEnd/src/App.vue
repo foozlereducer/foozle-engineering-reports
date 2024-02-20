@@ -1,16 +1,19 @@
 <template>
   <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+    <router-link :to="{ name: 'Home' }" >Home</router-link> 
+    <router-link :to="{ name: 'sampleMetric' }"> | SampleMetric</router-link>
+    <router-link :to="{ name: 'Login' }" v-if="!isAuthenticated"> | Login</router-link>
   </div>
   <router-view></router-view>
   
 </template>
+<script setup>
+import { useAuthStore } from '../src/stores/authStore';
 
+const authStore = useAuthStore(); // Access the auth store
+
+const isAuthenticated = authStore.isAuthenticated; // Get the authentication state
+</script>
 <style scoped>
 .logo {
   height: 6em;
