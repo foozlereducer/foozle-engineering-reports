@@ -1,9 +1,11 @@
 export class StoryPoints {
-    constructor(sum) {
+    constructor(sum, Dates) {
         this.sum = sum;
+        this.Dates = Dates;
     }
-    a() {
-         // // customfield_10023 === story point field
+
+    categorieStoryPoints() {
+                const today = this.Dates.getNow();
                 // if( 
                 //     issue.fields.status.name === 'Done' ||
                 //     issue.fields.status.name === 'Ready To Release'

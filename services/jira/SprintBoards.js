@@ -25,14 +25,11 @@ export class SprintBoards {
         return this.sprintBoards;
     }
 
-    async getFutureSprints(boardIds) {
-        let futureSprintBoards = [];
+    async getEstimatedStoryPoints(boardIds) {
+        
         for(const id of boardIds) {
             let sprint = await this.getSprintBoards(boardIds, 'future');
-            futureSprintBoards.push({
-                boardId: id[1][0], 
-                sprints: sprints,
-            })
+            
         }
         return futureSprintBoards;
     }

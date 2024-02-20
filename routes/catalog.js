@@ -7,8 +7,9 @@ import {
     story_points_delete_post
 } from '../controllers/story_point_controller.js'
 
-
+import { firebaseConfigGet } from '../controllers/firebaseConfigController.js'
 router.get("/", index)
+.get("/firebaseConfig", firebaseConfigGet)
 
 .get(
     "/story_points/create",

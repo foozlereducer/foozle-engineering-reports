@@ -7,11 +7,7 @@ const Schema = mongoose.Schema;
  * Issues Report Schema
  */
 export const appConfigSchema = new Schema({
-    configName: {
-        type: String,
-        required: true
-    },
-    configValue:{
+    configKeyPair: {
         type: {},
         required: true
     }

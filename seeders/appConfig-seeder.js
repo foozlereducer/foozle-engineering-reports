@@ -5,32 +5,30 @@ export class AppConfigSeeder {
    
     async seed() {
         await connectDB();
-        await AppConfig.insertMany([
+        const res = await AppConfig.insertMany([
             {
-                configName: 'FirebaseApiKey',
-                configValue: 'AIzaSyB7Pz8c1ROjSYUHk0WTH9Yo_Bmde0mkKcI'
+                configKeyPair: {"FirebaseApiKey":"AIzaSyB7Pz8c1ROjSYUHk0WTH9Yo_Bmde0mkKcI"}
             },
             {
-                configName: 'FirebaseAuthDomain',
-                configValue: '"engineering-reports.firebaseapp.com'
+                configKeyPair: {"FirebaseAuthDomain": "engineering-reports.firebaseapp.com"}
             },
             {
-                configName: 'FirebaseProjId',
-                configValue: 'engineering-reports'
+                configKeyPair: {"FirebaseProjId" : "engineering-reports"}
             },
             {
-                configName: 'FirebaseStorageBucket',
-                configValue: 'engineering-reports.appspot.com'
+                configKeyPair:{"FirebaseStorageBucket": "engineering-reports.appspot.com"}
             },
             {
-                configName: 'FirebaseMsgSenderId',
-                configValue: '664561984154'
+                configKeyPair: {"FirebaseMsgSenderId": "664561984154"}
             },
             {
-                configName: 'FirebaseAppId',
-                configValue: '1:664561984154:web:23971fecb654bb3e8a7523'
+                configKeyPair: {"}FirebaseAppId": "1:664561984154:web:23971fecb654bb3e8a7523"}
             }
            
         ])
+
+        console.log('AppConfigSeeder results')
+        console.log(res)
+        return res;
     }
 }
