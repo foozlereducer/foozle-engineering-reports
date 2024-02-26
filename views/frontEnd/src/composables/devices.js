@@ -1,6 +1,6 @@
 export const devices = {
     phone: {
-        size: 600,
+        size: 480,
         type: 'phone'
     },
     tablet: {

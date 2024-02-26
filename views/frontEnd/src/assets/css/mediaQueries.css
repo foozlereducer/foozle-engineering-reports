@@ -1,6 +1,6 @@
 /**
  * Basic CSS Media Query Template
- * Author: Michael Vieth
+ * Author: Michael Vieth - modified for the app by Steve Browning
  * Source: https://gist.github.com/mavieth/e0c8fdcb72a30d85f57a
  * ------------------------------------------
  *  Responsive Grid Media Queries - 1280, 1024, 768, 480
@@ -10,7 +10,68 @@
  *   480-less    - phone landscape & smaller
  * --------------------------------------------
  */
- @media all and (min-width: 1024px) and (max-width: 1280px) {* {margin: 0; padding: 0;}}
+body {
+   font-family: 'Poppins', sans-serif;
+}
+
+button {
+   font-size: 85%;
+}
+.btn {
+   background-color: var(--background-color);
+   color: #505050;
+   padding: .5em 1em;
+   border: none;
+   outline: none;
+   position: relative;
+   cursor: pointer;
+
+   --background-color: #D9D9D9;
+   --border-color: #A5A5A5;
+   --border-size: 1px;
+}
+
+.btn.btn-border-pop::before {
+   content: '';
+   position:absolute;
+   top:0;
+   bottom:0;
+   right:0;
+   left:0;
+   z-index: -2;
+   border: var(--border-size) solid var(--border-color);
+   transition: top, left, right, bottom, 100ms ease-in-out;
+   border-radius: 4px;
+}
+
+
+.btn.btn-border-pop:hover::before,
+.btn.btn-border-pop:focus::before {
+   top: calc(var(--border-size) * -2);
+   left: calc(var(--border-size) * -2);
+   right: calc(var(--border-size) * -2);
+   bottom: calc(var(--border-size) * -2);
+}
+
+.btn.large-button {
+   font-size: 14px;
+   border-radius: 4px;
+}
+.btn.square {
+   width: 100%;
+   height: 0;
+   padding-top: 100%;
+}
+button {
+   display: flex;
+}
+ 
+
+@media all and (min-width: 1024px) and (max-width: 1280px) {
+   * {margin: 0; padding: 0;}
+}
+
+
 
  @media all and (min-width: 768px) and (max-width: 1024px) {* {margin: 0; padding: 0;}}
 
