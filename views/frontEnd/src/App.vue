@@ -1,16 +1,15 @@
 <template>
-  <div>
-    <Icon />
-    <router-link :to="{ name: 'Home' }" >Home</router-link> 
-    <router-link :to="{ name: 'sampleMetric' }"> | SampleMetric</router-link>
-    <router-link :to="{ name: 'Login' }" v-if="!isAuthenticated"> | Login</router-link>
+  <div class="wrapper">
+    <Header />
+    <Nav />
+    <router-view></router-view>
   </div>
-  <router-view></router-view>
-  
 </template>
 <script setup>
 import { useAuthStore } from '../src/stores/authStore';
 import Icon from '../src/components/Icon.vue'
+import Header from '../src/components/Header.vue'
+import Nav from '../src/components/Nav.vue'
 
 const authStore = useAuthStore(); // Access the auth store
 

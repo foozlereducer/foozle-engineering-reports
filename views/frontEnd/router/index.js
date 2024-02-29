@@ -10,7 +10,7 @@ const routes = [
     path: '/',
     name: 'Home',
     component: Home,
-    meta: { requiresAuth: true }, // Optional: Set meta data for route guarding
+    meta: { requiresAuth: false }, // Optional: Set meta data for route guarding
   },
   {
     path: '/login',
