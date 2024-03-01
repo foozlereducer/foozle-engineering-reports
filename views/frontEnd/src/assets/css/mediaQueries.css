@@ -11,6 +11,8 @@
  * --------------------------------------------
  */
 body {
+   background-image:url('../images/desktop_tablet_bk.png');
+   background-repeat:repeat;
    font-family: 'Poppins', sans-serif;
    font-size: 1.9rem; 
 }
@@ -23,8 +25,15 @@ body {
      "sd sd sd main main main main main main"
      "sd sd sd  ft  ft   ft   ft   ft   ft";
 }
+.center-col {
+   display: block;
+   grid-column: 1 / span 9;
+   grid-row: 2 / span 9;
+   background: rgba(0,0,0,0.4);
+   color: white;
+}
 /** Header **/
-header {
+.main-header{
    display: grid;
    grid-area: hd;
    grid-column: 1 / span 9; /* Span from the first column to the last column */
@@ -33,7 +42,9 @@ header {
    gap: 0; /* Adjust the gap between logo and sub-header */
    width: 100%; /* Ensure the header spans the entire width of the parent container */
    padding-bottom: 10px;
-   box-shadow: 0 0 4px 0 rgba(99, 89, 71, 0.08), 0 2px 4px 0 rgba(68, 58, 43, 0.12);
+   box-shadow: 0 0 4px 0 rgba(99, 89, 71, 0.08), 0 2px 4px 0 rgba(0, 0, 0, 0.12);
+   color: white;
+   background: rgba(0,0,0,0.4);
 }
 
 .sub-header {
@@ -42,18 +53,18 @@ header {
    flex-direction: column; /* Arrange items vertically */
    justify-content: center; /* Center items horizontally */
    align-items: center; /* Center items vertically */
-   gap: 5px; /* Adjust the gap between elements within sub-header */
+
 }
 
 header .logo {
-   grid-column: col-start -1 / span 2;
+   grid-column: col-start -2 / span 2;
    justify-items: center;
-   width: 300px;
+   width: 100px;
+   gap: 5px;
 }
 
 header h1 {
-   color: #006358;
-   font-size: 18px;
+   font-size: 2.4rem;
 }
 
 nav {
@@ -86,64 +97,76 @@ nav {
    height: 20px;
 } */
 
+/** 
+   Desktop
+*/
 @media all and (min-width: 1024px) and (max-width: 1280px) {
    * {margin: 0; padding: 0;}
 }
 
-
-
- @media all and (min-width: 768px) and (max-width: 1024px) {
-   .header {
-      font-size: 1.0rem; 
+/**
+   Tablet
+*/
+ @media all and (min-width: 480px) and (max-width: 768px) {
+   header {
+      font-size: 1.6rem; 
    }
-   .header img{
+
+   header h1{
+      font-size: 1.8rem;
+   }
+   header .logo{
       width: 200px;
+   }
+   header .bars {
+      width: 300px
    }
    
 
    * {margin: 0; padding: 0;}
 }
 
- @media all and (min-width: 480px) and (max-width: 768px) {* {margin: 0; padding: 0;}}
 
- @media all and (max-width: 480px) {* {margin: 0; padding: 0;}}
-
-
- /* Portrait */
- @media screen and (orientation:portrait) { 
-   /* Portrait styles here */ 
+/**
+ Mobile
+*/
+ @media all and (max-width: 481px) {
+   body {
+      background-image:url('../images/mobile_bk.png');
+   }
+   .sub-header {
+      grid-column: col-start 1 / 2; /* Start from col-start 3 and end at col-start 9 */
+      text-align: center;
+      gap: 5px; /* Adjust the gap between elements within sub-header */
+   }
+   
+   header .logo,
+   header .bars {
+      display:none;
+   }
+   
+   header h1 {
+      color: #ffffff;
+      font-size: 18px;
+   }
+   
+   nav {
+      grid-column: col-start 1 / col-start 3;
+   }
+   
+   .auth {
+      position: fixed;
+      top: 10px; /* Adjust the top position as needed */
+      right: 10px; /* Adjust the right position as needed */
+   }
+   
+   .auth a {
+      text-decoration: none;
+      font-size:medium;
+   }
    * {margin: 0; padding: 0;}
 }
- /* Landscape */
- @media screen and (orientation:landscape) { 
-   /* Landscape styles here */ 
-   * {margin: 0; padding: 0;}
-}
 
 
- /* CSS for iPhone, iPad, and Retina Displays */
-
- /* Non-Retina */
- @media screen and (-webkit-max-device-pixel-ratio: 1) {* {margin: 0; padding: 0;}}
-
- /* Retina */
- @media only screen and (-webkit-min-device-pixel-ratio: 1.5),
-    only screen and (-o-min-device-pixel-ratio: 3/2),
-    only screen and (min--moz-device-pixel-ratio: 1.5),
-    only screen and (min-device-pixel-ratio: 1.5)  {* {margin: 0; padding: 0;}}
-
- /* iPhone Portrait */
- @media screen and (max-device-width: 480px) and (orientation:portrait) {* {margin: 0; padding: 0;}}
-
- /* iPhone Landscape */
- @media screen and (max-device-width: 480px) and (orientation:landscape) {* {margin: 0; padding: 0;}}
-
- /* iPad Portrait */
-@media screen and (min-device-width: 481px) and (orientation:portrait) {
-   * {margin: 0; padding: 0;}
-}
-
- /* iPad Landscape */
- @media screen and (min-device-width: 481px) and (orientation:landscape) {
-   * {margin: 0; padding: 0;}
-}
+ 
+ 

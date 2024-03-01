@@ -1,8 +1,11 @@
 <template>
   <div class="wrapper">
-    <Header />
-    <Nav />
-    <router-view></router-view>
+      <Header class="main-header" />
+      
+      <section class="center-col">
+        <Nav />
+       <router-view class="center-col"></router-view>
+      </section>
   </div>
 </template>
 <script setup>
