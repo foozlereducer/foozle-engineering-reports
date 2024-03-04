@@ -22,7 +22,7 @@ body {
    grid-auto-rows: minmax(100px, auto);
    grid-template-areas:
      "hd hd hd hd   hd   hd   hd   hd   hd"
-     "sd sd sd main main main main main main"
+     "nav nav nav main main main main main main"
      "sd sd sd  ft  ft   ft   ft   ft   ft";
 }
 .center-col {
@@ -45,6 +45,9 @@ header.main-header {
    box-shadow: 0 0 4px 0 rgb(255 210 127 / 8%), 0 2px 4px 0 rgb(205 191 173);
    color: white;
    background: rgba(0,0,0,0.4);
+   position: fixed;
+   z-index: 1000;
+   transition: .5s ease all;
 }
 
 .sub-header {
@@ -79,19 +82,36 @@ header h1 {
 /**
  * Navigation
  */
-nav {
-   grid-column: col-start 5 / col-start 8;
-   display: flex;
-   flex-direction:column;
+ nav {
+   grid-area: nav;
    padding: 12px 0 0 0;
    transition: 0.5s ease all;
+   width: 100%;
+   display: flex;
+   justify-content: center;
 }
 
-ul .link {
-   font-weight: 500;
-   color:#ffffff;
+nav ul {
    list-style: none;
+   padding: 0;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   flex-direction: row; /* Display items horizontally */
+}
+
+nav ul li {
+   margin: 0 10px; /* Adjust margin between menu items */
+   list-style: none; 
+}
+
+nav ul li a {
    text-decoration: none;
+   color: #ffffff; /* Adjust the color as needed */
+}
+
+nav ul li a:hover {
+   text-decoration: underline;
 }
 
 /**
