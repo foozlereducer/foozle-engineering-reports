@@ -33,7 +33,7 @@ body {
    color: white;
 }
 /** Header **/
-.main-header{
+header.main-header {
    display: grid;
    grid-area: hd;
    grid-column: 1 / span 9; /* Span from the first column to the last column */
@@ -42,35 +42,61 @@ body {
    gap: 0; /* Adjust the gap between logo and sub-header */
    width: 100%; /* Ensure the header spans the entire width of the parent container */
    padding-bottom: 10px;
-   box-shadow: 0 0 4px 0 rgba(99, 89, 71, 0.08), 0 2px 4px 0 rgba(0, 0, 0, 0.12);
+   box-shadow: 0 0 4px 0 rgb(255 210 127 / 8%), 0 2px 4px 0 rgb(205 191 173);
    color: white;
    background: rgba(0,0,0,0.4);
 }
 
 .sub-header {
    grid-column: col-start 3 / col-start 8; /* Start from col-start 3 and end at col-start 9 */
+   grid-row: 1 / 2;
    display: flex; /* Use flexbox */
    flex-direction: column; /* Arrange items vertically */
    justify-content: center; /* Center items horizontally */
    align-items: center; /* Center items vertically */
+   gap: 3px;
+}
 
+.sub-header h1,
+.sub-header p {
+    margin: 0; /* Set margin to 0 */
+    padding: 0; /* Set padding to 0 */
 }
 
 header .logo {
-   grid-column: col-start -2 / span 2;
+   grid-column: col-start -3 / span 2;
+   margin-right: 10px;
    justify-items: center;
    width: 100px;
    gap: 5px;
+   object-fit: cover;
 }
 
 header h1 {
    font-size: 2.4rem;
 }
 
+/**
+ * Navigation
+ */
 nav {
-   grid-column: col-start 1 / col-start 3;
+   grid-column: col-start 5 / col-start 8;
+   display: flex;
+   flex-direction:column;
+   padding: 12px 0 0 0;
+   transition: 0.5s ease all;
 }
 
+ul .link {
+   font-weight: 500;
+   color:#ffffff;
+   list-style: none;
+   text-decoration: none;
+}
+
+/**
+ * Auth
+ */
 .auth {
    position: fixed;
    top: 10px; /* Adjust the top position as needed */

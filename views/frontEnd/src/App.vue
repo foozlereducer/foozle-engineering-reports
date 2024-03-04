@@ -1,7 +1,8 @@
 <template>
   <div class="wrapper">
+
       <Header class="main-header" />
-      
+
       <section class="center-col">
         <Nav />
        <router-view class="center-col"></router-view>
