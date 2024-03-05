@@ -23,10 +23,10 @@ body {
    grid-template-areas:
      "hd hd hd hd   hd   hd   hd   hd   hd"
      "nav nav nav nav  nav   nav   nav   nav   nav"
-     "sd sd sd main main main main main main"
-     "sd sd sd main main main main main main"
+     "sd main main main main main main main main"
+     "sd main main main main main main main main"
      "ft ft ft ft  ft   ft   ft   ft   ft";
-     grid-template-rows: 50px 1fr 1fr 1fr 1fr; /* Adjust row heights */
+     grid-template-rows: 0 1fr 1fr 1fr 1fr; /* Adjust row heights */
 }
 /** Header **/
 header.main-header {
@@ -129,7 +129,7 @@ nav ul li a:hover {
    grid-area: main;
    padding: 10px;
    color: white;
-   background-color: rgba(0,0,0,0.2);
+   background-color: rgba(0,0,0,0.3);
  }
 
  /**
@@ -139,7 +139,7 @@ nav ul li a:hover {
    grid-area: ft;
    padding: 10px;
    color: white;
-   color: white;
+   background-color: rgba(0,0,0,0.3);
  }
 /**
  * Auth

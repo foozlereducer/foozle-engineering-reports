@@ -1,6 +1,5 @@
 <template>
   <div>
-    <button class="btn btn-border-pop">Metrics</button>
-    <button class="btn btn-border-pop">Tools</button>
+   <h3>Home</h3>
   </div>
 </template>

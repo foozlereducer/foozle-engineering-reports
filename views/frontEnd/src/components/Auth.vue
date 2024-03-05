@@ -1,10 +1,13 @@
 <template>
-    <div v-if="!isAuthenticated">
+    <div class="auth">
+      <div v-if="!isAuthenticated" >
         <a @click="handleSignIn" href="#">login</a>
     </div>
     <div v-else>
         <a @click="handleSignOut" href="#">logout</a>
     </div> 
+    </div>
+    
 </template>
 
 <script setup>
