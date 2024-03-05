@@ -1,6 +1,5 @@
 <template>
-    <header :class="{'scrolled-nav':scrollPosition}">
-        <nav>
+        <nav :class="{'scrolled-nav':scrollPosition}">
             <ul v-if="isAuthenticated" v-show="!mobile" class="navigation">
                 <li><router-link class='link' :to="{ name: 'Home' }" >Home</router-link></li>
                 <li><router-link class='link' :to="{ name: 'sampleMetric' }">SampleMetric</router-link></li>
@@ -25,7 +24,6 @@
                 </transition>
             </div>
         </nav>
-    </header>
 </template>
 
 <script setup>

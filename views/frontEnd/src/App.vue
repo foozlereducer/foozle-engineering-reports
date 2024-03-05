@@ -1,19 +1,20 @@
 <template>
   <div class="wrapper">
-
-      <Header class="main-header" />
-
-      <section class="center-col">
-        <Nav />
-       <router-view class="center-col"></router-view>
-      </section>
+    <Header class="main-header"/>
+    <Nav />
+    <MainContent />
+    <Sideboard />
+    <Footer />
   </div>
 </template>
 <script setup>
 import { useAuthStore } from '../src/stores/authStore';
 import Icon from '../src/components/Icon.vue'
-import Header from '../src/components/Header.vue'
-import Nav from '../src/components/Nav.vue'
+import Header from '../src/components/Header.vue';
+import Nav from '../src/components/Nav.vue';
+import MainContent from '../src/components/MainContent.vue';
+import Sideboard from '../src/components/Sidebar.vue';
+import Footer from '../src/components/Footer.vue';
 
 const authStore = useAuthStore(); // Access the auth store
 

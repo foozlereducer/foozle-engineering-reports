@@ -22,19 +22,16 @@ body {
    grid-auto-rows: minmax(100px, auto);
    grid-template-areas:
      "hd hd hd hd   hd   hd   hd   hd   hd"
-     "nav nav nav main main main main main main"
-     "sd sd sd  ft  ft   ft   ft   ft   ft";
-}
-.center-col {
-   display: block;
-   grid-column: 1 / span 9;
-   grid-row: 2 / span 9;
-   background: rgba(0,0,0,0.4);
-   color: white;
+     "nav nav nav nav  nav   nav   nav   nav   nav"
+     "sd sd sd main main main main main main"
+     "sd sd sd main main main main main main"
+     "ft ft ft ft  ft   ft   ft   ft   ft";
+     grid-template-rows: 50px 1fr 1fr 1fr 1fr; /* Adjust row heights */
 }
 /** Header **/
 header.main-header {
    display: grid;
+   position: fixed;
    grid-area: hd;
    grid-column: 1 / span 9; /* Span from the first column to the last column */
    justify-content: center; /* Align the header horizontally */
@@ -45,8 +42,6 @@ header.main-header {
    box-shadow: 0 0 4px 0 rgb(255 210 127 / 8%), 0 2px 4px 0 rgb(205 191 173);
    color: white;
    background: rgba(0,0,0,0.4);
-   position: fixed;
-   z-index: 1000;
    transition: .5s ease all;
 }
 
@@ -84,11 +79,14 @@ header h1 {
  */
  nav {
    grid-area: nav;
-   padding: 12px 0 0 0;
-   transition: 0.5s ease all;
+   position: fixed;
+   top: 70px; /* Adjust as needed to position below header */
+   left: 0;
    width: 100%;
+   color: white;
+   padding: 10px;
    display: flex;
-   justify-content: center;
+   justify-content: center; /* Center horizontally */
 }
 
 nav ul {
@@ -98,6 +96,7 @@ nav ul {
    justify-content: center;
    align-items: center;
    flex-direction: row; /* Display items horizontally */
+   position: fixed;
 }
 
 nav ul li {
@@ -114,6 +113,34 @@ nav ul li a:hover {
    text-decoration: underline;
 }
 
+/**
+   Sidebar
+ */
+ .sidebar {
+   grid-area: sd;
+   padding: 10px;
+   color: white;
+ }
+
+ /**
+  Content
+ */
+ .content {
+   grid-area: main;
+   padding: 10px;
+   color: white;
+   background-color: rgba(0,0,0,0.2);
+ }
+
+ /**
+  Footer
+ */
+ .footer {
+   grid-area: ft;
+   padding: 10px;
+   color: white;
+   color: white;
+ }
 /**
  * Auth
  */
@@ -135,7 +162,7 @@ nav ul li a:hover {
    grid-area: sd;
 }
 .footer {
-   grid-area: sd
+   grid-area: ft;
 }
 
 /* .sub-wrapper img.bars {
