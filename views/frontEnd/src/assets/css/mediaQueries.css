@@ -23,8 +23,8 @@ body {
    grid-template-areas:
      "hd hd hd hd   hd   hd   hd   hd   hd"
      "nav nav nav nav  nav   nav   nav   nav   nav"
-     "sd main main main main main main main main"
-     "sd main main main main main main main main"
+     "sd sd main main main main main main main"
+     "sd sd main main main main main main main"
      "ft ft ft ft  ft   ft   ft   ft   ft";
      grid-template-rows: 0 1fr 1fr 1fr 1fr; /* Adjust row heights */
 }
@@ -84,11 +84,24 @@ header h1 {
    left: 0;
    width: 100%;
    color: white;
+   background-color: rgba(0,0,0,0.3);
    padding: 10px;
    display: flex;
    justify-content: center; /* Center horizontally */
 }
 
+.link {
+   transition: .5s ease all;
+   padding-bottom: 4px;
+   border-bottom: 1px solid transparent;
+   font-weight: 500;
+   color: white;
+}
+
+.link:hover {
+   color: #17BAD0;
+   border-color: #17BAD0;
+}
 nav ul {
    list-style: none;
    padding: 0;
@@ -100,7 +113,9 @@ nav ul {
 }
 
 nav ul li {
-   margin: 0 10px; /* Adjust margin between menu items */
+   margin: 0 10px 0 10px; /* Adjust margin between menu items */
+   padding: 16px;
+   text-transform: uppercase;
    list-style: none; 
 }
 
@@ -109,9 +124,6 @@ nav ul li a {
    color: #ffffff; /* Adjust the color as needed */
 }
 
-nav ul li a:hover {
-   text-decoration: underline;
-}
 
 /**
    Sidebar
@@ -120,6 +132,7 @@ nav ul li a:hover {
    grid-area: sd;
    padding: 10px;
    color: white;
+   background-color: rgba(0,0,0,0.3);
  }
 
  /**
@@ -127,7 +140,7 @@ nav ul li a:hover {
  */
  .content {
    grid-area: main;
-   padding: 10px;
+   padding: 20px;
    color: white;
    background-color: rgba(0,0,0,0.3);
  }
@@ -147,12 +160,19 @@ nav ul li a:hover {
 .auth {
    position: fixed;
    top: 10px; /* Adjust the top position as needed */
-   right: 10px; /* Adjust the right position as needed */
+   right: 100px; /* Adjust the right position as needed */
 }
 
 .auth a {
    text-decoration: none;
    font-size:medium;
+   color: white;
+   border-bottom: 1px solid transparent;
+}
+
+.auth a:hover {
+   color: #17BAD0;
+   border-color: #17BAD0;
 }
 
 .content {
@@ -165,10 +185,73 @@ nav ul li a:hover {
    grid-area: ft;
 }
 
-/* .sub-wrapper img.bars {
-   width: 600px;
-   height: 20px;
-} */
+.icon {
+   display: flex;
+   align-items: center;
+   position: absolute;
+   top: -38px; /* Adjust the top position */
+   right: 50px; /* Adjust the right position */
+   height: 100%;
+}
+
+i {
+   cursor: pointer;
+   font-size: 24px;
+   transition: .8s ease all;
+}
+
+.icon-active {
+   transform: rotate(180deg)
+}
+
+.dropdown-nav {
+   display: flex;
+   flex-direction: column;
+   position: fixed;
+   width: 100%;
+   max-width: 250px;
+   height: 100%;
+   background-color: white;
+   top: 0;
+   left: 0;
+   
+}
+
+.dropdown-nav li {
+   margin-left: 0;
+}
+
+.dropdown-nav li a.link {
+   color:#000;
+}
+
+.dropdown-nav li a:hover, .dropdown-nav li a:active {
+   color: #17BAD0;
+   border-color: #17BAD0;
+}
+
+.mobile-nav-enter-active,
+.mobile-nav-leave-active {
+   transition: 1s ease all;
+}
+
+.mobile-nav-enter-from,
+.mobile-nav-leave-to {
+   transform: translateX(-250px);
+}
+
+.mobile-nav-enter-to {
+   transform: translateX(0);
+}
+
+.fadeLoginLogoutWeb {
+   transition: 3s ease all;
+   display:none;
+}
+
+html, body, header, section, div, h1, h2, h3, h4, p {
+   display: initial;
+}
 
 /** 
    Desktop
@@ -205,37 +288,56 @@ nav ul li a:hover {
 */
  @media all and (max-width: 481px) {
    body {
-      background-image:url('../images/mobile_bk.png');
-   }
-   .sub-header {
-      grid-column: col-start 1 / 2; /* Start from col-start 3 and end at col-start 9 */
+      background-image: url('../images/mobile_bk.png');
+    }
+  
+    .main-mobile-header {
+      display: block;
+      color: #fff;
+      padding: 20px;
       text-align: center;
-      gap: 5px; /* Adjust the gap between elements within sub-header */
+      background: rgba(0, 0, 0, 0.2);
+      box-shadow: 0 0 4px 0 rgb(255 210 127 / 8%), 0 2px 4px 0 rgb(205 191 173);
+      transition: .5s ease all;
+    }
+
+    nav {
+      background-color: rgba(0, 0, 0, 0.0);
+    }
+
+   header .logo {
+      display: block;
+      width: 100%;
+     
    }
-   
-   header .logo,
-   header .bars {
-      display:none;
+
+   header .logo img {
+      max-width: 100%; /* Ensure logo doesn't exceed container width */
+      width: 50px;
+      
+      margin: 0 auto;
    }
-   
-   header h1 {
-      color: #ffffff;
-      font-size: 18px;
+
+   header .sub-header h1 {
+      font-size: 1.4rem;
    }
-   
-   nav {
-      grid-column: col-start 1 / col-start 3;
+
+   .sub-header p {
+      font-size: 1.4rem;
    }
-   
+
    .auth {
-      position: fixed;
-      top: 10px; /* Adjust the top position as needed */
-      right: 10px; /* Adjust the right position as needed */
+      text-align: right; /* Align authentication section to the right */
    }
-   
+  
    .auth a {
       text-decoration: none;
-      font-size:medium;
+      font-size: medium;
+   }
+
+   .mobile-auth a {
+      color: black;
+      font-weight: 500;
    }
    * {margin: 0; padding: 0;}
 }

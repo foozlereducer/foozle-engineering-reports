@@ -1,13 +1,30 @@
 <template>
-  <div class="wrapper">
+  <div class="wrapper" v-if="sizes.device.value == 'desktop'">
+    <!-- Desktop -->
     <Header class="main-header"/>
+    <Nav />
+    <MainContent/>
+    <Sideboard/>
+    <Footer/>
+  </div>
+  <div  v-else-if="sizes.device.value == 'tablet'">
+    <!-- Tablet -->
+    <Header />
     <Nav />
     <MainContent />
     <Sideboard />
     <Footer />
   </div>
+  <div v-else-if="sizes.device.value == 'phone'">
+    <!-- Mobile -->
+    <Mobile />
+  </div>
 </template>
 <script setup>
+import { createDeviceSize } from '../src/composables/deviceSize.js'
+import {devices} from '../src/composables/devices.js'
+const sizes = createDeviceSize(devices);
+import Mobile from './views/Mobile.vue';
 import { useAuthStore } from '../src/stores/authStore';
 import Icon from '../src/components/Icon.vue'
 import Header from '../src/components/Header.vue';
@@ -20,17 +37,4 @@ const authStore = useAuthStore(); // Access the auth store
 
 const isAuthenticated = authStore.isAuthenticated; // Get the authentication state
 </script>
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
-</style>
+

@@ -1,9 +1,12 @@
 // router/index.js
 
 import { createRouter, createWebHistory } from 'vue-router';
-import Home from '../src/views/Home.vue' 
+import Home from '../src/views/Home.vue' ;
+import SampleMetric from '../src/views/SampleMetric.vue';
 import Login from '../src/views/Login.vue';
+
 import { useAuthStore } from '../src/stores/authStore'
+
 
 const routes = [
   {
@@ -20,7 +23,7 @@ const routes = [
   {
     path: '/sampleMetric',
     name: 'sampleMetric',
-    component: () => import('../src/views/SampleMetric.vue'),
+    component: SampleMetric,
     meta: {requiresAuth: true}
   }
   
