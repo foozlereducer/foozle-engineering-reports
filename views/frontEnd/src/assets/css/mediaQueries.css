@@ -11,13 +11,13 @@
  * --------------------------------------------
  */
 body {
-   background-image:url('../images/desktop_tablet_bk.png');
+   background-image:url('../images/background4.png');
    background-repeat:repeat;
    font-family: 'Poppins', sans-serif;
    font-size: 1.9rem; 
+   background-color: rgba(0,0,0,0.2);
 }
 .wrapper {
-   background-color: rgba(0,0,0,0.3);
    display: grid;
    grid-template-columns: repeat(9, [col-start] 1fr);
    grid-auto-rows: minmax(100px, auto);
@@ -41,6 +41,7 @@ header.main-header {
    width: 100%; /* Ensure the header spans the entire width of the parent container */
    padding-bottom: 10px;
    box-shadow: 0 0 4px 0 rgb(255 210 127 / 8%), 0 2px 4px 0 rgb(205 191 173);
+   background-color: rgba(0,0,0,0.5);
    color: white;
    transition: .5s ease all;
 }
@@ -109,6 +110,7 @@ nav ul {
    align-items: center;
    flex-direction: row; /* Display items horizontally */
    position: fixed;
+   background-color: rgba(0,0,0,0.3);
 }
 
 nav ul li {
@@ -137,13 +139,12 @@ nav ul li a {
   Content
  */
  .content {
-   display: flex;
-   flex-direction: column;
-   grid-area: main;
+   display: grid;
    grid-column: 3 / 9;
-   grid-row: 3 / auto;
+   grid-row: 3;
    padding: 20px;
    color: white;
+   background-color: rgba(0,0,0,0.5);
  }
 
  /**
@@ -211,6 +212,7 @@ i {
    background-color: white;
    top: 0;
    left: 0;
+   background-color: rgba(0,0,0,0.3);
    
 }
 
@@ -219,7 +221,7 @@ i {
 }
 
 .dropdown-nav li a.link {
-   color:#000;
+   color:#fff;
 }
 
 .dropdown-nav li a:hover, .dropdown-nav li a:active {
@@ -261,6 +263,9 @@ html, body, header, section, div, h1, h2, h3, h4, p {
    Tablet
 */
  @media all and (min-width: 480px) and (max-width: 768px) {
+   body {
+      background-color: rgba(0,0,0,0.2);
+   }
    header {
       font-size: 1.6rem; 
    }
@@ -285,7 +290,7 @@ html, body, header, section, div, h1, h2, h3, h4, p {
 */
  @media all and (max-width: 481px) {
    body {
-      background-image: url('../images/mobile_bk.png');
+      background-image: url('../images/mobile_bk2.png');
     }
   
     .main-mobile-header {
