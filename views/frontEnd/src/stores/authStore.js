@@ -4,6 +4,8 @@ import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/
 import axios from 'axios';
 import router from '../../router/index';
 
+
+
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     isAuthenticated: false,
@@ -14,7 +16,7 @@ export const useAuthStore = defineStore('auth', {
       try {
         // Call your backend route to get the Firebase config
         /** TODO update this to use either the dev or prod environment */
-        const response = await axios.get('http://localhost:3000/api/metrics/firebaseConfig');
+        const response = await axios.get(import.meta.env.VITE_BACKEND_URL + '/api/metrics/firebaseConfig');
         
         // Assuming your backend returns the Firebase config in the response.data
         const firebaseConfig = response.data;
