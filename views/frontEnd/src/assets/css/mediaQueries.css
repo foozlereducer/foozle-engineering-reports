@@ -27,7 +27,6 @@ body {
      "sd sd main main main main main main main"
      "sd sd main main main main main main main"
      "ft ft ft ft  ft   ft   ft   ft   ft";
-     grid-template-rows: 0 1fr 1fr 1fr 1fr; /* Adjust row heights */
 }
 /** Header **/
 header.main-header {
@@ -145,6 +144,13 @@ nav ul li a {
    padding: 20px;
    color: white;
    background-color: rgba(0,0,0,0.5);
+   min-height: 100vh;
+ }
+ .router-view {
+   display:flex;
+   flex-direction: column;
+   flex-wrap: wrap;
+   
  }
 
  /**
@@ -247,6 +253,7 @@ i {
    transition: 3s ease all;
    display:none;
 }
+/* End Nav CSS */
 
 html, body, header, section, div, h1, h2, h3, h4, p {
    display: initial;
