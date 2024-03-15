@@ -9,15 +9,34 @@ import {indexRouter} from './routes/index.js';
 import {storyPointsRouter} from './routes/metrics.js';
 import {catalogRouter} from './routes/catalog.js';
 import cors from 'cors';
+import { createProxyMiddleware } from 'http-proxy-middleware';
+import dotenv from 'dotenv';
+dotenv.config()
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const app = express();
 
+/**** Get authentication config ******/
+// Define the reverse proxy route
+const proxyOptions = {
+  target:  process.env.FIREBASE_URL, // Target host
+  changeOrigin: true, // Needed for virtual hosted sites
+  pathRewrite: {
+    '^/__/auth/': '/__/auth/' // Rewrite path
+  },
+  secure: false // Set to true if your target server uses HTTPS
+};
+
+// Create the reverse proxy middleware
+const proxy = createProxyMiddleware('/__/auth/', proxyOptions);
+
+// Use the reverse proxy middleware
+app.use(proxy);
 
 // view engine setup
 app.disable('x-powered-by')
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static('views'));
-app.set('view engine', 'pug');
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));

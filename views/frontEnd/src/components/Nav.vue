@@ -43,17 +43,31 @@
 
 <script setup>
 import { useAuthStore } from '../stores/authStore';
-import { computed, ref, onMounted, onUnmounted } from 'vue';
+import { computed, ref, onMounted, onUnmounted, watchEffect} from 'vue';
 import Auth from './Auth.vue';
+import { useAuth } from '../composables/authentication.js'
+import { getRedirectRes } from '../composables/redirectResults.js';
 const authStore = useAuthStore();
-const isAuthenticated = computed(() => authStore.isAuthenticated);
+let isAuthenticated = ref(false);
+
+onMounted(async () => {
+    const data = await getRedirectRes();
+    let authentication;
+    if (data.token.length > 0) {
+        authentication = useAuth(true);
+    } else {
+        authentication = useAuth();
+    }
+    isAuthenticated.value = authentication.isAuthenticated; // Set isAuthenticated value
+    authStore.setIsAuthenticated(isAuthenticated)
+    console.log('in Nav', isAuthenticated.value)
+});
 
 
 const windowWidth = ref(window.innerWidth);
 const windowHeight = ref(window.innerHeight);
 const mobile = ref(false);
 const mobileNav = ref(false);
-const scrolledNav = ref(null)
 
 function toggleMobileNav() {
     mobileNav.value = !mobileNav.value;
@@ -96,16 +110,9 @@ function useWindowResize() {
     return (windowWidth.value, windowHeight.value)
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
+watchEffect(() => {
+  // Force re-render by accessing the value
+  const _ = isAuthenticated.value;
+  console.log(isAuthenticated.value)
+});
 </script>

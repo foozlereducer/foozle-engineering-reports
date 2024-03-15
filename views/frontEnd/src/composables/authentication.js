@@ -7,12 +7,22 @@ import { useRouter } from 'vue-router';
 import { createDeviceSize } from '../composables/deviceSize.js';
 import { devices } from '../composables/devices.js';
 
-export function useAuth() {
-  const authStore = useAuthStore();
-  const isAuthenticated = computed(() => authStore.isAuthenticated);
-  const router = useRouter();
 
+export function useAuth(isAuth=false) {
+  const authStore = useAuthStore();
+  let isAuthenticated = ref(false);
+  if (!isAuth) {
+    isAuthenticated.value = computed(() => authStore.getIsAuthenticated());
+  } else {
+    isAuthenticated.value = isAuth;
+  }
+  const router = useRouter();
+  let token = ref(false);
   const sizes = ref(null);
+
+  const getIsAuthenticated = () => {
+    return isAuthenticated;
+  }
 
   const handleSignOut = async () => {
     try {
@@ -26,7 +36,8 @@ export function useAuth() {
 
   const handleSignIn = async () => {
     try {
-      await authStore.signIn();
+      await authStore.signInWithRedirect();
+
     } catch (error) {
       console.error('Google sign-in failed:', error.message);
       // Handle sign-in failure
@@ -64,7 +75,9 @@ export function useAuth() {
 
   return {
     isAuthenticated,
+    token,
     handleSignIn,
-    handleSignOut
+    handleSignOut,
+    getIsAuthenticated,
   };
 }

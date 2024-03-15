@@ -24,6 +24,7 @@
     "firebase": "^10.6.0",
     "helmet": "^7.0.0",
     "http-errors": "^2.0.0",
+    "http-proxy-middleware": "^2.0.6",
     "luxon": "^3.4.3",
     "mixwith": "^0.1.1",
     "mongodb-memory-server": "^9.1.3",

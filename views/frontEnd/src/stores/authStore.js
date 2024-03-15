@@ -1,8 +1,15 @@
 import { defineStore } from 'pinia';
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
+import { 
+  getAuth, 
+  signInWithPopup, 
+  GoogleAuthProvider, 
+  signOut, 
+  signInWithRedirect
+} from 'firebase/auth';
 import axios from 'axios';
 import router from '../../router/index';
+import {getFirebase} from '../composables/firebaseInit.js';
 
 
 
@@ -12,10 +19,39 @@ export const useAuthStore = defineStore('auth', {
     auth: null, // Initialize auth property
   }),
   actions: {
-    async signIn() {
+    setIsAuthenticated(state) {
+      this.isAuthenticated = state;
+    },
+    getThisAuth() {
+      return this.auth;
+    },
+    getIsAuthenticated() {
+      return this.isAuthenticated;
+    },
+    async signInWithRedirect() {
+      try {
+        // Initialize Firebase app with the config
+        const firebaseApp = await getFirebase();
+        
+        // Get the Firebase Auth instance
+        this.auth = getAuth(firebaseApp); // Assign to store property
+
+        // Create a GoogleAuthProvider instance
+        const provider = new GoogleAuthProvider();
+      
+        signInWithRedirect(this.auth, provider);
+      
+        // Navigate to the home page after successful sign-in
+        router.push('/');
+      } catch(e){
+        console.error(e)
+         // Navigate to the home page after successful sign-in
+         router.push('/login');
+      }
+    },
+    async signInPopup() {
       try {
         // Call your backend route to get the Firebase config
-        /** TODO update this to use either the dev or prod environment */
         const response = await axios.get(import.meta.env.VITE_BACKEND_URL + '/api/metrics/firebaseConfig');
         
         // Assuming your backend returns the Firebase config in the response.data
