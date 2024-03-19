@@ -6,8 +6,12 @@ import router from '../router/index.js';
 import { createPinia } from 'pinia';
 import './assets/css/reset.css'
 import './assets/css/mediaQueries.css'
+const app = createApp(App);
+const pinia = createPinia();
+app.use(pinia);
+app.use(router)
+app.mount('#app');
 
-createApp(App)
-  .use(createPinia())
-  .use(router) // Use the router
-  .mount('#app');
+
+  
+

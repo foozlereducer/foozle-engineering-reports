@@ -1,4 +1,5 @@
 import { getAuth, getRedirectResult, GoogleAuthProvider } from 'firebase/auth';
+import { useAuthStore } from '../stores/authStore.js';
 import { getFirebase } from '../composables/firebaseInit.js';
 
 export const getRedirectRes = async () => {
@@ -8,15 +9,22 @@ export const getRedirectRes = async () => {
     return new Promise((resolve, reject) => {
         getRedirectResult(auth)
             .then((result) => {
-                const credential = GoogleAuthProvider.credentialFromResult(result);
-                const token = credential.accessToken;
-                const user = result.user;
-                const userData = {
-                    token: token,
-                    user: user,
+                if (result) {
+                    const credential = GoogleAuthProvider.credentialFromResult(result);
+                    if (credential) {
+                        const token = credential.accessToken;
+                        const user = result.user;
+                        const userData = {
+                            token: token,
+                            user: user,
+                        }
+                        resolve(userData);
+                    } else {
+                        reject(new Error('Credential is null'));
+                    }
+                } else {
+                    reject(new Error('Result is null'));
                 }
-
-                resolve(userData);
             })
             .catch((error) => {
                 reject(error);

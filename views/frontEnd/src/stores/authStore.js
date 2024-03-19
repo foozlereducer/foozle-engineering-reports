@@ -10,8 +10,7 @@ import {
 import axios from 'axios';
 import router from '../../router/index';
 import {getFirebase} from '../composables/firebaseInit.js';
-
-
+import { getRedirectRes } from '../composables/redirectResults.js';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -19,11 +18,11 @@ export const useAuthStore = defineStore('auth', {
     auth: null, // Initialize auth property
   }),
   actions: {
-    setIsAuthenticated(state) {
-      this.isAuthenticated = state;
-    },
     getThisAuth() {
       return this.auth;
+    },
+    setIsAuthenticated(state) {
+      this.isAuthenticated = state;
     },
     getIsAuthenticated() {
       return this.isAuthenticated;
@@ -39,7 +38,12 @@ export const useAuthStore = defineStore('auth', {
         // Create a GoogleAuthProvider instance
         const provider = new GoogleAuthProvider();
       
-        signInWithRedirect(this.auth, provider);
+        signInWithRedirect(this.auth, provider) 
+          .then(() => {})
+          .catch((error) => {
+            console.error('Error signing in with redirect:', error);
+            router.push('/login');
+          });
       
         // Navigate to the home page after successful sign-in
         router.push('/');
@@ -48,6 +52,18 @@ export const useAuthStore = defineStore('auth', {
          // Navigate to the home page after successful sign-in
          router.push('/login');
       }
+    },
+    async setAuthState() {
+        const data = await getRedirectRes();
+       
+        if (data.token.length > 0) {
+          this.isAuthenticated = true;
+        }
+
+        return this.isAuthenticated;
+    },
+    async checkIfLoggedIn() {
+      return true === this.isAuthenticated.value;
     },
     async signInPopup() {
       try {

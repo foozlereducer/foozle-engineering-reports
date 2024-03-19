@@ -2,10 +2,31 @@
  * Authorization Compotable
  */
 import { useAuthStore } from '../stores/authStore';
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch, watchEffect} from 'vue';
+import { getRedirectRes } from '../composables/redirectResults.js';
 import { useRouter } from 'vue-router';
 import { createDeviceSize } from '../composables/deviceSize.js';
 import { devices } from '../composables/devices.js';
+
+export const setLogin = async () => {
+  const authStore = useAuthStore(); // Access the auth store
+  let isAuthenticated = ref()
+  onMounted(async () => {
+      const data = await getRedirectRes();
+    
+      if (data.token.length > 0) {
+        authStore.setIsAuthenticated(true);
+      }
+      isAuthenticated.value = authStore.getIsAuthenticated()
+      console.log(isAuthenticated.value, 'in Auth')
+  });
+  watchEffect(() => {
+    // Force re-render by accessing the value
+    const _ = isAuthenticated.value;
+    console.log(isAuthenticated.value)
+  });
+}
+
 
 
 export function useAuth(isAuth=false) {
