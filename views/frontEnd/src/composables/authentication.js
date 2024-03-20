@@ -48,6 +48,7 @@ export function useAuth(isAuth=false) {
   const handleSignOut = async () => {
     try {
       await authStore.signOut();
+      authStore.setIsAuthenticated(false)
       router.push('/Login');
     } catch (error) {
       console.error('Sign-out failed:', error.message);

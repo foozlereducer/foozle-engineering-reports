@@ -1,5 +1,5 @@
 <template>
- <div v-if="loaded">
+ <div v-if="loaded" class="loaded">
   <div class="wrapper" v-if="sizes.device.value == 'desktop'">
     <!-- Desktop -->
     <Header class="main-header"/>
