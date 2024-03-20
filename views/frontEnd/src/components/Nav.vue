@@ -1,6 +1,6 @@
 <template>
         <nav :class="{'scrolled-nav':scrollPosition}">
-            <ul v-if="isAuthenticated" v-show="!mobile" class="navigation">
+            <ul v-if="authStore.isAuthenticated" v-show="!mobile" class="navigation">
                 <li><router-link class='link' :to="{ name: 'Home' }" >Home</router-link></li>
                 <li><router-link class='link' :to="{ name: 'sampleMetric' }">SampleMetric</router-link></li>
                 <li><router-link class='link' :to="{ name: '' }" >Metrics</router-link></li>
@@ -47,11 +47,16 @@ import { useAuth } from '../composables/authentication.js'
 import { ref, onMounted, onUnmounted, watchEffect} from 'vue';
 import Auth from './Auth.vue';
 
-
+const authStore = useAuthStore();
 const windowWidth = ref(window.innerWidth);
 const windowHeight = ref(window.innerHeight);
 const mobile = ref(false);
 const mobileNav = ref(false);
+
+onMounted(()=>{
+  const isAuthenticated = ref(authStore.isAuthenticated);
+  console.log('In Nav', isAuthenticated.value);
+});
 
 function toggleMobileNav() {
     mobileNav.value = !mobileNav.value;
@@ -59,9 +64,6 @@ function toggleMobileNav() {
 
 useWindowResize();
 
-function randomizeLogin() {
-    return  Math.random() < 0.5;
-}
 
 function useWindowResize() {
 
@@ -95,4 +97,6 @@ function useWindowResize() {
 
     return (windowWidth.value, windowHeight.value)
 }
+
+
 </script>

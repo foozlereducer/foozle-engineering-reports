@@ -36,9 +36,7 @@ const router = createRouter({
 
 router.beforeEach( async (to, from, next) => {
   const authStore = useAuthStore();
-  await authStore.setAuthState();
   const isAuthenticated = authStore.isAuthenticated;
-  console.log('in routure beforeEach',isAuthenticated)
   if (to.matched.some(record => record.meta.requiresAuth) && !isAuthenticated) {
     next('/login'); // Redirect to login page if authentication is required but user is not authenticated
   } else {
