@@ -1,5 +1,4 @@
 import { getAuth, getRedirectResult, GoogleAuthProvider } from 'firebase/auth';
-import { useAuthStore } from '../stores/authStore.js';
 import { getFirebase } from '../composables/firebaseInit.js';
 
 export const getRedirectRes = async () => {

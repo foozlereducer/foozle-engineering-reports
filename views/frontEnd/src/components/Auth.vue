@@ -10,7 +10,6 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted, defineProps } from 'vue';
 import { useAuth } from '../composables/authentication.js'
 import { useAuthStore } from '../stores/authStore.js';
 import { createDeviceSize } from '../composables/deviceSize';

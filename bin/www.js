@@ -5,8 +5,20 @@
  */
 import {app} from '../app.js';
 import {debug} from 'console';
-import http from 'http';
 import { logger } from '../services/logger.js';
+import https from 'https';
+import fs from 'fs';
+import { dirname } from 'path';
+import * as path from 'path';
+import { fileURLToPath } from 'url';
+const __dirname = dirname(fileURLToPath(import.meta.url));
+// SSL certificate paths
+const sslOptions = {
+  key: fs.readFileSync(path.join(__dirname, 'localhost.key')),
+  cert: fs.readFileSync(path.join(__dirname, 'localhost.cert'))
+};
+
+
 
 /**
  * Get port from environment and store in Express.
@@ -16,11 +28,11 @@ const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
 /**
- * Create HTTP server.
+ * Create HTTPS server.
  */
 
-const server = http.createServer(app);
-
+// Create the HTTPS server with the SSL options
+const server = https.createServer(sslOptions, app)
 /**
  * Listen on provided port, on all network interfaces.
  */
@@ -87,7 +99,7 @@ function onError(error) {
       process.exit(1);
       break;
     case 'EADDRINUSE':
-      const error  = bind + ' is already in use'
+      const error  = `${bind} is already in use`;
       console.error(error);
       logger(500, error, 'fatal')
       process.exit(1);

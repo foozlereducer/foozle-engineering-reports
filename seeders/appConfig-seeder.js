@@ -10,7 +10,7 @@ export class AppConfigSeeder {
                 configKeyPair: {"FirebaseApiKey":"AIzaSyB7Pz8c1ROjSYUHk0WTH9Yo_Bmde0mkKcI"}
             },
             {
-                configKeyPair: {"FirebaseAuthDomain": "engineering-reports.firebaseapp.com"}
+                configKeyPair: {"FirebaseAuthDomain": "localhost:3000/__AUTH"}
             },
             {
                 configKeyPair: {"FirebaseProjId" : "engineering-reports"}

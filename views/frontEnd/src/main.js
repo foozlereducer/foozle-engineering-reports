@@ -8,9 +8,14 @@ import './assets/css/reset.css'
 import './assets/css/mediaQueries.css'
 const app = createApp(App);
 const pinia = createPinia();
-app.use(pinia);
 app.use(router)
-app.mount('#app');
+app.use(pinia);
+try {
+  app.mount('#app');
+} catch(e) {
+  console.error('in main.js', e);
+}
+
 
 
   

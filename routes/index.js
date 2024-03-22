@@ -2,8 +2,9 @@ import express from 'express';
 const router = express.Router();
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'ACTO Product & Engineering Reports' });
-});
+router.get("/", function (req, res) {
+  res.redirect('http://localhost:5173')
+})
+
 
 export {router as indexRouter};

@@ -3,7 +3,7 @@
   <div class="wrapper" v-if="sizes.device.value == 'desktop'">
     <!-- Desktop -->
     <Header class="main-header"/>
-    <Nav />
+    <Nav aria-label="this is a nav menu that from left to right has: Metrics, Tools"/>
     <MainContent/>
     <Sideboard/>
     <Footer/>
@@ -11,7 +11,7 @@
   <div  v-else-if="sizes.device.value == 'tablet'">
     <!-- Tablet -->
     <Header />
-    <Nav />
+    <Nav aria-label="this is a nav menu that from left to right has: Metrics, Tools"/>
     <MainContent />
     <Sideboard />
     <Footer />
@@ -32,7 +32,6 @@ import {devices} from '../src/composables/devices.js'
 const sizes = createDeviceSize(devices);
 import Mobile from './views/Mobile.vue';
 import { useAuthStore } from '../src/stores/authStore';
-import Icon from '../src/components/Icon.vue'
 import Header from '../src/components/Header.vue';
 import Nav from '../src/components/Nav.vue';
 import MainContent from '../src/components/MainContent.vue';
@@ -44,10 +43,7 @@ let loaded = ref();
 onMounted(async () => {
   const authStore = useAuthStore(); // Access the auth store
   const res =  await authStore.setAuthState();
-  const props = {  isAuthenticated: authStore.getIsAuthenticated()}
   loaded.value = res;
-  
-  console.log('in App.vue', res, props.isAuthenticated)
 })
 
 </script>

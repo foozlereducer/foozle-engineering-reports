@@ -31,6 +31,7 @@ export const useAuthStore = defineStore('auth', {
       try {
         // Initialize Firebase app with the config
         const firebaseApp = await getFirebase();
+        console.log(firebaseApp)
         
         // Get the Firebase Auth instance
         this.auth = getAuth(firebaseApp); // Assign to store property
@@ -39,7 +40,6 @@ export const useAuthStore = defineStore('auth', {
         const provider = new GoogleAuthProvider();
       
         signInWithRedirect(this.auth, provider) 
-          .then(() => {})
           .catch((error) => {
             console.error('Error signing in with redirect:', error);
             router.push('/login');
@@ -47,6 +47,7 @@ export const useAuthStore = defineStore('auth', {
       
         // Navigate to the home page after successful sign-in
         router.push('/');
+
       } catch(e){
         console.error(e)
          // Navigate to the home page after successful sign-in
