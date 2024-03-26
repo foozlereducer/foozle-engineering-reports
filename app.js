@@ -12,7 +12,6 @@ import cors from 'cors';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import dotenv from 'dotenv';
 dotenv.config()
-
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const app = express();
 

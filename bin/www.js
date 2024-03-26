@@ -5,8 +5,23 @@
  */
 import {app} from '../app.js';
 import {debug} from 'console';
-import http from 'http';
+import https from 'https';
 import { logger } from '../services/logger.js';
+import * as path from 'path';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+/**
+ * The *.pem key and cert below were created using mkcert so they 
+ * will work in the local dev environment
+ * @TODO move the path to the db or .env
+ */
+const options = {
+  key: fs.readFileSync(`${__dirname}/localhost-key.pem`),
+  cert: fs.readFileSync(`${__dirname}/localhost.pem`)
+};
 
 /**
  * Get port from environment and store in Express.
@@ -19,7 +34,7 @@ app.set('port', port);
  * Create HTTP server.
  */
 
-const server = http.createServer(app);
+const server = https.createServer(options, app);
 
 /**
  * Listen on provided port, on all network interfaces.
