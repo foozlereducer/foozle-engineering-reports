@@ -7,9 +7,10 @@ export const getFirebase = async () => {
             
     // Assuming your backend returns the Firebase config in the response.data
     let firebaseConfig = response.data;
-
+    
+    console.log('firebase config',firebaseConfig)
     // Change auth url to local front end server
-    firebaseConfig.FirebaseAuthDomain = import.meta.env.FRONTEND_URL + '/__/auth/'
+    //firebaseConfig.FirebaseAuthDomain = import.meta.env.FRONTEND_URL + '/__/auth/'
 
     console.log(firebaseConfig)
 

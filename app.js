@@ -18,7 +18,7 @@ export const app = express();
 /**** Get authentication config ******/
 // Define the reverse proxy route
 const proxyOptions = {
-  target:  process.env.FIREBASE_URL, // Target host
+  target:  'https://' + process.env.FIREBASE_URL, // Target host
   changeOrigin: true, // Needed for virtual hosted sites
   pathRewrite: {
     '^/__/auth/': '/__/auth/' // Rewrite path
@@ -51,7 +51,7 @@ app.use('/api/metrics', catalogRouter)
 connectDB();
 
 // last stop error handler
-app.use(errHandle);
+// app.use(errHandle);
 
 // Catch-all route for undefined routes
 app.all('*', async (req, res) => {
