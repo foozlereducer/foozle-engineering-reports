@@ -2,7 +2,6 @@ import express from 'express';
 import * as path from 'path';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { errHandle } from './services/errorHandlers/errorMiddleware.js';
 import { logger } from './services/logger.js';
 import {connectDB} from './datatabase/db.js'
 import {indexRouter} from './routes/index.js';

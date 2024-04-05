@@ -16,6 +16,7 @@ export const useAuthStore = defineStore('auth', {
   state: () => ({
     isAuthenticated: false,
     auth: null, // Initialize auth property
+    isMobile: false,
   }),
   actions: {
     getThisAuth() {
@@ -26,6 +27,15 @@ export const useAuthStore = defineStore('auth', {
     },
     getIsAuthenticated() {
       return this.isAuthenticated;
+    },
+    setIsMobile(state){
+      if (null === state) {
+        state = false;
+      }
+      this.isMobile = state
+    },
+    getIsMobile() {
+      return this.isMobile;
     },
     async signInWithRedirect() {
       try {
@@ -99,13 +109,15 @@ export const useAuthStore = defineStore('auth', {
     },
     async signOut() {
       try {
+        this.isAuthenticated = false; // Update state to false
         if (this.auth) {
           // Sign out the user
           await signOut(this.auth); 
           // Reset auth and isAuthenticated state after sign-out
           this.auth = null;
-          this.isAuthenticated = false; // Update state to false
+         
         }
+       
       } catch (error) {
         console.error('Error signing out:', error);
         throw error;

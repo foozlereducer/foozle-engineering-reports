@@ -1,37 +1,36 @@
 <template>
-        <nav :class="{'scrolled-nav':scrollPosition}">
-            <ul v-if="authStore.isAuthenticated" v-show="!mobile" class="navigation">
+        <nav>
+            <ul v-if="isAuthenticated" v-show="!authStore.isMobile" class="navigation">
                 <li><router-link class='link' :to="{ name: 'Home' }" >Home</router-link></li>
                 <li><router-link class='link' :to="{ name: 'sampleMetric' }">SampleMetric</router-link></li>
                 <li><router-link class='link' :to="{ name: '' }" >Metrics</router-link></li>
                 <li><router-link class='link' :to="{ name: '' }" >Tools</router-link></li>
             </ul> 
-            <p v-else>Not authenticated</p>
             <div class="icon">
                 <i 
                     @click="toggleMobileNav" 
-                    v-show="mobile" 
+                    v-show="authStore.isMobile" 
                     class="far fa-bars" 
                     :class="{'icon-active': mobileNav}">
                 </i>
-                <transition name="mobile-nav">
+                <transition name="mobile-nav" >
                     <ul v-show="mobileNav" class="dropdown-nav">
                         <li>
                             <Auth @click="toggleMobileNav" class='link'/>
                         </li>
-                        <li><router-link 
+                        <li v-if="isAuthenticated"><router-link 
                             @click="toggleMobileNav"
                             class='link' :to="{ name: 'Home' 
                         }" >Home</router-link></li>
-                        <li><router-link 
+                        <li v-if="isAuthenticated"><router-link 
                             @click="toggleMobileNav" 
                             class='link' :to="{ name: 'sampleMetric' 
                         }">SampleMetric</router-link></li>
-                        <li><router-link 
+                        <li v-if="isAuthenticated"><router-link 
                             @click="toggleMobileNav" 
                             class='link' :to="{ name: '' 
                         }" >Metrics</router-link></li>
-                        <li><router-link 
+                        <li v-if="isAuthenticated"><router-link 
                             @click="toggleMobileNav"
                             class='link' :to="{ name: '' 
                         }" >Tools</router-link></li>
@@ -43,19 +42,28 @@
 
 <script setup>
 import { useAuthStore } from '../stores/authStore';
-import { useAuth } from '../composables/authentication.js'
 import { ref, onMounted, onUnmounted, watchEffect} from 'vue';
 import Auth from './Auth.vue';
+import {LocalStorage} from '../composables/localStorage.js';
 
 const authStore = useAuthStore();
 const windowWidth = ref(window.innerWidth);
 const windowHeight = ref(window.innerHeight);
-const mobile = ref(false);
-const mobileNav = ref(false);
+
+const LS = new LocalStorage(authStore)
+const userData = LS.getAuthData()
+let mobile = ref(false);
+let mobileNav = ref(false);
+let isAuthenticated = ref(false)
+if(userData) {
+
+}
+
 
 onMounted(()=>{
-  const isAuthenticated = ref(authStore.isAuthenticated);
+  isAuthenticated.value = authStore.isAuthenticated;
   console.log('In Nav', isAuthenticated.value);
+   handler();
 });
 
 function toggleMobileNav() {
@@ -63,27 +71,23 @@ function toggleMobileNav() {
 }
 
 useWindowResize();
-
-
-function useWindowResize() {
-
-    function handler() {
+function handler() {
         windowWidth.value = window.innerWidth;
         windowHeight.value = window.innerHeight;
 
         if (windowWidth.value <= 480) {
-            console.log('inside 480')
             // Assuming state is defined in the component's setup
-            mobile.value = true;
-            console.log('mobile',mobile.value)
+            authStore.setIsMobile(true);
         } else {
              // Assuming state is defined in the component's setup
-            mobile.value = false;
+             authStore.setIsMobile(false);
             mobileNav.value = false;
         }
-           
-       
-    }
+}
+
+function useWindowResize() {
+
+    
 
     // Call onMounted hook
     onMounted(() => {

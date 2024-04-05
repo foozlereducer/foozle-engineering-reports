@@ -1,10 +1,12 @@
 import { getAuth, getRedirectResult, GoogleAuthProvider } from 'firebase/auth';
 import { useAuthStore } from '../stores/authStore.js';
 import { getFirebase } from '../composables/firebaseInit.js';
+import { LocalStorage } from './localStorage.js';
 
 export const getRedirectRes = async () => {
     const firebaseApp = await getFirebase();
     const auth = getAuth(firebaseApp);
+    const LS = new LocalStorage(new useAuthStore())
 
     return new Promise((resolve, reject) => {
         getRedirectResult(auth)
@@ -18,12 +20,15 @@ export const getRedirectRes = async () => {
                             token: token,
                             user: user,
                         }
+                        // Save userData to local storage
+                        LS.saveAuthCredentials(userData);
+
                         resolve(userData);
                     } else {
                         reject(new Error('Credential is null'));
                     }
                 } else {
-                    reject(new Error('Result is null'));
+                    console.log('user is not authenticated')
                 }
             })
             .catch((error) => {

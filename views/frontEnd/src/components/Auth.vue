@@ -10,22 +10,23 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted, defineProps } from 'vue';
+import { watchEffect } from 'vue';
 import { useAuth } from '../composables/authentication.js'
 import { useAuthStore } from '../stores/authStore.js';
 import { createDeviceSize } from '../composables/deviceSize';
 import { devices } from '../composables/devices';
+import { ref } from 'vue';
 const auth = useAuth();
 const authStore = useAuthStore();
 const sizes = createDeviceSize(devices);
+let isAuthenticated = ref(false);
 
 // Sign in / out methods
 const handleSignIn = auth.handleSignIn;
 const handleSignOut = auth.handleSignOut;
-onMounted(()=>{
-  const isAuthenticated = authStore.isAuthenticated;
-  console.log('In Auth', isAuthenticated);
+watchEffect(() => {
+  isAuthenticated.value = authStore.getIsAuthenticated();
+  console.log('In Auth', isAuthenticated.value);
 });
-
 
 </script>

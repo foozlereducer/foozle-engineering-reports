@@ -10,6 +10,6 @@
 </template>
 
 <script setup>
-   import Auth from '../components/Auth.vue'
-   import Icon from './Icon.vue';
+    import Auth from '../components/Auth.vue'
+    import Icon from './Icon.vue';
 </script>
