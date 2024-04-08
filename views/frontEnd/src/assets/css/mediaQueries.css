@@ -337,6 +337,7 @@ html, body, header, section, div, h1, h2, h3, h4, p {
    }
 
    .auth {
+      position:inherit;
       text-align: right; /* Align authentication section to the right */
    }
   
