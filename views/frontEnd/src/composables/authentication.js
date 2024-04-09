@@ -58,7 +58,6 @@ export function useAuth(isAuth=false) {
   const handleSignIn = async () => {
     try {
       await authStore.signInWithRedirect();
-
     } catch (error) {
       console.error('Google sign-in failed:', error.message);
       // Handle sign-in failure

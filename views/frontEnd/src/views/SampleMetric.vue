@@ -2,9 +2,6 @@
 import { createDeviceSize } from '../composables/deviceSize.js'
 import {devices} from '../composables/devices.js'
 const sizes = createDeviceSize(devices);
-import HomeView from './Home.vue';
-import Phone from './Phone.vue'
-import Tablet from './Tablet.vue';
 </script>
 
 <template>

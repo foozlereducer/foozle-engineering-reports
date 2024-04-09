@@ -35,6 +35,9 @@
   * </template>
  */
 import { onUnmounted, onMounted, reactive, toRefs } from "vue";
+import { LocalStorage } from "./localStorage.js";
+import { useAuthStore } from "../stores/authStore.js";
+let LS;
 
 export function createDeviceSize(deviceSizes) {
     const sizes = reactive({
@@ -58,11 +61,19 @@ export function createDeviceSize(deviceSizes) {
             type = deviceSizes.tablet.type;
         }
 
+        if ('phone' === type) {
+            LS.saveIsMobile(true)
+        } else if(LS.getIsMobile()) {
+            LS.removeIsMobile() 
+        }
+
         return type;
     }
 
     onMounted(() => {
-        window.addEventListener('resize', browserResized)
+        window.addEventListener('resize', browserResized);
+        const authStore = new useAuthStore();
+        LS = new LocalStorage(authStore);
     })
 
     onUnmounted(() => {

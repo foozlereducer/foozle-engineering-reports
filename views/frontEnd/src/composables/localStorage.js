@@ -17,12 +17,17 @@ export class LocalStorage {
     }
 
     getIsMobile(storageKey='aeprMobile') {
-        const isMobileObj = JSON.parse(localStorage.getItem(storageKey))
-        if (isMobileObj.isMobile) {
-            return isMobileObj.isMobile
+        const isMobileObj = JSON.parse(localStorage.getItem(storageKey));
+        if (isMobileObj && isMobileObj.isMobile) {
+            return isMobileObj.isMobile;
         }
         return false;
     }
+
+    removeIsMobile(storageKey='aeprMobile'){
+        localStorage.removeItem(storageKey);
+    }
+
 
     mergeObjs(aObj, bObjs) {
         return {

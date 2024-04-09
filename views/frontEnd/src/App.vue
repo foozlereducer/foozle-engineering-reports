@@ -39,10 +39,16 @@ import MainContent from '../src/components/MainContent.vue';
 import Sideboard from '../src/components/Sidebar.vue';
 import Footer from '../src/components/Footer.vue';
 import { onMounted, ref} from 'vue';
+import { LocalStorage } from './composables/localStorage.js';
 
 let loaded = ref();
+let LS;
 onMounted(async () => {
   const authStore = useAuthStore(); // Access the auth store
+  LS = new LocalStorage(authStore);
+  if ( true === LS.getIsMobile()) {
+    sizes.device.value = 'phone';
+  }
   const res =  await authStore.setAuthState();
   const props = {  isAuthenticated: authStore.getIsAuthenticated()}
   loaded.value = res;
