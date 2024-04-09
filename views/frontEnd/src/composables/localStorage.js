@@ -4,7 +4,6 @@ export class LocalStorage {
     }
 
     saveAuthCredentials(userData, storageKey='aeprUser') {
-        userData.token = null;
         localStorage.setItem(storageKey,  JSON.stringify(userData))
         console.log('userData stringified', localStorage.getItem(storageKey)); 
     }
