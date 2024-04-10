@@ -11,6 +11,7 @@ import axios from 'axios';
 import router from '../../router/index';
 import {getFirebase} from '../composables/firebaseInit.js';
 import { getRedirectRes } from '../composables/redirectResults.js';
+import { LocalStorage } from '../composables/localStorage.js';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -68,7 +69,7 @@ export const useAuthStore = defineStore('auth', {
        
         if (data.token.length > 0) {
           this.isAuthenticated = true;
-        }
+        } 
 
         return this.isAuthenticated;
     },
@@ -109,13 +110,15 @@ export const useAuthStore = defineStore('auth', {
     },
     async signOut() {
       try {
+        // Delete the auth in localstorage
+        const LS = new LocalStorage(this.getThisAuth())
+        LS.removeAuthData();
         this.isAuthenticated = false; // Update state to false
         if (this.auth) {
           // Sign out the user
           await signOut(this.auth); 
           // Reset auth and isAuthenticated state after sign-out
           this.auth = null;
-         
         }
        
       } catch (error) {

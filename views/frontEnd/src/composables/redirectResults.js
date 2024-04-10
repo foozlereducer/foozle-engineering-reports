@@ -28,7 +28,17 @@ export const getRedirectRes = async () => {
                         reject(new Error('Credential is null'));
                     }
                 } else {
-                    console.log('user is not authenticated')
+                    const data = LS.getAuthData();
+                    if (data.token.length > 0) {
+                        const userData = {
+                            token: data.token,
+                            user: data.user,
+                        }
+
+                        resolve(userData);
+                    } else {
+                        console.log('user is not authenticated')
+                    }
                 }
             })
             .catch((error) => {

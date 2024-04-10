@@ -51,6 +51,7 @@ onMounted(async () => {
   }
   const res =  await authStore.setAuthState();
   const props = {  isAuthenticated: authStore.getIsAuthenticated()}
+
   loaded.value = res;
   
   console.log('in App.vue', res, props.isAuthenticated)

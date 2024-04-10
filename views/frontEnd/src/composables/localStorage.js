@@ -12,6 +12,10 @@ export class LocalStorage {
         return JSON.parse(localStorage.getItem(storageKey));
     }
 
+    removeAuthData(storageKey='aeprUser') {
+        localStorage.removeItem(storageKey);
+    }
+
     saveIsMobile(state, storageKey='aeprMobile') {
         localStorage.setItem(storageKey, JSON.stringify({isMobile: state}))
     }

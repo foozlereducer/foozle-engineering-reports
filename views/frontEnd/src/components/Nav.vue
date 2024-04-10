@@ -42,7 +42,7 @@
 
 <script setup>
 import { useAuthStore } from '../stores/authStore';
-import { ref, onMounted, onUnmounted, watchEffect} from 'vue';
+import { ref, onMounted, onUnmounted, watch} from 'vue';
 import Auth from './Auth.vue';
 import {LocalStorage} from '../composables/localStorage.js';
 
@@ -55,9 +55,6 @@ const userData = LS.getAuthData()
 let mobile = ref(false);
 let mobileNav = ref(false);
 let isAuthenticated = ref(false)
-if(userData) {
-
-}
 
 
 onMounted(()=>{
@@ -69,6 +66,10 @@ onMounted(()=>{
 function toggleMobileNav() {
     mobileNav.value = !mobileNav.value;
 }
+
+watch(() => authStore.isAuthenticated, (newValue) => {
+    isAuthenticated.value = newValue;
+}, { immediate: true });
 
 useWindowResize();
 function handler() {
