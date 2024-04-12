@@ -64,22 +64,6 @@ export function useAuth(isAuth=false) {
     }
   };
 
-  const fadeOutLoginLogoutForWeb = () => {
-    const auth = document.querySelector(".auth");
-    if (sizes.value && sizes.value.browserWidth <= 480) {
-      auth.classList.add('fadeLoginLogoutWeb');
-    } else {
-        auth.classList.remove('fadeLoginLogoutWeb');
-    }
-  };
-
-  // Watch for changes to the sizes object
-  watch(sizes, (newSizes) => {
-    if (newSizes) {
-      fadeOutLoginLogoutForWeb();
-    }
-  });
-
   onMounted(() => {
     sizes.value = createDeviceSize(devices);
     window.addEventListener('resize', () => {

@@ -38,17 +38,28 @@ import Nav from '../src/components/Nav.vue';
 import MainContent from '../src/components/MainContent.vue';
 import Sideboard from '../src/components/Sidebar.vue';
 import Footer from '../src/components/Footer.vue';
-import { onMounted, ref} from 'vue';
+import { onMounted, onBeforeMount, ref, watchEffect} from 'vue';
 import { LocalStorage } from './composables/localStorage.js';
 
 let loaded = ref();
 let LS;
-onMounted(async () => {
-  const authStore = useAuthStore(); // Access the auth store
-  LS = new LocalStorage(authStore);
+const authStore = useAuthStore(); // Access the auth store
+
+LS = new LocalStorage(authStore);
+function checkForMobile() {
   if ( true === LS.getIsMobile()) {
     sizes.device.value = 'phone';
   }
+  loaded.value = true;
+  console.log('checkForMobile()', sizes.device.value);
+}
+
+onBeforeMount(() => {
+    checkForMobile();
+});
+
+onMounted(async () => {
+  checkForMobile() 
   const res =  await authStore.setAuthState();
   const props = {  isAuthenticated: authStore.getIsAuthenticated()}
 
@@ -57,5 +68,12 @@ onMounted(async () => {
   console.log('in App.vue', res, props.isAuthenticated)
 })
 
+watchEffect(() => {
+    // Assuming setAuthState is asynchronous and might change auth state
+    authStore.setAuthState().then(() => {
+        loaded.value = true;
+        console.log('in App.vue', authStore.getIsAuthenticated());
+    });
+});
 </script>
 

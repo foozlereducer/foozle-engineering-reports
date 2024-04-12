@@ -29,15 +29,17 @@ export const getRedirectRes = async () => {
                     }
                 } else {
                     const data = LS.getAuthData();
-                    if (data.token.length > 0) {
-                        const userData = {
-                            token: data.token,
-                            user: data.user,
-                        }
+                    if (data && data.token) {
+                        if (data.token.length > 0) {
+                            const userData = {
+                                token: data.token,
+                                user: data.user,
+                            }
 
-                        resolve(userData);
-                    } else {
-                        console.log('user is not authenticated')
+                            resolve(userData);
+                        } else {
+                            console.log('user is not authenticated')
+                        }
                     }
                 }
             })
