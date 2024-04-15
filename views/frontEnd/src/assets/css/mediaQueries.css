@@ -347,7 +347,7 @@ html, body, header, section, div, h1, h2, h3, h4, p {
    }
 
    .mobile-auth a {
-      color: black;
+      color: rgb(255, 255, 255);
       font-weight: 500;
    }
    * {margin: 0; padding: 0;}
