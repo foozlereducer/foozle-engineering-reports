@@ -38,10 +38,5 @@
     "nodemon": "^3.0.1",
     "sinon": "^17.0.1",
     "supertest": "^6.3.4"
-  },
-  "ava": {
-    "files": [
-      "!./views/reportsFrontEndApp/src/components/__tests__"
-    ]
   }
 }
