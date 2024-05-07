@@ -7,8 +7,10 @@ import {connectDB} from './datatabase/db.js'
 import {indexRouter} from './routes/index.js';
 import {storyPointsRouter} from './routes/metrics.js';
 import {catalogRouter} from './routes/catalog.js';
+import { authRouter } from './routes/auth.js';
 import cors from 'cors';
 import { createProxyMiddleware } from 'http-proxy-middleware';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 dotenv.config()
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -38,10 +40,12 @@ app.use(express.static('views'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cookieParser());
 app.use(cors());
 app.use('/', indexRouter);
 app.use('/api/storyPoints', storyPointsRouter)
 app.use('/api/metrics', catalogRouter)
+app.use('/', authRouter)
 
 /**
  * Database - MongoDB using Mongoose ORM

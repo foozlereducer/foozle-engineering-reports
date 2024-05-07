@@ -2,6 +2,7 @@ import { getAuth, getRedirectResult, GoogleAuthProvider } from 'firebase/auth';
 import { useAuthStore } from '../stores/authStore.js';
 import { getFirebase } from '../composables/firebaseInit.js';
 import { LocalStorage } from './localStorage.js';
+import axios from 'axios';
 
 export const getRedirectRes = async () => {
     const firebaseApp = await getFirebase();
@@ -10,7 +11,7 @@ export const getRedirectRes = async () => {
 
     return new Promise((resolve, reject) => {
         getRedirectResult(auth)
-            .then((result) => {
+            .then(async (result) => {
                 if (result) {
                     const credential = GoogleAuthProvider.credentialFromResult(result);
                     if (credential) {
@@ -20,8 +21,13 @@ export const getRedirectRes = async () => {
                             token: token,
                             user: user,
                         }
-                        // Save userData to local storage
-                        LS.saveAuthCredentials(userData);
+                        const saveCookieUrl = import.meta.env.VITE_BACKEND_URL + '/v1/auth/saveCookie'
+                        const response = await axios.post(
+                            saveCookieUrl,
+                            { token, user }
+                        )
+            
+                        if(200 !== response.status) throw new Error('Failed to store authentication data.');
 
                         resolve(userData);
                     } else {
