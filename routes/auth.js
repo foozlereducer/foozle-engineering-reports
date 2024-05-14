@@ -22,4 +22,13 @@ router.post(
     authIsAuthenticatedController(AuthService)
 )
 
+.post(
+    '/v1/auth/register',
+    
+)
+
+.post(
+    '/v1/auth/'
+)
+
 export {router as authRouter};

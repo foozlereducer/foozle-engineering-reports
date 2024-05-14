@@ -19,13 +19,13 @@ export class Auth {
 
     async isAuthenticated(req, res, next) {
         try {
-            res.send(req.cookies)
             const { auth } = req.cookies;
-            const admin = this.initFirebaseAdmin();
-            if (!auth) {
+            
+            if ( !auth ) {
                 throw new Error('Authentication cookie not found');
             }
-    
+            
+            const admin = this.initFirebaseAdmin();
             const parsedAuth = JSON.parse(auth);
             const decodedToken = await admin.auth().verifyIdToken(parsedAuth.token);
             req.user = decodedToken;

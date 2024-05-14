@@ -1,7 +1,8 @@
-import { GetAppConfig } from '../services/GetAppConfig.js'
+import { GetAppConfig } from '../services/GetAppConfig.js';
 export const firebaseConfigGet = async (req, res) => {
     const GAC = new GetAppConfig;
     const config = await GAC.run();
+    // console.log('JWT Secret', GAC.findValueByKey(config, 'JWTSK'))
     const firebaseConfig = {};
     firebaseConfig.apiKey = GAC.findValueByKey(config, 'FirebaseApiKey');
     firebaseConfig.authDomain = GAC.findValueByKey(config, 'FirebaseAuthDomain');

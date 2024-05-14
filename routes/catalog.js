@@ -1,15 +1,17 @@
 import express from 'express';
-const router = express.Router();
 import {
     story_point_get, 
     story_points_create_post,
     index, 
     story_points_delete_post
 } from '../controllers/story_point_controller.js'
-
 import { firebaseConfigGet } from '../controllers/firebaseConfigController.js'
+import { verifyToken } from '../services/auth/JWT.js';
+
+const router = express.Router();
+
 router.get("/", index)
-.get("/firebaseConfig", firebaseConfigGet)
+.get("/firebaseConfig", verifyToken, firebaseConfigGet)
 
 .get(
     "/story_points/create",
