@@ -1,9 +1,12 @@
 
 import { generateToken } from '../services/auth/JWT.js';
 import { Users } from '../models/Users.js';
+import { authUtils } from '../services/auth/verifyAllowed.js'
+import { connectDB } from '../datatabase/db.js';
+import { Allowed } from '../models/allowed.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from "bcrypt";
-import { connectDB } from '../datatabase/db.js';
+
 
 export const authSaveCookieController = (Auth) => async (req, res, next) => {
     try {
@@ -44,7 +47,7 @@ export const googleLogin = async (req, res) => {
     }
 };
 
-const register = async (req, res) => {
+export const register = async (req, res) => {
     try {
         const { username, password } = req.body;
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -56,7 +59,7 @@ const register = async (req, res) => {
     }
 }
 
-const login = async (req, res) => {
+export const login = async (req, res) => {
     try {
         const { username, email, password } = req.body;
         const targetUser = await Users.find({email: email});
@@ -72,3 +75,25 @@ const login = async (req, res) => {
         res.status(500).json({ error: 'Registration failed' });
     }
 }
+
+const getMessage = (verified) => {
+    if (!verified ) {
+        return {status: 401, message: 'unauthorized'}
+    } 
+    return {status: 200, message: 'authorized'}
+}
+
+export const verifyUser = async (req, res) => {
+    try {
+        const {email} = req.body;
+        const verified = await authUtils.verifyAllowed(email, connectDB, Allowed);
+        const result = getMessage(verified);
+        res.status(result.status).json({ res: result.message });
+    } catch (error) {
+        res.status(401).json({ error: 'Verificating user failed' });
+    }
+    
+}
+
+
+

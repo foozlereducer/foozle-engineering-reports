@@ -11,11 +11,15 @@ import { verifyToken } from '../services/auth/JWT.js';
 const router = express.Router();
 
 router.get("/", index)
-.get("/firebaseConfig", verifyToken, firebaseConfigGet)
+.get("/firebaseConfig", firebaseConfigGet)
 
 .get(
     "/story_points/create",
     story_point_get
+)
+
+.post(
+    ""
 )
 // POST request for creating Story Points.
 .post(

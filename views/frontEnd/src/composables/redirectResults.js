@@ -4,6 +4,17 @@ import { getFirebase } from '../composables/firebaseInit.js';
 import { LocalStorage } from './localStorage.js';
 import axios from 'axios';
 
+const validateUser = async (eml) => {
+    const verifyUserUrl = import.meta.env.VITE_BACKEND_URL + '/v1/auth/verifyUser'
+    const response = await axios.post(
+        verifyUserUrl,
+        { "email": eml }
+    )
+
+    if(200 !== response.status) throw new Error('Unauthorized');
+
+    return true;
+}
 export const getRedirectRes = async () => {
     const firebaseApp = await getFirebase();
     const auth = getAuth(firebaseApp);
@@ -17,6 +28,7 @@ export const getRedirectRes = async () => {
                     if (credential) {
                         const token = credential.accessToken;
                         const user = result.user;
+                        await validateUser(user.email);
                         const userData = {
                             token: token,
                             user: user,

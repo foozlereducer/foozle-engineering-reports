@@ -4,6 +4,7 @@ import {
     authIsAuthenticatedController 
 } from '../controllers/authController.js';
 import { Auth } from '../services/auth/Auth.js'
+import { verifyUser } from '../controllers/authController.js';
 const router = express.Router();
 const AuthService = new Auth();
 
@@ -24,11 +25,13 @@ router.post(
 
 .post(
     '/v1/auth/register',
-    
+   
 )
 
+
 .post(
-    '/v1/auth/'
+    '/v1/auth/verifyUser',
+    verifyUser
 )
 
 export {router as authRouter};
