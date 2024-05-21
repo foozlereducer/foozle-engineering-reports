@@ -1,7 +1,7 @@
 
 import { generateToken } from '../services/auth/JWT.js';
 import { Users } from '../models/Users.js';
-import { authUtils } from '../services/auth/verifyAllowed.js'
+import { verifyAllowed } from '../services/auth/verifyAllowed.js'
 import { connectDB } from '../datatabase/db.js';
 import { Allowed } from '../models/allowed.js';
 import jwt from 'jsonwebtoken';
@@ -86,9 +86,9 @@ const getMessage = (verified) => {
 export const verifyUser = async (req, res) => {
     try {
         const {email} = req.body;
-        const verified = await authUtils.verifyAllowed(email, connectDB, Allowed);
+        const verified = await verifyAllowed(email, connectDB, Allowed);
         const result = getMessage(verified);
-        res.status(result.status).json({ res: result.message });
+        res.status(result.status).json({ user: result.message });
     } catch (error) {
         res.status(401).json({ error: 'Verificating user failed' });
     }
