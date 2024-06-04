@@ -59,7 +59,6 @@ let isAuthenticated = ref(false)
 
 onMounted(()=>{
   isAuthenticated.value = authStore.isAuthenticated;
-  console.log('In Nav', isAuthenticated.value);
    handler();
 });
 
@@ -87,9 +86,6 @@ function handler() {
 }
 
 function useWindowResize() {
-
-    
-
     // Call onMounted hook
     onMounted(() => {
         // Attach event listener
@@ -102,6 +98,4 @@ function useWindowResize() {
 
     return (windowWidth.value, windowHeight.value)
 }
-
-
 </script>

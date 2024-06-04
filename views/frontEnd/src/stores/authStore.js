@@ -77,7 +77,6 @@ export const useAuthStore = defineStore('auth', {
         }
         return this.isAuthenticated;
       } catch (error) {
-        // console.error('Error setting auth state:', error);
         await sendLog(401, 'Error setting auth state: ' + error, 'high', error.stack)
         // Set modal properties in the store to trigger the modal
         this.showModal = true;

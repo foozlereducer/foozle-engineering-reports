@@ -45,7 +45,6 @@ onBeforeMount(() => {
 });
 watchEffect(() => {
   isAuthenticated.value = authStore.getIsAuthenticated();
-  console.log('In Auth', isAuthenticated.value);
 });
 
 </script>

@@ -51,7 +51,7 @@ function checkForMobile() {
     sizes.device.value = 'phone';
   }
   loaded.value = true;
-  console.log('checkForMobile()', sizes.device.value);
+  
 }
 
 onBeforeMount(() => {
@@ -64,15 +64,12 @@ onMounted(async () => {
   const props = {  isAuthenticated: authStore.getIsAuthenticated()}
 
   loaded.value = res;
-  
-  console.log('in App.vue', res, props.isAuthenticated)
 })
 
 watchEffect(() => {
     // Assuming setAuthState is asynchronous and might change auth state
     authStore.setAuthState().then(() => {
         loaded.value = true;
-        console.log('in App.vue', authStore.getIsAuthenticated());
     });
 });
 </script>
