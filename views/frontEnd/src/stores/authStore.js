@@ -13,11 +13,16 @@ import {getFirebase} from '../composables/firebaseInit.js';
 import { getRedirectRes } from '../composables/redirectResults.js';
 import { LocalStorage } from '../composables/localStorage.js';
 
+import { sendLog } from '../composables/sendLog.js';
+
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     isAuthenticated: false,
     auth: null, // Initialize auth property
     isMobile: false,
+    showModal: false,
+    modalMessage: '',
+    modalStatus: ''
   }),
   actions: {
     getThisAuth() {
@@ -64,14 +69,21 @@ export const useAuthStore = defineStore('auth', {
          router.push('/login');
       }
     },
-    async setAuthState() {
+    async setAuthState(staus='401', message ='Authentication error!') {
+      try {
         const data = await getRedirectRes();
-       
         if (data.token.length > 0) {
           this.isAuthenticated = true;
-        } 
-
+        }
         return this.isAuthenticated;
+      } catch (error) {
+        // console.error('Error setting auth state:', error);
+        await sendLog(401, 'Error setting auth state: ' + error, 'high', error.stack)
+        // Set modal properties in the store to trigger the modal
+        this.showModal = true;
+        this.modalMessage = error.message || message;
+        this.modalStatus = status; // Set status
+      }
     },
     async checkIfLoggedIn() {
       return true === this.isAuthenticated.value;

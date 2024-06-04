@@ -1,5 +1,6 @@
 // Require Mongoose
 import mongoose from "mongoose";
+import { object } from "testdouble";
 
 // Define a schema
 const Schema = mongoose.Schema;
@@ -17,10 +18,14 @@ export const logSchema = new Schema({
     },
     severity: {
         type: String,
-        enum: ['fatal', 'error', 'debug', 'info'],
+        enum: ['fatal', 'severe', 'high', 'medium', 'low', 'debug', 'info'],
         default: 'error'
     },
-    createdAt: Date
+    createdAt: Date,
+    stacktrace:{
+        type: object,
+        required: false
+    }
 })
 
 export const LogSchema =  mongoose.model('Log', logSchema)

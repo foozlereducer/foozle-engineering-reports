@@ -18,9 +18,6 @@ router.get("/", index)
     story_point_get
 )
 
-.post(
-    ""
-)
 // POST request for creating Story Points.
 .post(
     "/story_points/create",

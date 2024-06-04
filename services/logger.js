@@ -1,20 +1,21 @@
 import { LogSchema } from "../models/log.js";
 import { connectDB } from "../datatabase/db.js";
 
-export const logger = async (statusCode, errorMessage, severity = 'error') => {
+export const logger = async (statusCode, errorMessage, severity = 'low', stack='') => {
    
-    const severities = ['fatal', 'error', 'debug', 'info'];
+    const severities = ['fatal', 'severe', 'high', 'medium', 'low', 'debug', 'info'];
     
     // Ensure the severity is one of the enumerated values.
     if (!severities.includes(severity)) {
-        severity = 'error';
+        severity = 'low';
     }
     const createdAt =  new Date();
     let log = new LogSchema({
         statusCode: statusCode,
         message: errorMessage,
         severity: severity,
-        createdAt:createdAt
+        createdAt: createdAt,
+        stack: stack
     });
 
     try {

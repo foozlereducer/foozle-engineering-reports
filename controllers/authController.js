@@ -6,6 +6,7 @@ import { connectDB } from '../datatabase/db.js';
 import { Allowed } from '../models/allowed.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from "bcrypt";
+import { logger } from '../services/logger.js';
 
 
 export const authSaveCookieController = (Auth) => async (req, res, next) => {
@@ -76,24 +77,25 @@ export const login = async (req, res) => {
     }
 }
 
-const getMessage = (verified) => {
-    if (!verified ) {
-        return {status: 401, message: 'unauthorized'}
-    } 
-    return {status: 200, message: 'authorized'}
+const getMessage = (isVerified) => {
+    if (isVerified) {
+        return { status: 200, message: 'authenticated' };
+    } else {
+        return { status: 200, message: 'not authenticated' };
+    }
 }
 
 export const verifyUser = async (req, res) => {
     try {
-        const {email} = req.body;
+        const { email } = req.body;
         const verified = await verifyAllowed(email, connectDB, Allowed);
         const result = getMessage(verified);
-        res.status(result.status).json({ user: result.message });
+        if (!verified) {
+            await logger(result.status, `Unauthorized access attempt with email: ${email}`, "medium", Date.now());
+        }
+        res.status(result.status).send(result.message);
     } catch (error) {
-        res.status(401).json({ error: 'Verificating user failed' });
+        console.error('Error verifying user:', error); // Log the detailed error
+        res.status(500).json({ error: 'Contact Admin' }); // Generic error message for the user
     }
-    
 }
-
-
-

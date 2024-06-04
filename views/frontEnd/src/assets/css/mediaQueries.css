@@ -265,6 +265,12 @@ html, body, header, section, div, h1, h2, h3, h4, p {
 */
 @media all and (min-width: 1024px) and (max-width: 1280px) {
    * {margin: 0; padding: 0;}
+
+   .modal {
+      position: absolute;
+      z-index: 10000;
+      border:rgba(101, 77, 4, 1.0)
+   }
 }
 
 /**
