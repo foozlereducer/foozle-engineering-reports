@@ -11,14 +11,15 @@ import { useAuthStore } from '../src/stores/authStore'
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home,
+    name: 'Login',
+    component: Login,
     meta: { requiresAuth: false }, // Optional: Set meta data for route guarding
   },
   {
-    path: '/login',
-    name: 'Login',
-    component: Login,
+    path: '/home',
+    name: 'Home',
+    component: Home,
+    meta: { requiresAuth: true },
   },
   {
     path: '/sampleMetric',
@@ -34,13 +35,14 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach( async (to, from, next) => {
+router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
   const isAuthenticated = authStore.isAuthenticated;
+
   if (to.matched.some(record => record.meta.requiresAuth) && !isAuthenticated) {
-    next('/login'); // Redirect to login page if authentication is required but user is not authenticated
+    next({ name: 'Login' });
   } else {
-    next(); // Proceed to the next route
+    next();
   }
 });
 
