@@ -59,7 +59,6 @@ let isAuthenticated = ref(false)
 
 onMounted(()=>{
   isAuthenticated.value = authStore.isAuthenticated;
-  console.log('In Nav', isAuthenticated.value);
    handler();
 });
 

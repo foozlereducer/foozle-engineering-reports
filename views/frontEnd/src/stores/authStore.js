@@ -53,15 +53,10 @@ export const useAuthStore = defineStore('auth', {
           .then(() => {})
           .catch((error) => {
             console.error('Error signing in with redirect:', error);
-            router.push('/login');
+          
           });
-      
-        // Navigate to the home page after successful sign-in
-        router.push('/');
       } catch(e){
         console.error(e)
-         // Navigate to the home page after successful sign-in
-         router.push('/login');
       }
     },
     async setAuthState() {
@@ -99,9 +94,6 @@ export const useAuthStore = defineStore('auth', {
         // Update isAuthenticated state after successful authentication
         this.isAuthenticated = true; // Update state to true
         console.log('isAuth in authStore', this.isAuthenticated);
-
-         // Navigate to the home page after successful sign-in
-         router.push('/');
 
       } catch (error) {
         console.error('Error signing in with Google:', error);
