@@ -1,7 +1,7 @@
 import { LogSchema } from "../models/log.js";
 import { connectDB } from "../datatabase/db.js";
 
-export const logger = async (statusCode, errorMessage, severity = 'error') => {
+export const logger = async (statusCode, errorMessage, severity = 'high') => {
    
     const severities = ['fatal', 'error', 'debug', 'info'];
     
@@ -24,3 +24,7 @@ export const logger = async (statusCode, errorMessage, severity = 'error') => {
         console.log(e)
     }   
 };
+
+export const getErrorSeverity = (status) => {
+    
+}

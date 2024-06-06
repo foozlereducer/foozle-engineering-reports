@@ -6,10 +6,32 @@ import axios from 'axios';
 
 const validateUser = async (eml) => {
     const verifyUserUrl = import.meta.env.VITE_BACKEND_URL + '/v1/auth/verifyUser'
-    const response = await axios.post(
-        verifyUserUrl,
-        { "email": eml }
-    )
+    try {
+        const response = await axios.post(
+            verifyUserUrl,
+            { "email": eml }
+        )
+        if (response.data && response.data.user) {
+            return response.data.user === 'authenticated';
+          } else {
+            return { status: response.status, message: response.data.message };
+          }
+    } catch(error){
+        if (error.response) {
+            // The request was made and the server responded with a status code
+            // await logger(error.status, error, 'high', error.stack)
+            return { status: error.response.status, message: 'Contact Admin' };
+          } else if (error.request) {
+            // The request was made but no response was received
+            // await logger(error.status, error, 'high', error.stack)
+            return { status: 500, message: 'No response received' };
+          } else {
+            // Something happened in setting up the request that triggered an Error
+            // await logger(error.status, error, 'high', error.stack)
+            return { status: 500, message: 'Internal Server Error' };
+          }
+    }
+    
 
     if(200 !== response.status) throw new Error('Unauthorized');
 
@@ -28,7 +50,13 @@ export const getRedirectRes = async () => {
                     if (credential) {
                         const token = credential.accessToken;
                         const user = result.user;
-                        await validateUser(user.email);
+                        try {
+                            await validateUser(user.email);
+                        } catch(error) {
+                            console.log(error, error.stack)
+                        }
+                        
+
                         const userData = {
                             token: token,
                             user: user,
