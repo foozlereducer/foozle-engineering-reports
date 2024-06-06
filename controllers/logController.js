@@ -1,7 +1,8 @@
 import {logger} from '../services/logger.js';
 
-export const kog = async (req, res) => {
+export const log = async (req, res) => {
     const { status, message, severity, stack} = req.body;
-    logger(status,message, severity, stack )
+    const response = await logger(status,message, severity, stack )
+    res.send(response)
 }
 

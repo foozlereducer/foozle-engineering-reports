@@ -78,7 +78,7 @@ export const login = async (req, res) => {
 
 const getMessage = (verified) => {
     if (!verified ) {
-        return {status: 401, message: 'unauthorized'}
+        return {status: 200, message: 'unauthorized'}
     } 
     return {status: 200, message: 'authorized'}
 }

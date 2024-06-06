@@ -3,6 +3,7 @@ import { useAuthStore } from '../stores/authStore.js';
 import { getFirebase } from '../composables/firebaseInit.js';
 import { LocalStorage } from './localStorage.js';
 import axios from 'axios';
+let isValidated;
 
 const validateUser = async (eml) => {
     const verifyUserUrl = import.meta.env.VITE_BACKEND_URL + '/v1/auth/verifyUser'
@@ -11,11 +12,9 @@ const validateUser = async (eml) => {
             verifyUserUrl,
             { "email": eml }
         )
-        if (response.data && response.data.user) {
-            return response.data.user === 'authenticated';
-          } else {
-            return { status: response.status, message: response.data.message };
-          }
+        
+        return { status: response.status, message: response.data.user };
+        
     } catch(error){
         if (error.response) {
             // The request was made and the server responded with a status code
@@ -31,11 +30,6 @@ const validateUser = async (eml) => {
             return { status: 500, message: 'Internal Server Error' };
           }
     }
-    
-
-    if(200 !== response.status) throw new Error('Unauthorized');
-
-    return true;
 }
 export const getRedirectRes = async () => {
     const firebaseApp = await getFirebase();
@@ -50,26 +44,29 @@ export const getRedirectRes = async () => {
                     if (credential) {
                         const token = credential.accessToken;
                         const user = result.user;
+                        
                         try {
-                            await validateUser(user.email);
+                            isValidated = await validateUser(user.email)
+                            if ('authorized' === isValidated.message) {
+                                const userData = {
+                                    token: token,
+                                    user: user,
+                                }
+                                const saveCookieUrl = import.meta.env.VITE_BACKEND_URL + '/v1/auth/saveCookie'
+                                const response = await axios.post(
+                                    saveCookieUrl,
+                                    { token, user }
+                                )
+                    
+                                if(200 !== response.status) throw new Error('Failed to store authentication data.');
+    
+                                resolve(userData);
+                            } else {
+                                console.log(isValidated)
+                            }   
                         } catch(error) {
                             console.log(error, error.stack)
                         }
-                        
-
-                        const userData = {
-                            token: token,
-                            user: user,
-                        }
-                        const saveCookieUrl = import.meta.env.VITE_BACKEND_URL + '/v1/auth/saveCookie'
-                        const response = await axios.post(
-                            saveCookieUrl,
-                            { token, user }
-                        )
-            
-                        if(200 !== response.status) throw new Error('Failed to store authentication data.');
-
-                        resolve(userData);
                     } else {
                         reject(new Error('Credential is null'));
                     }

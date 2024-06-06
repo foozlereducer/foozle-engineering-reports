@@ -6,3 +6,5 @@ router.post(
     "/v1/api/log", 
     log
 )
+
+export {router as logRouter};

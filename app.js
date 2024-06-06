@@ -8,6 +8,7 @@ import {indexRouter} from './routes/index.js';
 import {storyPointsRouter} from './routes/metrics.js';
 import {catalogRouter} from './routes/catalog.js';
 import { authRouter } from './routes/auth.js';
+import { logRouter } from './routes/log.js';
 import cors from 'cors';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import cookieParser from 'cookie-parser';
@@ -43,9 +44,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser());
 app.use(cors());
 app.use('/', indexRouter);
-app.use('/api/storyPoints', storyPointsRouter)
-app.use('/api/metrics', catalogRouter)
-app.use('/', authRouter)
+app.use('/api/storyPoints', storyPointsRouter);
+app.use('/api/metrics', catalogRouter);
+app.use('/', authRouter);
+app.use('/', logRouter);
 
 /**
  * Database - MongoDB using Mongoose ORM
