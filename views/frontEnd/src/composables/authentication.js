@@ -7,6 +7,8 @@ import { getRedirectRes } from '../composables/redirectResults.js';
 import { useRouter } from 'vue-router';
 import { createDeviceSize } from '../composables/deviceSize.js';
 import { devices } from '../composables/devices.js';
+import router from '../../router/index.js';
+import { navigateTo } from './navigation.js';
 
 export const setLogin = async () => {
   const authStore = useAuthStore(); // Access the auth store
@@ -48,7 +50,7 @@ export function useAuth(isAuth=false) {
   const handleSignOut = async () => {
     try {
       await authStore.signOut();
-      router.push('/Login');
+      navigateTo(router, 'Login')
     } catch (error) {
       console.error('Sign-out failed:', error.message);
       // Handle sign-out failure
@@ -58,6 +60,11 @@ export function useAuth(isAuth=false) {
   const handleSignIn = async () => {
     try {
       await authStore.signInWithRedirect();
+      if (authStore.isAuthenticated) {
+        navigateTo(router, "Home")
+      } else {
+        navigateTo(router, 'Login')
+      }
     } catch (error) {
       console.error('Google sign-in failed:', error.message);
       // Handle sign-in failure

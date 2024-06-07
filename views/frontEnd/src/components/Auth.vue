@@ -22,8 +22,6 @@ import { createDeviceSize } from '../composables/deviceSize';
 import { devices } from '../composables/devices';
 import { ref, onBeforeMount } from 'vue';
 import { LocalStorage } from '../composables/localStorage.js';
-import { navigateTo } from '../composables/navigation.js';
-import router from '../../router/index.js';
 const auth = useAuth();
 const authStore = useAuthStore();
 const sizes = createDeviceSize(devices);
@@ -47,11 +45,7 @@ onBeforeMount(() => {
 });
 watchEffect(() => {
   isAuthenticated.value = authStore.getIsAuthenticated();
-  if (isAuthenticated.value) {
-    navigateTo(router, 'Home');
-  } else {
-    navigateTo(router, 'Login')
-  }
+  console.log('In Auth', isAuthenticated.value);
 });
 
 </script>

@@ -2,6 +2,7 @@ import { getAuth, getRedirectResult, GoogleAuthProvider } from 'firebase/auth';
 import { useAuthStore } from '../stores/authStore.js';
 import { getFirebase } from '../composables/firebaseInit.js';
 import { LocalStorage } from './localStorage.js';
+import router from '../../router/index.js';
 
 import axios from 'axios';
 let isValidated;
@@ -50,6 +51,7 @@ export const getRedirectRes = async () => {
                         try {
                             isValidated = await validateUser(user.email)
                             if ('authorized' === isValidated.message) {
+                                router.push('/Home');
                                 const userData = {
                                     token: token,
                                     user: user,

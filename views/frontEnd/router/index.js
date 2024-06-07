@@ -25,7 +25,7 @@ const routes = [
     path: '/sampleMetric',
     name: 'sampleMetric',
     component: SampleMetric,
-    meta: {requiresAuth: true}
+    meta: {requiresAuth: false}
   }
   
 ];
@@ -35,15 +35,6 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
-  const authStore = useAuthStore();
-  const isAuthenticated = authStore.isAuthenticated;
 
-  if (to.matched.some(record => record.meta.requiresAuth) && !isAuthenticated) {
-    next({ name: 'Login' });
-  } else {
-    next();
-  }
-});
 
 export default router;

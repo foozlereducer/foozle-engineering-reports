@@ -12,7 +12,6 @@ import Modal from '../components/Modal.vue';
 
 const authStore = useAuthStore();
 const showModal = computed(() => authStore.showModal);
-console.log('modal', authStore.showModal)
 </script>
 
 

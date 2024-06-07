@@ -8,7 +8,6 @@ import {
   signInWithRedirect
 } from 'firebase/auth';
 import axios from 'axios';
-import router from '../../router/index';
 import {getFirebase} from '../composables/firebaseInit.js';
 import { getRedirectRes } from '../composables/redirectResults.js';
 import { LocalStorage } from '../composables/localStorage.js';
@@ -54,11 +53,14 @@ export const useAuthStore = defineStore('auth', {
         const provider = new GoogleAuthProvider();
       
         signInWithRedirect(this.auth, provider) 
-          .then(() => {})
+          .then(() => {
+           
+          })
           .catch((error) => {
             console.error('Error signing in with redirect:', error);
           
           });
+          this.isAuthenticated = true;
       } catch(e){
         console.error(e)
       }
