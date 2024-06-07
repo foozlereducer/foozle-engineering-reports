@@ -18,6 +18,7 @@ export const useAuthStore = defineStore('auth', {
     isAuthenticated: false,
     auth: null, // Initialize auth property
     isMobile: false,
+    showModal: false,
   }),
   actions: {
     getThisAuth() {
@@ -37,6 +38,9 @@ export const useAuthStore = defineStore('auth', {
     },
     getIsMobile() {
       return this.isMobile;
+    },
+    toggleModal() {
+      this.showModal = !this.showModal;
     },
     async signInWithRedirect() {
       try {

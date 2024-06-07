@@ -2,6 +2,7 @@ import { getAuth, getRedirectResult, GoogleAuthProvider } from 'firebase/auth';
 import { useAuthStore } from '../stores/authStore.js';
 import { getFirebase } from '../composables/firebaseInit.js';
 import { LocalStorage } from './localStorage.js';
+
 import axios from 'axios';
 let isValidated;
 
@@ -35,6 +36,7 @@ export const getRedirectRes = async () => {
     const firebaseApp = await getFirebase();
     const auth = getAuth(firebaseApp);
     const LS = new LocalStorage(new useAuthStore())
+    const authStore = useAuthStore();
 
     return new Promise((resolve, reject) => {
         getRedirectResult(auth)
@@ -63,6 +65,7 @@ export const getRedirectRes = async () => {
                                 resolve(userData);
                             } else {
                                 console.log(isValidated)
+                                authStore.toggleModal();
                             }   
                         } catch(error) {
                             console.log(error, error.stack)
