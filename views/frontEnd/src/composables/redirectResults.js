@@ -51,7 +51,6 @@ export const getRedirectRes = async () => {
                         try {
                             isValidated = await validateUser(user.email)
                             if ('authorized' === isValidated.message) {
-                                router.push('/Home');
                                 const userData = {
                                     token: token,
                                     user: user,

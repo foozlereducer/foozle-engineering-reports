@@ -36,7 +36,6 @@ export class Auth {
     }
 
     async storeAuthData(req, res) {
-        console.log('req.body', req.body)
         const { token, user } = req.body;
         if (!token || !user) {
             return res.status(400).json({ message: 'Token and user data are required.' });
