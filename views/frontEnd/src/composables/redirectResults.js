@@ -33,6 +33,29 @@ const validateUser = async (eml) => {
           }
     }
 }
+
+const updateAttempts = async (email, reset = false) => {
+    const updateAttemptsUrl = import.meta.env.VITE_BACKEND_URL + '/v1/auth/updateAttempts';
+    try {
+        const response = await axios.post(updateAttemptsUrl, { email, reset });
+        return response.data;
+    } catch (error) {
+        console.error('Error updating attempts:', error);
+        throw error;
+    }
+};
+
+const checkBlocked = async (email) => {
+    const checkBlockedUrl = import.meta.env.VITE_BACKEND_URL + '/v1/auth/checkBlocked';
+    try {
+        const response = await axios.post(checkBlockedUrl, { email });
+        return response.data.isBlocked;
+    } catch (error) {
+        console.error('Error checking if blocked:', error);
+        throw error;
+    }
+};
+
 export const getRedirectRes = async () => {
     const firebaseApp = await getFirebase();
     const auth = getAuth(firebaseApp);
@@ -49,6 +72,13 @@ export const getRedirectRes = async () => {
                         const user = result.user;
                         
                         try {
+                            const isBlocked = await checkBlocked(user.email);
+                            if (isBlocked) {
+                                console.log('User is blocked due to too many failed attempts');
+                                authStore.toggleModal();
+                                return;
+                            }
+
                             isValidated = await validateUser(user.email)
                             if ('authorized' === isValidated.message) {
                                 router.push('/Home');
@@ -66,7 +96,8 @@ export const getRedirectRes = async () => {
     
                                 resolve(userData);
                             } else {
-                                console.log(isValidated)
+                                console.log(isValidated);
+                                await updateAttempts(user.email);
                                 authStore.toggleModal();
                             }   
                         } catch(error) {
