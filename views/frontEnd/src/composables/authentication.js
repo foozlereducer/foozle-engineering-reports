@@ -20,7 +20,6 @@ export const setLogin = async () => {
         authStore.setIsAuthenticated(true);
       }
       isAuthenticated.value = authStore.getIsAuthenticated()
-      console.log(isAuthenticated.value, 'in Auth')
   });
   watchEffect(() => {
     // Force re-render by accessing the value

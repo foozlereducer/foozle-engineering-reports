@@ -5,6 +5,10 @@ import { LocalStorage } from './localStorage.js';
 import router from '../../router/index.js';
 
 import axios from 'axios';
+
+// required to set so requests can be sent to a secure backend
+axios.defaults.withCredentials = true;;
+
 let isValidated;
 
 const validateUser = async (eml) => {
@@ -47,7 +51,7 @@ export const getRedirectRes = async () => {
                     if (credential) {
                         const token = credential.accessToken;
                         const user = result.user;
-                        
+                    
                         try {
                             isValidated = await validateUser(user.email)
                             if ('authorized' === isValidated.message) {
@@ -61,12 +65,10 @@ export const getRedirectRes = async () => {
                                     saveCookieUrl,
                                     { token, user }
                                 )
-                    
                                 if(200 !== response.status) throw new Error('Failed to store authentication data.');
     
                                 resolve(userData);
                             } else {
-                                console.log(isValidated)
                                 authStore.toggleModal();
                             }   
                         } catch(error) {

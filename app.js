@@ -42,7 +42,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser());
-app.use(cors());
+
+const corsOptions = {
+  origin: process.env.FRONT_END_URL, // Allow requests from this origin
+  credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+};
+app.use(cors(corsOptions));
 app.use('/', indexRouter);
 app.use('/api/storyPoints', storyPointsRouter);
 app.use('/api/metrics', catalogRouter);

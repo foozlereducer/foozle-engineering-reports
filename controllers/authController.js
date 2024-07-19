@@ -7,7 +7,6 @@ import { Allowed } from '../models/allowed.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from "bcrypt";
 
-
 export const authSaveCookieController = (Auth) => async (req, res, next) => {
     try {
         Auth.storeAuthData(req, res, next);
@@ -15,6 +14,40 @@ export const authSaveCookieController = (Auth) => async (req, res, next) => {
         next(error);
     }
 };
+
+export const authValidateSessionContoller = (Auth) => async (req, res, next) => {
+    try {
+        Auth.validateSession(req, res, next);
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const authLogoutController = (TokenModel) => async (req, res, next) => {
+    try {
+        const { sessionId } = req.cookies;
+        console.log('Session ID from cookie:', sessionId); // Debugging log
+
+        if (!sessionId) {
+            return res.status(400).json({ message: 'Session ID not found in cookies' });
+        }
+
+        const result = await TokenModel.deleteOne({ sessionId });
+        console.log('Delete result:', result); // Debugging log
+
+        res.clearCookie('sessionId', {
+            httpOnly: true,
+            sameSite: 'strict',
+            secure: true,
+        });
+
+        res.status(200).json({ message: 'Logout successful' });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
 
 export const authIsAuthenticatedController = (Auth) => async (req, res, next) => {
     try {

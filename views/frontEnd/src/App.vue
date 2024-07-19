@@ -40,6 +40,7 @@ import Sideboard from '../src/components/Sidebar.vue';
 import Footer from '../src/components/Footer.vue';
 import { onMounted, onBeforeMount, ref, watchEffect} from 'vue';
 import { LocalStorage } from './composables/localStorage.js';
+import router from '../router';
 
 let loaded = ref();
 let LS;
@@ -53,14 +54,27 @@ function checkForMobile() {
   loaded.value = true;
 }
 
+async function checkSession() {
+  const authStore = useAuthStore(); // Access the auth store
+  const { isValid, user } = await authStore.validateSession();
+  
+  if (isValid) {
+    authStore.setUser(user);
+  } else {
+    router.push('/login');
+  }
+  loaded.value = true;
+}
+
 onBeforeMount(() => {
     checkForMobile();
 });
 
 onMounted(async () => {
+  checkSession();
   checkForMobile() 
   const res =  await authStore.setAuthState();
-  const props = {  isAuthenticated: authStore.getIsAuthenticated()}
+  
 
   loaded.value = res;
 })

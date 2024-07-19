@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { initializeApp } from 'firebase/app';
+
 import { 
   getAuth, 
   signInWithPopup, 
@@ -18,6 +19,7 @@ export const useAuthStore = defineStore('auth', {
     auth: null, // Initialize auth property
     isMobile: false,
     showModal: false,
+    user: null
   }),
   actions: {
     getThisAuth() {
@@ -40,6 +42,11 @@ export const useAuthStore = defineStore('auth', {
     },
     toggleModal() {
       this.showModal = !this.showModal;
+    },
+    setUser(user) {
+      if( user ) {
+        this.user = user;
+      }
     },
     async signInWithRedirect() {
       try {
@@ -99,7 +106,6 @@ export const useAuthStore = defineStore('auth', {
 
         // Update isAuthenticated state after successful authentication
         this.isAuthenticated = true; // Update state to true
-        console.log('isAuth in authStore', this.isAuthenticated);
 
       } catch (error) {
         console.error('Error signing in with Google:', error);
@@ -108,20 +114,38 @@ export const useAuthStore = defineStore('auth', {
     },
     async signOut() {
       try {
+        
         // Delete the auth in localstorage
         const LS = new LocalStorage(this.getThisAuth())
         LS.removeAuthData();
         this.isAuthenticated = false; // Update state to false
-        if (this.auth) {
-          // Sign out the user
-          await signOut(this.auth); 
-          // Reset auth and isAuthenticated state after sign-out
-          this.auth = null;
-        }
+          // Call the backend to clear the session cookie
+        await axios.post(import.meta.env.VITE_BACKEND_URL + '/v1/auth/logout', {}, 
+          { withCredentials: true }
+        );
        
       } catch (error) {
         console.error('Error signing out:', error);
         throw error;
+      }
+    },
+    async validateSession() {
+      try {
+        const response = await axios.get(
+          import.meta.env.VITE_BACKEND_URL + '/v1/auth/validateSession', 
+          { withCredentials: true }
+        );
+        if (response.data.isValid) {
+          this.isAuthenticated = true;
+          return { isValid: true, user: response.data.user };
+        } else {
+          this.isAuthenticated = false;
+          return { isValid: false, user: null };
+        }
+      } catch (error) {
+        console.error('Session validation failed:', error);
+        this.isAuthenticated = false;
+        return { isValid: false, user: null };
       }
     },
   },

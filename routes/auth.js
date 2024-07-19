@@ -1,10 +1,13 @@
 import express from 'express';
 import { 
     authSaveCookieController,
-    authIsAuthenticatedController 
+    authIsAuthenticatedController,
+    authValidateSessionContoller,
+    authLogoutController
 } from '../controllers/authController.js';
 import { Auth } from '../services/auth/Auth.js'
 import { verifyUser } from '../controllers/authController.js';
+import { TokenModel } from '../models/token.js';
 const router = express.Router();
 const AuthService = new Auth();
 
@@ -19,13 +22,14 @@ router.post(
 )
 
 .get(
-    "/v1/auth/isAuthenticated",
-    authIsAuthenticatedController(AuthService)
+    "/v1/auth/validateSession",
+    authValidateSessionContoller(AuthService), 
+    (req, res) => res.status(200).json({ message: 'Session is valid', user: req.user })
 )
 
-.post(
-    '/v1/auth/register',
-   
+.get(
+    "/v1/auth/isAuthenticated",
+    authIsAuthenticatedController(AuthService)
 )
 
 
@@ -33,5 +37,10 @@ router.post(
     '/v1/auth/verifyUser',
     verifyUser
 )
+
+.post(
+    '/v1/auth/logout',
+    authLogoutController(TokenModel)
+);
 
 export {router as authRouter};
