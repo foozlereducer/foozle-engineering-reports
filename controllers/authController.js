@@ -26,22 +26,31 @@ export const authValidateSessionContoller = (Auth) => async (req, res, next) => 
 export const authLogoutController = (TokenModel) => async (req, res, next) => {
     try {
         const { sessionId } = req.cookies;
-        console.log('Session ID from cookie:', sessionId); // Debugging log
-
+        
         if (!sessionId) {
             return res.status(400).json({ message: 'Session ID not found in cookies' });
         }
 
-        const result = await TokenModel.deleteOne({ sessionId });
-        console.log('Delete result:', result); // Debugging log
-
+        // Clean upd the token and user from Mongo
+        
+        const tokenDeleteRes = await TokenModel.deleteOne({ sessionId });
+    
+        // Delete the sessionId cookie
         res.clearCookie('sessionId', {
             httpOnly: true,
             sameSite: 'strict',
             secure: true,
         });
-
-        res.status(200).json({ message: 'Logout successful' });
+        let clearedSessionId = false;
+        if (req.cookies.sessionId) {
+            clearedSessionId = true;
+        }
+        console.log('Cookie clearing result', tokenDeleteRes.deletedCount ,clearedSessionId)
+        if( 1 == tokenDeleteRes.deletedCount && clearedSessionId) {
+            res.status(200).json({ message: 'Logout successful' });
+        } else {
+            res.status(400).json({message: `Auth data not deleted`})
+        }
     } catch (error) {
         next(error);
     }
