@@ -78,4 +78,36 @@ export class Auth {
             res.status(401).json({ message: 'Unauthorized', error: error.message });
         }
     }
+
+    async logout(req, res, next){
+        try {
+            const { sessionId } = req.cookies;
+            
+            if (!sessionId) {
+                return res.status(400).json({ message: 'Session ID not found in cookies' });
+            }
+    
+            // Clean upd the token and user from Mongo
+            const tokenDeleteRes = await TokenModel.deleteOne({ sessionId });
+        
+            // Delete the sessionId cookie
+            res.clearCookie('sessionId', {
+                httpOnly: true,
+                sameSite: 'strict',
+                secure: true,
+            });
+            let clearedSessionId = false;
+            if (req.cookies.sessionId) {
+                clearedSessionId = true;
+            }
+            // To be successful both the Mongo record and the cookie need to be cleared
+            if( 1 == tokenDeleteRes.deletedCount && clearedSessionId) {
+                res.status(200).json({ message: 'Logout successful' });
+            } else {
+                res.status(400).json({message: `Auth data not deleted`})
+            }
+        } catch (error) {
+            next(error);
+        }
+    }
 }
