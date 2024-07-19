@@ -87,7 +87,7 @@ export class Auth {
                 return res.status(400).json({ message: 'Session ID not found in cookies' });
             }
     
-            // Clean upd the token and user from Mongo
+            // Clean up the token and user from Mongo
             const tokenDeleteRes = await TokenModel.deleteOne({ sessionId });
         
             // Delete the sessionId cookie
