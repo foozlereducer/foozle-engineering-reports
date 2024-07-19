@@ -40,7 +40,7 @@ router.post(
 
 .post(
     '/v1/auth/logout',
-    authLogoutController(TokenModel)
+    authLogoutController(AuthService)
 );
 
 export {router as authRouter};
