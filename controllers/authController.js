@@ -23,9 +23,9 @@ export const authValidateSessionContoller = (Auth) => async (req, res, next) => 
     }
 }
 
-export const authLogoutController = async (req, res, next) => {
+export const authLogoutController = (Auth) => async (req, res, next) => {
     try {
-        Auth.validateSession(req, res, next);
+        Auth.logout(req, res, next);
     } catch (error) {
         next(error);
     }
