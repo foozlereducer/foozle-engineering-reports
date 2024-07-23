@@ -17,6 +17,14 @@ export default defineConfig({
     https: {
       key: fs.readFileSync(path.resolve(__dirname, '../../bin/localhost-key.pem')),
       cert: fs.readFileSync(path.resolve(__dirname, '../../bin/localhost.pem'))
-    }
-  }
+    },
+    proxy: {
+      '/api': {
+        target: 'https://localhost:3000', // Your backend server
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
+  },
 })
