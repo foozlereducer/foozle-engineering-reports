@@ -53,6 +53,11 @@ app.use('/api/storyPoints', storyPointsRouter);
 app.use('/api/metrics', catalogRouter);
 app.use('/', authRouter);
 app.use('/', logRouter);
+// Middleware to log cookies
+app.use((req, res, next) => {
+  console.log('Cookies before handling request:', req.cookies);
+  next();
+});
 
 /**
  * Database - MongoDB using Mongoose ORM

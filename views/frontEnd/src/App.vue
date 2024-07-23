@@ -60,6 +60,7 @@ async function checkSession() {
   
   if (isValid) {
     authStore.setUser(user);
+    authStore.isAuthenticated = true
   } else {
     router.push('/login');
   }
@@ -71,11 +72,9 @@ onBeforeMount(() => {
 });
 
 onMounted(async () => {
-  checkSession();
-  checkForMobile() 
   const res =  await authStore.setAuthState();
-  
-
+  checkSession();
+  checkForMobile()
   loaded.value = res;
 })
 

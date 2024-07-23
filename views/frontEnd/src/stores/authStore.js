@@ -27,6 +27,7 @@ export const useAuthStore = defineStore('auth', {
     },
     setIsAuthenticated(state) {
       this.isAuthenticated = state;
+      return this.isAuthenticated;
     },
     getIsAuthenticated() {
       return this.isAuthenticated;
@@ -73,9 +74,13 @@ export const useAuthStore = defineStore('auth', {
       }
     },
     async setAuthState() {
+        const res = await this.validateSession();
+        if ( res.isValid) {
+          return this.setIsAuthenticated(true)
+        }
         const data = await getRedirectRes();
        
-        if (data.token.length > 0) {
+        if (data.token.length > 0 || res.isValid ) {
           this.isAuthenticated = true;
         } 
 
@@ -119,9 +124,10 @@ export const useAuthStore = defineStore('auth', {
         const LS = new LocalStorage(this.getThisAuth())
         LS.removeAuthData();
         this.isAuthenticated = false; // Update state to false
+        axios.defaults.withCredentials = true;
           // Call the backend to clear the session cookie
-        await axios.post(import.meta.env.VITE_BACKEND_URL + '/v1/auth/logout', {}, 
-          { withCredentials: true }
+        await axios.post(import.meta.env.VITE_BACKEND_URL + '/v1/auth/logout',
+          {withCredentials: true} 
         );
        
       } catch (error) {
@@ -131,9 +137,10 @@ export const useAuthStore = defineStore('auth', {
     },
     async validateSession() {
       try {
+        axios.defaults.withCredentials = true;
         const response = await axios.get(
-          import.meta.env.VITE_BACKEND_URL + '/v1/auth/validateSession', 
-          { withCredentials: true }
+          import.meta.env.VITE_BACKEND_URL + '/v1/auth/validateSession',
+          {withCredentials: true}
         );
         if (response.data.isValid) {
           this.isAuthenticated = true;

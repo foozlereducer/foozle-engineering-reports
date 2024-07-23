@@ -16,7 +16,8 @@ const validateUser = async (eml) => {
     try {
         const response = await axios.post(
             verifyUserUrl,
-            { "email": eml }
+            { "email": eml },
+            {withCredentials: true}
         )
         
         return { status: response.status, message: response.data.user };
@@ -63,7 +64,8 @@ export const getRedirectRes = async () => {
                                 const saveCookieUrl = import.meta.env.VITE_BACKEND_URL + '/v1/auth/saveCookie'
                                 const response = await axios.post(
                                     saveCookieUrl,
-                                    { token, user }
+                                    { token, user },
+                                    {withCredentials: true}
                                 )
                                 if(200 !== response.status) throw new Error('Failed to store authentication data.');
     

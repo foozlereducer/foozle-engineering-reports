@@ -23,7 +23,7 @@ router.post(
 
 .get(
     "/v1/auth/validateSession",
-    authValidateSessionContoller(AuthService), 
+    authValidateSessionContoller(AuthService),
     (req, res) => res.status(200).json({ message: 'Session is valid', user: req.user })
 )
 
