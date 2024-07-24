@@ -12,6 +12,7 @@ import axios from 'axios';
 import {getFirebase} from '../composables/firebaseInit.js';
 import { getRedirectRes } from '../composables/redirectResults.js';
 import { LocalStorage } from '../composables/localStorage.js';
+import { sendLog } from '../composables/sendLog.js';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -65,7 +66,7 @@ export const useAuthStore = defineStore('auth', {
            
           })
           .catch((error) => {
-            console.error('Error signing in with redirect:', error);
+            sendLog(401,'Error signing in with redirect.','error', error.stack)
           
           });
           this.isAuthenticated = true;
@@ -113,8 +114,7 @@ export const useAuthStore = defineStore('auth', {
         this.isAuthenticated = true; // Update state to true
 
       } catch (error) {
-        console.error('Error signing in with Google:', error);
-        throw error;
+        sendLog(400,'Error signing in with Google.', 'error'. error.stack)
       }
     },
     async signOut() {
@@ -131,7 +131,7 @@ export const useAuthStore = defineStore('auth', {
         );
        
       } catch (error) {
-        console.error('Error signing out:', error);
+        sendLog(400, 'Error signing out:', 'error', error.stack)
         throw error;
       }
     },
@@ -150,7 +150,7 @@ export const useAuthStore = defineStore('auth', {
           return { isValid: false, user: null };
         }
       } catch (error) {
-        console.error('Session validation failed:', error);
+        sendLog(401,'Session validation failed:', 'error', error.stack)
         this.isAuthenticated = false;
         return { isValid: false, user: null };
       }

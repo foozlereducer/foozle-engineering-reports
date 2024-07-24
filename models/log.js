@@ -20,6 +20,10 @@ export const logSchema = new Schema({
         enum: ['fatal', 'error', 'debug', 'info'],
         default: 'error'
     },
+    error: {
+        type: String,
+        required: true
+    },
     createdAt: Date
 })
 

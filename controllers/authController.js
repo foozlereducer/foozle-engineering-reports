@@ -6,6 +6,7 @@ import { connectDB } from '../datatabase/db.js';
 import { Allowed } from '../models/allowed.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from "bcrypt";
+import { sendLog } from '../views/frontEnd/src/composables/sendLog.js';
 
 export const authSaveCookieController = (Auth) => async (req, res, next) => {
     try {
@@ -64,18 +65,6 @@ export const googleLogin = async (req, res) => {
     }
 };
 
-export const register = async (req, res) => {
-    try {
-        const { username, password } = req.body;
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const user = new User({ username, password: hashedPassword });
-        await user.save();
-        res.status(201).json({ message: 'User registered successfully' });
-    } catch (error) {
-        res.status(500).json({ error: 'Registration failed' });
-    }
-}
-
 export const login = async (req, res) => {
     try {
         const { username, email, password } = req.body;
@@ -107,7 +96,8 @@ export const verifyUser = async (req, res) => {
         const result = getMessage(verified);
         res.status(result.status).json({ user: result.message });
     } catch (error) {
-        res.status(401).json({ error: 'Verificating user failed' });
+        res.status(401);
+        sendLog(401, 'Verificating user failed', 'error', error.stack)
     }
     
 }
