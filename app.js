@@ -71,7 +71,7 @@ connectDB();
 // Catch-all route for undefined routes
 app.all('*', async (req, res) => {
   res.status(404).send(`Route ${req.url} is not found`);
-  await logger(404, `Route ${req.url} is not found`)
+  await logger(404, `Route ${req.url} is not found`, 'error', `Route ${req.url} is not found`)
 });
 
 
