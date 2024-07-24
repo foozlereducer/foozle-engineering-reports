@@ -54,28 +54,14 @@ function checkForMobile() {
   loaded.value = true;
 }
 
-async function checkSession() {
-  const authStore = useAuthStore(); // Access the auth store
-  const { isValid, user } = await authStore.validateSession();
-  
-  if (isValid) {
-    authStore.setUser(user);
-    authStore.isAuthenticated = true
-  } else {
-    router.push('/login');
-  }
-  loaded.value = true;
-}
-
 onBeforeMount(() => {
     checkForMobile();
 });
 
 onMounted(async () => {
-  const res =  await authStore.setAuthState();
-  checkSession();
+  // const res =  await authStore.setAuthState();
   checkForMobile()
-  loaded.value = res;
+  // loaded.value = res;
 })
 
 watchEffect(() => {
