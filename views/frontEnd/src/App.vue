@@ -62,11 +62,10 @@ onMounted(async () => {
   const res =  await authStore.setAuthState();
   checkForMobile()
   loaded.value = res;
+  // Periodic session validation
+  const intervalId = setInterval(async () => {
+    await authStore.validateSession();
+  }, 15 * 60 * 1000); // Check every 15 minutes
 })
-
-watchEffect(async () => {
-    // Assuming setAuthState is asynchronous and might change auth state
-    await authStore.validateSession()
-});
 </script>
 
