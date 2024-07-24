@@ -59,16 +59,14 @@ onBeforeMount(() => {
 });
 
 onMounted(async () => {
-  // const res =  await authStore.setAuthState();
+  const res =  await authStore.setAuthState();
   checkForMobile()
-  // loaded.value = res;
+  loaded.value = res;
 })
 
-watchEffect(() => {
+watchEffect(async () => {
     // Assuming setAuthState is asynchronous and might change auth state
-    authStore.setAuthState().then(() => {
-        loaded.value = true;
-    });
+    await authStore.validateSession()
 });
 </script>
 
