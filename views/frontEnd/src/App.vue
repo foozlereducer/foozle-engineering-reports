@@ -59,16 +59,13 @@ onBeforeMount(() => {
 });
 
 onMounted(async () => {
-  // const res =  await authStore.setAuthState();
+  const res =  await authStore.setAuthState();
   checkForMobile()
-  // loaded.value = res;
+  loaded.value = res;
+  // Periodic session validation
+  const intervalId = setInterval(async () => {
+    await authStore.validateSession();
+  }, 15 * 60 * 1000); // Check every 15 minutes
 })
-
-watchEffect(() => {
-    // Assuming setAuthState is asynchronous and might change auth state
-    authStore.setAuthState().then(() => {
-        loaded.value = true;
-    });
-});
 </script>
 

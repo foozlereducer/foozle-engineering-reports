@@ -1,9 +1,8 @@
 import {logger} from '../services/logger.js';
 
 export const log = async (req, res) => {
-    const { status, message, severity, stack} = req.body;
-    console.log('status', status, 'message', message, 'severotu', severity, 'stack', stack)
-    const response = await logger(status, message, severity, stack )
+    const { status, message, severity, error} = req.body;
+    const response = await logger(status, message, severity, error )
     res.send(response)
 }
 

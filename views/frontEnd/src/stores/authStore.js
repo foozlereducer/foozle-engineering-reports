@@ -75,10 +75,6 @@ export const useAuthStore = defineStore('auth', {
       }
     },
     async setAuthState() {
-        const res = await this.validateSession();
-        if ( res.isValid) {
-          return this.setIsAuthenticated(true)
-        }
         const data = await getRedirectRes();
        
         if (data.token.length > 0 || res.isValid ) {
