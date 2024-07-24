@@ -60,6 +60,9 @@ onBeforeMount(() => {
 
 onMounted(async () => {
   const res =  await authStore.setAuthState();
+  if (!res) {
+    console.error('unauthenticated')
+  }
   checkForMobile()
   loaded.value = res;
   // Periodic session validation

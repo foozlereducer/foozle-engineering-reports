@@ -92,6 +92,8 @@ export const getRedirectRes = async () => {
                         } else {
                             console.log('user is not authenticated')
                         }
+                    } else {
+                        console.log('401 ~ user is not authenticated')
                     }
                 }
             })
