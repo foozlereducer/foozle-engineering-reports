@@ -162,6 +162,27 @@ nav ul li a {
    padding: 10px;
    color: white;
  }
+
+ .bar {
+   fill: rgb(44, 210, 143) !important;  /* Default color for the bars */
+   stroke: slategray !important
+ }
+
+ .line {
+   fill: none;       /* Ensure the fill is none for the line */
+   stroke: steelblue;/* Default color for the line */
+   stroke-width: 2px;
+ }
+
+ .x-axis path,
+ .y-axis path {
+   display: none;
+ }
+ 
+ .x-axis line,
+ .y-axis line {
+   stroke: #ddd;
+ }
 /**
  * Auth
  */
