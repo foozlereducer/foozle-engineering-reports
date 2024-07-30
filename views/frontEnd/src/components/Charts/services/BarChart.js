@@ -2,8 +2,6 @@ import * as d3 from 'd3';
 
 class BarChartService {
   static drawChart(element, data) {
-    console.log('Drawing Bar Chart with data:', data);
-
     // Clear the previous chart
     d3.select(element).selectAll('*').remove();
 
