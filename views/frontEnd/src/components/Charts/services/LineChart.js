@@ -2,7 +2,6 @@ import * as d3 from 'd3';
 
 class LineChartService {
   static drawChart(element, data) {
-    console.log('Drawing Line Chart with data:', data);
 
     // Clear the previous chart
     d3.select(element).selectAll('*').remove();
