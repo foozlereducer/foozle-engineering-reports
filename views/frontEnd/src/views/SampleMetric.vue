@@ -1,15 +1,14 @@
 <template>
   <h2>A bar chart</h2>
- <div class="chart-container">
-  <!-- <h2>{{ sizes.browserWidth }} pixels: Browser</h2>
+   <h2>{{ sizes.browserWidth }} pixels: Browser</h2>
     <h2>{{ sizes.deviceWidth  }} pixels: Device</h2>
-    <h2>{{ sizes.device.value }} type of Device </h2> -->
-    
-    <ChartComponent chartType="bar" :chartData="barChartData" />
+    <h2>{{ sizes.device.value }} type of Device </h2>
+ <div class="chart-container">
+    <ChartComponent chartType="bar" :chartData="barChartData" :width="chartWidth"/>
 </div>
 <h2>A line chart</h2>
 <div class="chart-container">
-    <ChartComponent chartType="line" :chartData="lineChartData" />
+    <ChartComponent chartType="line" :chartData="lineChartData" :width="chartWidth"/>
 </div>
 
 </template>
@@ -18,7 +17,7 @@
 import { createDeviceSize } from '../composables/deviceSize.js'
 import {devices} from '../composables/devices.js'
 const sizes = createDeviceSize(devices);
-import { ref } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import ChartComponent from '../components/Charts/ChartComponent.vue';
 
 // Define reactive data for the charts
@@ -35,4 +34,16 @@ const lineChartData = ref([
   { date: new Date(2021, 2, 1), value: 45 },
   { date: new Date(2021, 3, 1), value: 60 }
 ]);
+
+const updateChartWidth = () => {
+  chartWidth.value = window.innerWidth;
+};
+
+onMounted(() => {
+  window.addEventListener('resize', updateChartWidth);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateChartWidth);
+});
 </script>

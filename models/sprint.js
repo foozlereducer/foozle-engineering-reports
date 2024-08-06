@@ -3,22 +3,23 @@ import mongoose from "mongoose";
 
 // Define a schema
 const Schema = mongoose.Schema;
+
 /**
  * Story Point Report Schema
  */
 export const sprintSchema = new Schema({
-    id:{
+    id: {
         type: Number,
         required: true
-    }, 
+    },
     name: {
         type: String,
         required: true
     },
-    desc: {type: String},
-    goal: {type: String},
-    storyPointTotals:{
-        accepted:{
+    desc: { type: String },
+    goal: { type: String },
+    storyPointTotals: {
+        accepted: {
             type: Number,
             required: false
         },
@@ -33,12 +34,15 @@ export const sprintSchema = new Schema({
         estimated: {
             type: Number,
             required: false
-    
         },
         actual: {
             type: Number,
             required: false
-        },  
+        },
+    },
+    boardId: {
+        type: String, // Corrected from "tyoe" to "type"
+        required: true
     },
     startDate: {
         type: Date,
@@ -48,6 +52,6 @@ export const sprintSchema = new Schema({
         type: Date,
         required: true
     }
-})
+});
 
-export const Sprint =  mongoose.model('Sprint', sprintSchema)
+export const Sprint = mongoose.model('Sprint', sprintSchema);

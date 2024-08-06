@@ -22,7 +22,7 @@ export const logSchema = new Schema({
     },
     error: {
         type: String,
-        required: true
+        required: false
     },
     createdAt: Date
 })

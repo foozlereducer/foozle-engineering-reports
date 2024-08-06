@@ -32,6 +32,7 @@ test("The Sprints model can save and retrieve data", async t => {
             name:"Sprint 1 Data Insights",
             desc: "Some Desc",
             goal: "to survice",
+            boardId: "board_124",
             startDate: Date.now(),
             endDate: forteenDaysLater
         },
