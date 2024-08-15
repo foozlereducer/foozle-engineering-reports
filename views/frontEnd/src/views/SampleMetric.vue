@@ -39,11 +39,4 @@ const updateChartWidth = () => {
   chartWidth.value = window.innerWidth;
 };
 
-onMounted(() => {
-  window.addEventListener('resize', updateChartWidth);
-});
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', updateChartWidth);
-});
 </script>

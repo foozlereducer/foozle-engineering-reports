@@ -15,7 +15,7 @@ export class JiraRest extends iApiAdapter{
         this.httpMethod = 'GET';
     }
     
-    setRoute(route, httpMethod='GET') {
+   setRoute(route, httpMethod='GET') {
         // if this validation fails it will throw an error; otherwise
         // the route is set
         if(this.validator.validate(route).notEmpty().String()) {
@@ -46,8 +46,11 @@ export class JiraRest extends iApiAdapter{
         return response.json();
     }
 
-    async authenticate() {
-
+    async call(route, httpMethod='GET') {
+         this.setRoute(route, httpMethod);
+         return await this.runRoute();
     }
+    // needed to satisfy the interface
+    authenticate(){}
 
 }
