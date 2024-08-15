@@ -47,14 +47,15 @@ test('JiraRest.runRoute() should get the issues for ACTO sprint 910', async t=>{
     }
 })
 
-test('JiraRest.runRoute will return all sprints', async t=>{
-    // const validator = new ActoValidator()
-    // const jr = new JiraRest(validator);
-    // jr.setRoute('https://actocloud.atlassian.net/rest/agile/1.0/board?projectKeyOrId=', 'GET')
-    // const res = await jr.runRoute();
-    // console.log(res)
-    // for ( const targetIssue of res.issues ) {
-        
-    // }
-    t.true(true)
+test('JiraRest.call() should get the issues for ACTO sprint 910', async t=>{
+    const validator = new ActoValidator()
+    const jr = new JiraRest(validator);
+    const res = await jr.call('https://actocloud.atlassian.net/rest/agile/1.0/sprint/910/issue', 'GET')
+    const valres = validator.validate(res).notEmpty()
+    t.true(valres.pass)
+    for ( const targetIssue of res.issues ) {
+        if ('Incremental Sync Strategy in DWH' === targetIssue.fields.summary) {
+            t.is(targetIssue.fields.summary, 'Incremental Sync Strategy in DWH')
+        }
+    }
 })

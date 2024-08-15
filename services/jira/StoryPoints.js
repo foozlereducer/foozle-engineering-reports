@@ -5,16 +5,16 @@ export class StoryPoints {
     }
 
     categorieStoryPoints() {
-                const today = this.Dates.getNow();
-                // if( 
-                //     issue.fields.status.name === 'Done' ||
-                //     issue.fields.status.name === 'Ready To Release'
-                // ) {
-                //     this.completedStoryPoints.push(issue.fields.customfield_10023) 
+        const today = this.Dates.getNow();
+        if( 
+            issue.fields.status.name === 'Done' ||
+            issue.fields.status.name === 'Ready To Release'
+        ) {
+            this.completedStoryPoints.push(issue.fields.customfield_10023) 
 
-                // } else {
-                //     this.committedStoryPoints.push(issue.fields.customfield_10023) 
-                // }
+        } else {
+            this.committedStoryPoints.push(issue.fields.customfield_10023) 
+        }
     }
     /**
      * 
