@@ -1,7 +1,7 @@
 import test from 'ava';
-import { StoryPoints } from '../../../services/jira/StoryPoints.js';
-import { sum } from '../../../services/utilities/Sum.js';
-import { Dates } from '../../../services/utilities/Dates.js';
+import { StoryPoints } from '../../../../plugins/Jira/services/StoryPoints.js';
+import { sum } from '../../../../services/utilities/Sum.js';
+import { Dates } from '../../../../services/utilities/Dates.js';
 
 
 test(`accepted, committed, completed and estimated story points 

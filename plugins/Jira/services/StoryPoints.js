@@ -15,6 +15,7 @@ export class StoryPoints {
         } else {
             this.committedStoryPoints.push(issue.fields.customfield_10023) 
         }
+        If ( )
     }
     /**
      * 

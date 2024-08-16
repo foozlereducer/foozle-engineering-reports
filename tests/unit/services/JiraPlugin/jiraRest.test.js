@@ -1,6 +1,6 @@
 import test from 'ava';
-import { JiraRest } from '../../../services/adapters/jiraRest.js';
-import { ActoValidator } from '../../../services/validators/ActoValidator.js';
+import { JiraRest } from '../../../../plugins/Jira/services/jiraRest.js';
+import { ActoValidator } from '../../../../services/validators/ActoValidator.js';
 import { Temporal } from '@js-temporal/polyfill';
 
 test('JiraRoute.setRoute() expects a defined route', async t => {

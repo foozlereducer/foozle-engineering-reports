@@ -1,0 +1,17 @@
+The ACTO Reports framework uses AVA as a test runner and has superTest and Sinon. 
+All plugins should make use of this test library, like:
+
+You create your tests in acto-product-engineering-reports/tests/
+
+You should create a director named after your plugin and put your plugin tests within it; 
+this will keep your plugin tests grouped together.
+
+## Writing your first test ##
+import test from 'ava';
+// import your service
+import (MyService) from './some/location
+
+test('clear message as to what the test should show', async t => {
+    const ms = new MyService();
+    t.true(ms instanceof MyService);
+});
