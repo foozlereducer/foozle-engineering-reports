@@ -1,5 +1,5 @@
-import { ActoValidator } from '../validators/ActoValidator.js';
-import { iApiAdapter } from './iApiAdapter.js';
+import { ActoValidator } from '../../../services/validators/ActoValidator.js';
+import { iApiAdapter } from '../../../services/adapters/iApiAdapter.js';
 import * as dotenv from 'dotenv';
 import { base64Encode } from 'base64-esm'
 

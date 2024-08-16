@@ -1,5 +1,5 @@
-import { Projects } from '../../models/Jira/projects.js';
-import { connectDB } from '../../datatabase/db.js';
+import { Projects } from '../../../models/Jira/projects.js';
+import { connectDB } from '../../../datatabase/db.js';
 
 export class GetProjects {
     isCore;

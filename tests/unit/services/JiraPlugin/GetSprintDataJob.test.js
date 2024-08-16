@@ -1,9 +1,9 @@
 import test from 'ava';
-import { GetSprintDataJob } from '../../../../services/jira/GetSprintDataJob.js';
-import { GetProjects } from '../../../../services/jira/GetProjects.js';
-import { SprintBoards } from '../../../../services/jira/SprintBoards.js';
+import { GetSprintDataJob } from '../../../../plugins/Jira/services/GetSprintDataJob.js'
+import { GetProjects } from '../../../../plugins/Jira/services/GetProjects.js';
+import { SprintBoards } from '../../../../plugins/Jira/services/SprintBoards.js';
 import { ActoValidator } from '../../../../services/validators/ActoValidator.js';
-import { JiraRest } from '../../../../services/adapters/jiraRest.js';
+import { JiraRest } from '../../../../plugins/Jira/services/jiraRest.js';
 
 
 test('Should get all jira projects', async t=>{

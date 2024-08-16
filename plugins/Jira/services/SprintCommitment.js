@@ -1,4 +1,4 @@
-import { JiraRest } from "../adapters/jiraRest.js";
+import { JiraRest } from "./jiraRest.js";
 import { config } from "./config.js";
 
 export class SprintCommitment {

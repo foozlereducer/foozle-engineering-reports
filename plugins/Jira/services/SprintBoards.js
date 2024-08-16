@@ -1,5 +1,5 @@
-import { MergeObjs } from "../utilities/MergeObjects.js";
-import { sum } from "../utilities/Sum.js";
+import { MergeObjs } from "../../../services/utilities/MergeObjects.js";
+import { sum } from "../../../services/utilities/Sum.js";
 export class SprintBoards {
 
     constructor(jiraRest, StoryPoints, basePath = 'https://actocloud.atlassian.net' ) {

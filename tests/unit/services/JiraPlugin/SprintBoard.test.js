@@ -1,8 +1,8 @@
 import test from 'ava';
 import { ActoValidator } from '../../../../services/validators/ActoValidator.js';
-import { JiraRest } from '../../../../services/adapters/jiraRest.js';
-import { SprintBoards } from '../../../../services/jira/SprintBoards.js';
-import { GetProjects } from '../../../../services/jira/GetProjects.js';
+import { JiraRest } from './../../../../plugins/Jira/services/jiraRest.js';
+import { SprintBoards } from './../../../../plugins/Jira/services/SprintBoards.js';
+import { GetProjects } from './../../../../plugins/Jira/services/GetProjects.js';
 import { sum } from '../../../../services/utilities/Sum.js';
 
 test('getSprintBoards returns a sprint object literal with 9 fields ', async t=> {
@@ -146,7 +146,3 @@ class MockJiraRest {
     const result2 =  sprintBoards.setQualityEngineers(issueObj, issue);
     t.deepEqual( result2.ques, [])
   })
-
- 
-  
-  // Add more tests for other methods as needed
