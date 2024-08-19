@@ -1,129 +1,99 @@
-/**
- * Acto Validator 
- */
 export class ActoValidator {
-    /**
-     * Constuctor - sets up the validation class's properties
-     * @returns self
-     */
     constructor() {
-        
-        // @prop {number} value - is the value being validated
-        // it is initialized as a null  so it must be mutated to 
-        // a positive number
         this.value = null;
-
-        // @prop {boolean} chainable - defines if or if not a method is chaninable
         this.chainable = true;
-
         this.field = '';
-
-        // @prop {boolean} pass - is the flag used for pass or fail
         this.pass = false;
-
-        // The return of this is reqired to create chained methods
         return this;
     }
   
     getChainable() {
-        return this._chainable;
+        return this.chainable;
     }
 
     setChainable(mode = true) {
-        if(typeof mode !== 'boolean') {
-            throw {statusCode: 204, message:`requires setChainable(boolean), ${typeof mode} given`};
+        if (typeof mode !== 'boolean') {
+            throw { statusCode: 204, message: `requires setChainable(boolean), ${typeof mode} given` };
         }
         this.chainable = mode;
     }
 
-    
-    /**
-     * Validate is the method to use to set the value being validated
-     * It is setup as a chained method which is why it returns this
-     * @param {number} value 
-     * @returns this - instance of this object for the ability to chain 
-     */
     validate(value) {
         this.value = value;
         return this;
     }
-    /**
-     * Private typeCheck - check for a valid expected type
-     * @param {string} type 
-     */
-    #typeCheck(type='number') {
-        if('undefined' === typeof this.value) {
-            this.notEmpty(this.value)
+
+    #typeCheck(type = 'number') {
+        if ('undefined' === typeof this.value) {
+            this.notEmpty(this.value);
         }
-        if(typeof this.value !== type ) {
+        if (typeof this.value !== type) {
             this.pass = false;
-            throw {statusCode: 406, message:`Expect checked value to be a ${type}, ${typeof this.value} given`}
+            throw { statusCode: 406, message: `Expect checked value to be a ${type}, ${typeof this.value} given` };
         }
     }
-    /**
-     * Number check - validates the value is a number.
-     * @returns this - instance of this object for the ability to chain
-     */
+
     num() {
         this.#typeCheck();
         this.pass = true;
         return this;
-    };
+    }
+
     array() {
-        if(Array.isArray(this.value)) {
+        if (Array.isArray(this.value)) {
             this.pass = true;
         } else {
-            throw new Error( `Array expected ${typeof this.value} given.`); 
+            throw new Error(`Array expected ${typeof this.value} given.`);
         }
         return this;
     }
-    /**
-     *
-     * String check - validates the value is a string
-     * @returns this - instance of this object for the ability to chain
-     */
+
     String() {
         this.#typeCheck('string');
         this.pass = true;
         return this;
     }
-    /**
-     * Min Value check - validates numbers against the specified min value
-     * @param {number} minValue 
-     * @returns this - instance of this object for the ability to chain
-     */
+
     min(minValue) {
         this.#typeCheck();
         this.pass = false;
-        if(this.value <= minValue) {
-            throw new Error( `Number expected to be a least ${minValue}`);
+        if (this.value <= minValue) {
+            throw new Error(`Number expected to be at least ${minValue}`);
         }
         this.pass = true;
         return this;
     }
-    /**
-     * Not Empty - validates the inputted value is not empty
-     * @param {mixed} val 
-     * @returns 
-     */
+
     notEmpty(val = null) {
-        if( null !== val && null == this.value) {
+        if (null !== val && null == this.value) {
             this.value = val;
         }
         if (typeof this.value === 'string') {
-            this.value.trim()
+            this.value = this.value.trim();
         }
-        let error = {statusCode: 204, message:`notEmpty(val): the value passed into validate is empty, it needs a value to test`};
-        // verify val is not either null or empty. Trim in-case of leading whitespace
-        if(typeof this.value === 'undefined' || this.value === null || this.value.length === 0) {
-            throw error;
+        if (typeof this.value === 'undefined' || this.value === null || this.value.length === 0) {
+            throw { statusCode: 204, message: `The value passed into validate is empty, it needs a value to test` };
         }
-        
         if (this.chainable === true) {
-            return this
+            return this;
         } else {
             this.field = this.value;
-            return this.field.length !== 0
+            return this.field.length !== 0;
         }
+    }
+
+    // Middleware function to use in Express with chaining support
+    
+    static validateMiddleware(...validators) {
+        return (req, res, next) => {
+            try {
+                for (const validator of validators) {
+                    validator(req);
+                }
+                next(); // If all validations pass, call next() to continue
+            } catch (error) {
+                res.status(400).json({ error: error.message });
+            }
+        };
     }
 }
