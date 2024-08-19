@@ -33,7 +33,7 @@ test(".min(4) should error when passed a value less than 4", async t => {
     try {
         Validator.validate(2).min(minValue);
     } catch(e) {
-        t.is(e.message, `Number expected to be a least ${minValue}`)
+        t.is(e.message, `Number expected to be at least ${minValue}`)
     }
 });
 
@@ -50,7 +50,7 @@ test("valide(value): value must be a positive integer", async t => {
     try {
         Validator.validate(boundary2).min(4)
     } catch(e) {
-        t.is(e.message,`Number expected to be a least 4`)
+        t.is(e.message,`Number expected to be at least 4`)
     }
 });
 

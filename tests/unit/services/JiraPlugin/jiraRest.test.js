@@ -10,7 +10,7 @@ test('JiraRoute.setRoute() expects a defined route', async t => {
         jr.setRoute()
     } catch(e) {
         t.is(e.statusCode, 204)
-        t.is(e.message, 'notEmpty(val): the value passed into validate is empty, it needs a value to test')
+        t.is(e.message, 'The value passed into validate is empty, it needs a value to test')
     }
 })
 
