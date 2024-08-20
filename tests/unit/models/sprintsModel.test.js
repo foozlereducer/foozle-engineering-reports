@@ -1,6 +1,6 @@
 import test from 'ava';
 import mongoose from "mongoose";
-import { sprintsSchema } from '../../../models/sprints.js';
+import { sprintSchema } from '../../../models/sprint.js';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
 let mongoServer;
@@ -21,18 +21,18 @@ test.after.always(async () => {
   await mongo.stop()
 })
 
-test("The Sprints model can save and retrieve data", async t => {
+test.serial("The Sprints model can save and retrieve data", async t => {
     let forteenDaysLater = new Date();
     forteenDaysLater.setDate(forteenDaysLater.getDate() + 14);
-    const SprintsIndex = mongoose.model('projectsIndex', sprintsSchema);
+    const SprintsIndex = mongoose.model('projectsIndex', sprintSchema);
     const data = {
         team: 'TBP',
         sprint:{
             id:910, 
+            boardId: "board_124",
             name:"Sprint 1 Data Insights",
             desc: "Some Desc",
             goal: "to survice",
-            boardId: "board_124",
             startDate: Date.now(),
             endDate: forteenDaysLater
         },
@@ -63,4 +63,5 @@ test("The Sprints model can save and retrieve data", async t => {
      const retrievedData = await SprintsIndex.findById(result._id);
      t.deepEqual(retrievedData.toObject(), result.toObject());
 });
+
 

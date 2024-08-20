@@ -14,7 +14,7 @@ router.get("/", index)
 .get("/firebaseConfig", firebaseConfigGet)
 
 .get(
-    "/story_points/create",
+    "/v1/story_points/create",
     story_point_get
 )
 
@@ -23,14 +23,19 @@ router.get("/", index)
 )
 // POST request for creating Story Points.
 .post(
-    "/story_points/create",
+    "/v1/story_points/create",
     story_points_create_post
 )
 
 // POST request to delete story points.
 .post(
-    "/story_points/:id/delete", 
+    "/v1/story_points/:id/delete", 
     story_points_delete_post
-);
+)
+
+.get(
+    "/v1/triggerCurrentSprintsCommittedStoryPoints",
+    story_points_delete_post
+)
 
 export {router as catalogRouter};

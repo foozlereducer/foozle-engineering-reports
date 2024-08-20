@@ -9,6 +9,10 @@ import {storyPointsRouter} from './routes/metrics.js';
 import {catalogRouter} from './routes/catalog.js';
 import { authRouter } from './routes/auth.js';
 import { logRouter } from './routes/log.js';
+
+/** Plugins  */
+import { jiraMetricsRouter } from './plugins/Jira/routes/metricsRoutes.js';
+/** End Plugins */
 import cors from 'cors';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import cookieParser from 'cookie-parser';
@@ -53,6 +57,12 @@ app.use('/api/storyPoints', storyPointsRouter);
 app.use('/api/metrics', catalogRouter);
 app.use('/', authRouter);
 app.use('/', logRouter);
+
+/** Plugins */
+// Jira Plugin
+app.use('/', jiraMetricsRouter)
+/** End Plugins */
+
 // Middleware to log cookies
 app.use((req, res, next) => {
   console.log('Cookies before handling request:', req.cookies);

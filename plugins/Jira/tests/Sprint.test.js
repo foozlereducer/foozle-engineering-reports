@@ -1,14 +1,14 @@
 import test from 'ava';
-import { JiraRest } from '../../../../plugins/Jira/services/jiraRest.js';
-import { ActoValidator } from '../../../../services/validators/ActoValidator.js';
-import { Sprints } from '../../../../plugins/Jira/services/Sprints.js';
+import { JiraRest } from '../services/jiraRest.js';
+import { ActoValidator } from '../../../services/validators/ActoValidator.js';
+import { Sprint } from '../services/Sprint.js';
 
 let jr;
 let Sp;
 
 test.before(() => {
     jr = new JiraRest(new ActoValidator());
-    Sp = new Sprints(jr);
+    Sp = new Sprint(jr);
 });
 
 test.after.always(() => {
@@ -16,18 +16,18 @@ test.after.always(() => {
     Sp = null;
 });
 
-test('Sprints should set the jr property if an instance of JiraRest is passed', t => {
+test('Sprint should set the jr property if an instance of JiraRest is passed', t => {
     t.true(Sp.jr instanceof JiraRest);
 });
 
-test('Sprints should not throw an error if a JiraRest instance is passed', t => {
+test('Sprint should not throw an error if a JiraRest instance is passed', t => {
     t.notThrows(() => {
-        new Sprints(jr);
+        new Sprint(jr);
     });
 });
 
-test('Sprints should fetch an active sprint on board 167', async t => {
-    const res = await Sp.getSprints(167);
+test('Sprint should fetch an active sprint on board 167', async t => {
+    const res = await Sp.getSprint(167);
     t.true(res.values.length > 0);
 
     const activeSprint = res.values[0];
@@ -38,7 +38,7 @@ test('Sprints should fetch an active sprint on board 167', async t => {
 });
 
 test('getIssuesInSprint(sprintId) should return the issues in the active sprint for board 167', async t => {
-    const res = await Sp.getSprints(167);
+    const res = await Sp.getSprint(167);
     const sprintId = res.values[0].id;
     const issues = await Sp.getIssuesInSprint(sprintId);
     
