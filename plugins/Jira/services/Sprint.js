@@ -1,7 +1,7 @@
 import { JiraRest } from "./jiraRest.js";
 import { config } from "./config.js";
 
-export class Sprints {
+export class Sprint {
     constructor(JiraRestInstance) {
         // Ensure we have a Jira Rest instance passed
         if (JiraRestInstance instanceof JiraRest) {
@@ -16,7 +16,7 @@ export class Sprints {
      * @param {number} boardId 
      * @returns 
      */
-     async getSprints(boardId, queryParams = { state: 'active' }) {
+     async getSprint(boardId, queryParams = { state: 'active' }) {
         try {
             const jiraBaseUri = process.env.JIRA_API_BASE_URI;
             const uriPath = `/agile/1.0/board/${boardId}/sprint`;

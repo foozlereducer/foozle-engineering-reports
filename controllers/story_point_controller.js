@@ -1,5 +1,5 @@
 import { connectDB } from '../datatabase/db.js';
-import { Sprints } from '../models/sprints.js'
+import { Sprint } from '../models/sprint.js';
 import { logger } from '../services/logger.js';
 import { getErrorSeverity } from '../services/errorSeverity.js'
 
