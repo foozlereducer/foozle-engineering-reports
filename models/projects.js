@@ -11,6 +11,9 @@ export const projectsSchema = new Schema({
         type: String,
         required: true,
     },
+    expertise: {
+        type: String
+    },
     name:{
         type: String,
         required: true,

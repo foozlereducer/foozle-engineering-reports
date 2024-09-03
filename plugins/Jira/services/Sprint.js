@@ -49,12 +49,46 @@ export class Sprint {
               // Handle query parameters
             const queryString = new URLSearchParams(queryParams).toString();
             const fullUri = `${uri}${queryString ? '?' + queryString : ''}`;
-            console.log(fullUri)
             const response = await this.jr.call(fullUri);
             return response.issues;
         } catch (error) {
             console.error('Error fetching issues:', error);
             return [];
         }
+    }
+
+    async createSprint(boardId) {
+        const activeSprintRawObj = await this.getSprint(boardId);
+        const activeSprint = activeSprintRawObj.values[0]
+        const sprintId = activeSprint.id;
+        const sprintName = activeSprint.name;
+        const startDate = activeSprint.startDate;
+        const endDate = activeSprint.endDate;
+        const createdDate = activeSprint.createdDate;
+        const goal = activeSprint.goal;
+
+        const issues = await this.extractIssueData(sprintId);
+     
+        return issues;
+        return (typeof activeSprint === 'object');
+    }
+
+    async extractIssueData(sprintId) {
+        const issues = await this.getIssuesInSprint(sprintId)
+        return issues.map(issue => {
+            return {
+                id: issue.id,
+                name: issue.fields.summary,
+                link: issue.self,
+                key: issue.key,
+                assignee: issue.fields.assignee ? issue.fields.assignee.displayName : 'Unassigned',
+                engineers: issue.fields.customfield_10183 ? issue.fields.customfield_10183.displayName : 'N/A',
+                qualityEngineers: issue.fields.qe ? issue.fields.qe.map(qe => qe.displayName).join(', ') : 'N/A',
+                description: issue.fields.description,
+                status: issue.fields.status ? issue.fields.status.name : 'Unknown',
+                type: issue.fields.issuetype ? issue.fields.issuetype.name : 'Unknown',
+                storyPoints: issue.fields.customfield_10023 || 0
+            };
+        });
     }
 }
