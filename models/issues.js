@@ -8,6 +8,9 @@ const Schema = mongoose.Schema;
  * Issues Report Schema
  */
 export const issuesSchema = new Schema({
+    id: {
+        type: Number
+    },
     ticketId: {
         type: String,
         required: true
@@ -20,37 +23,41 @@ export const issuesSchema = new Schema({
         type:String,
         required: false,
     },
-    assignee: {
-        type: String,
-        required: true,
+    key: {
+        type:String,
+        required: false,
     },
-    engineers: [{
-        name: {
-            type: String,
-            required: true
-        }
-    }],
-    qe: [{
-        type: String,
-        required:true,
-    }],
+    assignee: {
+        type: Object
+    },
+    engineer: {
+        type: Object
+    },
+    engineers:  {
+        type: [Object]
+    },
+    reporter: {
+        type: [Object]
+    },
+    qe: {
+        type: [Object]
+    },
+    qes: {
+
+    },
     description: {
-        type: String,
-        required: true
+        type: String
     },
     status: {
-        type: String,
-        required: false
-    },
-    issueType: {
-        type: String,
-        enum: ['story', 'bug', 'task', 'sub-task', 'epic'],
-        default: 'story',
+        type: [Object],
         required: true
     },
-    storyPoints: {
-        type: storyPointSchema,
-        required: [true,  "`the estimated story point field` is required, either 0, 1, 2, 3, 5, 8, or 13"],
+    issueType: {
+        type: [Object],
+        required: true
+    },
+    storyPoint: {
+        type: Number
     }
 })
 //, {_id: false})
@@ -65,6 +72,11 @@ issuesSchema.virtual('fullname').get(function () {
     }
     return fullName
 })
+
+// Virtual for the browse link
+issuesSchema.virtual('browse').get(function () {
+    return `https://actocloud.atlassian.net/browse/${this.key}`;
+});
 
 
 export const Issues =  mongoose.model('Issues', issuesSchema)

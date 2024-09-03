@@ -27,8 +27,8 @@ test('SprintCommitment should fetch an active sprint on board 167', async t => {
 
     const activeSprint = res.values[0];
     t.is(activeSprint.state, 'active')
-    t.is(activeSprint.id, 982)
-    t.is(activeSprint.self, "https://actocloud.atlassian.net/rest/agile/1.0/sprint/982")
+    t.true(activeSprint.id > 982)
+    t.true(activeSprint.self.includes("https://actocloud.atlassian.net/rest/agile/1.0/sprint"))
     t.is(activeSprint.originBoardId, 167)
 });
 

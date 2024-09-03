@@ -24,27 +24,11 @@ export const sprintDetailsSchema = new Schema({
     desc: { type: String },
     goal: { type: String },
     storyPointTotals:{
-        accepted:{
-            type: Number,
-            enum: [0,1, 2, 3, 5, 8, 13],
-        },
-        committed: {
-            type: Number,
-            enum: [0,1, 2, 3, 5, 8, 13],
-        },
-        completed: {
-            type: Number,
-            enum: [0,1, 2, 3, 5, 8, 13],
-        },
-        estimated: {
-            type: Number,
-            enum: [0,1, 2, 3, 5, 8, 13],
-    
-        },
-        actual: {
-            type: Number,
-            enum: [0,1, 2, 3, 5, 8, 13],
-        },  
+        accepted:  {type: Number},
+        committed: {type: Number},
+        completed: {type: Number},
+        estimated: {type: Number },
+        actual: {type: Number},  
     },
     startDate: {
         type: Date,
@@ -53,7 +37,8 @@ export const sprintDetailsSchema = new Schema({
     endDate: {
         type: Date,
         required: true
-    }
+    },
+    createdDate: {type: Date}
 });
 
 export const SprintDetails = mongoose.model('SprintDetails', sprintDetailsSchema);

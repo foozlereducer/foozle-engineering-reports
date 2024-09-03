@@ -13,6 +13,6 @@ const jr = new JiraRest(new ActoValidator());
 const Sp = new Sprint(jr);
 
 // Register the route handler
-router.get("/v1/triggerNewSprint", triggerNewSprint(Sp, 167));
+router.post("/v1/triggerNewSprint", triggerNewSprint(Sp));
 
 export { router as jiraMetricsRouter };

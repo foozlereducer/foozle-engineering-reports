@@ -1,6 +1,14 @@
-export const triggerNewSprint = (sprintInstance, boardId) => async (req, res, next) => {
-    const sp = sprintInstance;
-    const sprint = await sp.getSprint(boardId)
-    console.log('sprint in triggerNewSprint controller', sprint)
-    res.send(sprint)
+export const triggerNewSprint = (sprintInstance) => async (req, res, next) => {
+    try {
+        const { boardId } = req.query;
+        const sp = sprintInstance;
+        const result = await sp.createSprint(boardId);
+        console.log('in Sprint controller', result)
+        // Send the result back as JSON
+        res.status(200).json(result);
+    } catch (error) {
+        console.error('Error in triggerNewSprint:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
 }
+
