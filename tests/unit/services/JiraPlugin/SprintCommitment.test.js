@@ -40,6 +40,7 @@ test('getIssuesInSprint(sprintId) should return the issues in the active sprint 
     const res = await SP.getSprints(boardId);
     const sprintId = res.values[0].id;
     const issues = await SP.getIssuesInSprint(sprintId, {})
+   
     t.true(issues.length > 0);
 
     // Validate the structure of the first issue

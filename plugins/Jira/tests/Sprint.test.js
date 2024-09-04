@@ -5,7 +5,7 @@ import { Sprint } from '../services/Sprint.js';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-const sprintId = parseInt(process.env.JIRA_SPRINT_ID);
+const boardId = parseInt(process.env.JIRA_BOARD_ID);
 let jr;
 let Sp;
 
@@ -31,7 +31,7 @@ test('Sprint should not throw an error if a JiraRest instance is passed', t => {
 });
 
 test('Sprint should fetch an active sprint on board 167', async t => {
-    const res = await Sp.getSprint(sprintId);
+    const res = await Sp.getSprint(boardId);
     t.true(res.values.length > 0);
 
     const activeSprint = res.values[0];
@@ -39,12 +39,13 @@ test('Sprint should fetch an active sprint on board 167', async t => {
     t.is(typeof activeSprint.id, "number");
     t.true(activeSprint.id > 982)
     t.true(activeSprint.self.includes("https://actocloud.atlassian.net/rest/agile/1.0/sprint/"));
-    t.is(activeSprint.originBoardId, sprintId);
+    t.is(activeSprint.originBoardId, boardId);
 });
 
-test('getIssuesInSprint(sprintId) should return the issues in the active sprint for board 167', async t => {
-    const res = await Sp.getSprint(sprintId);
-    const issues = await Sp.getIssuesInSprint(res.values[0].id);
+test('getIssuesInSprint(boardId) should return the issues in the active sprint for board 167', async t => {
+    const res = await Sp.getSprint(boardId);
+    const sprintId = res.values[0].id;
+    const issues = await Sp.getIssuesInSprint(sprintId);
     
     t.true(issues.length > 0);
 
@@ -56,7 +57,21 @@ test('getIssuesInSprint(sprintId) should return the issues in the active sprint 
     t.truthy(firstIssue.fields.summary.length > 0);
 });
 
-test('create new sprint', async t => {
-    const res = await Sp.createSprint(sprintId)
-    t.true(true)
+test('extractIssueData should get extracted sets of data', async t => {
+    const res = await Sp.getSprint(boardId);
+    const sprintId = res.values[0].id;
+    const issues = await Sp.extractIssueData(sprintId);
+    t.true(issues.length > 0);
+    const firstissue = issues[0]
+    t.truthy(firstissue.id );
+    t.truthy(firstissue.name);
+    t.truthy(firstissue.link);
+    t.truthy(firstissue.key);
+    t.truthy(firstissue.assignee);
+    t.truthy(firstissue.engineer);
+    t.truthy(firstissue.qualityEngineer);
+    t.truthy(firstissue.description);
+    t.truthy(firstissue.status);
+    t.truthy(firstissue.type);
+    t.true(typeof firstissue.storyPoints === "number")
 })
