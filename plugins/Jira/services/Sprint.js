@@ -44,6 +44,7 @@ export class Sprint {
         try {
             // Replace placeholders in the URI pattern with actual values
             const uriPath = config.JIRA_API_SPRINT_ISSUES_PATH.replace('{sprintId}', sprintId);
+            
             // Construct the full URI with the base and path
             const uri = `${config.JIRA_API_BASE_URI}${uriPath}`;
               // Handle query parameters
@@ -82,8 +83,8 @@ export class Sprint {
                 link: issue.self,
                 key: issue.key,
                 assignee: issue.fields.assignee ? issue.fields.assignee.displayName : 'Unassigned',
-                engineers: issue.fields.customfield_10183 ? issue.fields.customfield_10183.displayName : 'N/A',
-                qualityEngineers: issue.fields.qe ? issue.fields.qe.map(qe => qe.displayName).join(', ') : 'N/A',
+                engineer: issue.fields.customfield_10183 ? issue.fields.customfield_10183.displayName : 'N/A',
+                qualityEngineer: issue.fields.qe ? issue.fields.qe.map(qe => qe.displayName).join(', ') : 'N/A',
                 description: issue.fields.description,
                 status: issue.fields.status ? issue.fields.status.name : 'Unknown',
                 type: issue.fields.issuetype ? issue.fields.issuetype.name : 'Unknown',
