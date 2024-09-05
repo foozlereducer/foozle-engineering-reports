@@ -39,16 +39,17 @@ test.serial("The Sprints model can save and retrieve data", async t => {
         teamRoles: [{firstName: "Steve", lastName: "Browning", role: "admin"}],
         issues:[{
             ticketId: "TBP-1355",
-            issueName: "Incremental Sync Strategy in DWH",
+            status: "In Progress",
+            name: "Incremental Sync Strategy in DWH",
             assignee: "Samuel Oliva",
-            engineers: [{name: 'Samuel Oliva'}],
+            engineers: ['Samuel Oliva'],
             qe: "Jim Rodrick",
             description: `Contextualization:
             So far, the jobs created in the POC of the DWH is overwriting data in S3, which does not seem to be so much performative. For this purpose, it is important to have a incremental loading, which can help to reduce the workload over the data source and also reduce the loading time of the ETL.
             
             Objective:
             Investigate options in AWS Glue to perform incremental load in the ETL.`,
-            issueType: "story",
+            type: "story",
             storyPoints: {
                 accepted: 5,
                 committed: 3,

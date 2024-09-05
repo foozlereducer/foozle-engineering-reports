@@ -11,15 +11,11 @@ export const issuesSchema = new Schema({
     id: {
         type: Number
     },
-    ticketId: {
-        type: String,
-        required: true
-    },
-    issueName: {
+    name: {
         type: String,
         required: true,
     },
-    issueLink: {
+    link: {
         type:String,
         required: false,
     },
@@ -31,29 +27,29 @@ export const issuesSchema = new Schema({
         type: Object
     },
     engineer: {
-        type: Object
+        type: String
     },
     engineers:  {
-        type: [Object]
+        type: [String]
     },
     reporter: {
-        type: [Object]
+        type: String
     },
     qe: {
-        type: [Object]
+        type: String
     },
     qes: {
-
+        type: [String]
     },
     description: {
         type: String
     },
     status: {
-        type: [Object],
+        type: String,
         required: true
     },
-    issueType: {
-        type: [Object],
+    type: {
+        type: String,
         required: true
     },
     storyPoint: {
