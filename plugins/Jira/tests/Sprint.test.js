@@ -75,3 +75,10 @@ test('extractIssueData should get extracted sets of data', async t => {
     t.truthy(firstissue.type);
     t.true(typeof firstissue.storyPoints === "number")
 })
+
+test(
+    'extractSprintDetails(boardId) should get the extracted data that meets the Sprint schema',
+    async t => {
+        const res = await Sp.extractSprintDetails(boardId) 
+        t.true(res);
+})

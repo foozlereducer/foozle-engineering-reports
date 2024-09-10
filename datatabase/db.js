@@ -24,3 +24,16 @@ const mongoDBConnect = async () => {
  };
 
  export const connectDB =  mongoDBConnect;
+
+ const mongoDBDisconnect = async () => {
+  try {
+    await mongoose.disconnect(process.env.DATABASE_URI);
+    console.log('Disconnected from MongoDB');
+  } catch (error) {
+    console.log('Error disconnecting the MongoDB:', error);
+    logger(500, error, 'fatal' )
+    return JSON.stringify(`Error disconnecting the MongoDB: ${error}`)
+  }
+ };
+
+ export const disconnectDB =  mongoDBDisconnect;
