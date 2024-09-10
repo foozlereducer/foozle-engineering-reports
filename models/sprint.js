@@ -2,7 +2,7 @@
 import mongoose from "mongoose";
 import { sprintDetailsSchema } from "./sprintDetails.js"
 import { issuesSchema } from "./issues.js";
-import { rolesSchema  } from "./roles.js";
+import { rolesSchema } from "./roles.js"
 
 // Define a schema
 const Schema = mongoose.Schema;

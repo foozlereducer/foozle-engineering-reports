@@ -13,6 +13,14 @@ export const sprintDetailsSchema = new Schema({
         type: Number,
         required: true
     },
+    self: {
+        type: String,
+        required: true
+    },
+    state: {
+        type: String,
+        required: true
+    },
     boardId: {
         type: String, // Corrected from "tyoe" to "type"
         required: true
