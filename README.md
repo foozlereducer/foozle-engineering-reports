@@ -11,6 +11,7 @@ Currently there is a start order:
     <li>
         You start the frontend second, cd the directory to <code> cd /views/frontend</code> and then run <code>npm run dev</code>. This will boot the Vue3 frontend app.
     </li>
+</ol>
 </p>
 
 <h2>Run the tests</h2>
