@@ -17,7 +17,7 @@ Currently there is a start order:
 <h2>Run the tests</h2>
 <p>
 <ol>
-    <li>Ensure that the backend .env the <code>NODE_ENV="test"</code></li>
+    <li>Ensure that the backend .env has test defined like: <code>NODE_ENV="test"</code></li>
     <li>Run <code>npm run test</code>. This will run AVA tests. Every time you make a code change the tests will rerun</li>
 </ol>
 </p>
