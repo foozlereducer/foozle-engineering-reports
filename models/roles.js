@@ -1,8 +1,28 @@
 import mongoose from 'mongoose';
 import { Company } from './company.js';
+import { GetAppConfig} from '../services/GetAppConfig.js';
 
+async function getRoleTypes() {
+    if (process.env.NODE_ENV !== 'test') {
+        const appConfig = new GetAppConfig();
+        const roleTypes = await appConfig.byKey('RoleTypes');
+        return roleTypes;
+    } else {
+        return ['engineer', 
+            'qualityEngineer', 
+            'projectManager', 
+            'designer', 
+            'devOps', 
+            'teamLead', 
+            'manager', 
+            'director',
+            'cto', 
+            'cfo', 
+            'ceo']
+    }
+}
 // Define a schema function to create the roles schema
-async function createRolesSchema() {
+async function createRolesSchema(roleTypes) {
     let companykeys = null;
     try {
          // If in test mode, mock the company keys
@@ -13,6 +33,8 @@ async function createRolesSchema() {
             const companies = await Company.find({}, 'key');
             companykeys = companies.map(company => company.key);
         }
+
+
 
         // Define a schema
         const Schema = mongoose.Schema;
@@ -35,7 +57,7 @@ async function createRolesSchema() {
             },
             role: {
                 type: String,
-                enum: ['engineer', 'qe', 'pm', 'designer', 'devOps', 'teamLead', 'manager', 'cto', 'cfo', 'ceo'],
+                enum: roleTypes, // Dynamic enum based role types on appConfig from the database
                 required: true
             }
         });
@@ -55,7 +77,7 @@ async function createRolesModel() {
 }
 
 // Get the Roles model and schema dynamically
-const { rolesSchema, Roles } = await createRolesModel();
+const { rolesSchema, Roles } = await createRolesModel(await getRoleTypes());
 
 export { rolesSchema, Roles };
 
