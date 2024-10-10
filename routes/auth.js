@@ -31,7 +31,7 @@ router.post(
     passport.authenticate('google', { failureRedirect: '/login' }), // Redirect to '/login' on failure
     (req, res) => {
         // On successful authentication, redirect to the desired page
-        res.redirect('https://localhost:5173');
+        res.redirect('https://localhost:5173/sampleMetric');
     }
 )
 
