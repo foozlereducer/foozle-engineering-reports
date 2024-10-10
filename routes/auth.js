@@ -8,6 +8,7 @@ import {
 import { Auth } from '../services/auth/Auth.js'
 import { verifyUser } from '../controllers/authController.js';
 import { TokenModel } from '../models/token.js';
+import passport from 'passport';
 const router = express.Router();
 const AuthService = new Auth();
 
@@ -19,6 +20,19 @@ const AuthService = new Auth();
 router.post(
     "/v1/auth/saveCookie", 
     authSaveCookieController(AuthService)
+)
+.get(
+    "/v1/auth/google",
+    passport.authenticate('google', {scope: ["profile", "email"]})
+)
+
+.get(
+    "/google/auth/callback",
+    passport.authenticate('google', { failureRedirect: '/login' }), // Redirect to '/login' on failure
+    (req, res) => {
+        // On successful authentication, redirect to the desired page
+        res.redirect('https://localhost:5173');
+    }
 )
 
 .get(
@@ -41,6 +55,7 @@ router.post(
 .post(
     '/v1/auth/logout',
     authLogoutController(AuthService)
-);
+)
+
 
 export {router as authRouter};

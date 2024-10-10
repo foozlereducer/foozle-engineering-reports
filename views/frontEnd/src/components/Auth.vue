@@ -27,7 +27,8 @@ let isAuthenticated = ref(false);
 
 // Sign in / out methods
 const handleSignIn = async () => {
-  await authStore.signInWithRedirect();
+  // Navigate directly to the backend Google OAuth route
+  window.location.href = import.meta.env.VITE_BACKEND_URL + '/v1/auth/google';
 };
 
 const handleSignOut = async () => {

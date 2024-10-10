@@ -50,6 +50,14 @@ export const useAuthStore = defineStore('auth', {
         this.user = user;
       }
     },
+    async signInWithPassport() {
+      axios.defaults.withCredentials = true;
+      const response = await axios.get(
+        import.meta.env.VITE_BACKEND_URL + '/v1/auth/google',
+        {withCredentials: true}
+      );
+      return response.data
+    },
     async signInWithRedirect() {
       try {
         // Initialize Firebase app with the config
@@ -60,6 +68,8 @@ export const useAuthStore = defineStore('auth', {
 
         // Create a GoogleAuthProvider instance
         const provider = new GoogleAuthProvider();
+
+        
       
         signInWithRedirect(this.auth, provider) 
           .then(() => {
@@ -116,15 +126,11 @@ export const useAuthStore = defineStore('auth', {
     async signOut() {
       try {
         
-        // Delete the auth in localstorage
-        const LS = new LocalStorage(this.getThisAuth())
-        LS.removeAuthData();
-        this.isAuthenticated = false; // Update state to false
         axios.defaults.withCredentials = true;
           // Call the backend to clear the session cookie
-        await axios.post(import.meta.env.VITE_BACKEND_URL + '/v1/auth/logout',
-          {withCredentials: true} 
-        );
+        // await axios.post(import.meta.env.VITE_BACKEND_URL + '/v1/auth/logout',
+        //   {withCredentials: true} 
+        // );
        
       } catch (error) {
         sendLog(400, 'Error signing out:', 'error', error.stack)
