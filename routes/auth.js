@@ -9,6 +9,7 @@ import { Auth } from '../services/auth/Auth.js'
 import { verifyUser } from '../controllers/authController.js';
 import { TokenModel } from '../models/token.js';
 import passport from 'passport';
+
 const router = express.Router();
 const AuthService = new Auth();
 
@@ -26,14 +27,29 @@ router.post(
     passport.authenticate('google', {scope: ["profile", "email"]})
 )
 
+.get('/api/check-auth', (req, res) => {
+    if (req.isAuthenticated()) {
+      res.json({ authenticated: true });
+    } else {
+      res.json({ authenticated: false });
+    }
+})
+
 .get(
     "/google/auth/callback",
     passport.authenticate('google', { failureRedirect: '/login' }), // Redirect to '/login' on failure
     (req, res) => {
         // On successful authentication, redirect to the desired page
-        res.redirect('https://localhost:5173/sampleMetric');
+        res.redirect('https://localhost:5173/home');
     }
 )
+.get('/profile', (req, res) => {
+    if (req.isAuthenticated()) {
+        res.send(`Hello, ${req.user.id}`);
+    } else {
+        res.redirect('/login');
+    }
+})
 
 .get(
     "/v1/auth/validateSession",
@@ -52,10 +68,21 @@ router.post(
     verifyUser
 )
 
-.post(
-    '/v1/auth/logout',
-    authLogoutController(AuthService)
-)
+.post('/v1/auth/logout', (req, res) => {
+    req.logout(err => {
+        if (err) {
+            return res.status(500).send({ message: 'Logout failed' });
+        }
+        req.session.destroy(() => {
+            res.clearCookie('connect.sid', {
+                secure: true, // Match session cookie settings
+                httpOnly: true,
+                sameSite: 'none'
+            });
+            res.status(200).json({ success: true }); // Send JSON response instead of redirect
+        });
+    });
+});
 
 
 export {router as authRouter};
