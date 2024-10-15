@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { initializeApp } from 'firebase/app';
+import router from '../../router/index.js';
 
 import { 
   getAuth, 
@@ -58,83 +59,25 @@ export const useAuthStore = defineStore('auth', {
       );
       return response.data
     },
-    async signInWithRedirect() {
-      try {
-        // Initialize Firebase app with the config
-        const firebaseApp = await getFirebase();
-        
-        // Get the Firebase Auth instance
-        this.auth = getAuth(firebaseApp); // Assign to store property
-
-        // Create a GoogleAuthProvider instance
-        const provider = new GoogleAuthProvider();
-
-        
-      
-        signInWithRedirect(this.auth, provider) 
-          .then(() => {
-           
-          })
-          .catch((error) => {
-            sendLog(401,'Error signing in with redirect.','error', error.stack)
-          
-          });
-          this.isAuthenticated = true;
-      } catch(e){
-        console.error(e)
-      }
-    },
-    async setAuthState() {
-        const data = await getRedirectRes();
-       
-        if (data.token.length > 0 || res.isValid ) {
-          this.isAuthenticated = true;
-        } 
-
-        return this.isAuthenticated;
-    },
-    async checkIfLoggedIn() {
-      return true === this.isAuthenticated.value;
-    },
-    async signInPopup() {
-      try {
-        // Call your backend route to get the Firebase config
-        const response = await axios.get(import.meta.env.VITE_BACKEND_URL + '/api/metrics/firebaseConfig');
-        
-        // Assuming your backend returns the Firebase config in the response.data
-        const firebaseConfig = response.data;
-
-        // Initialize Firebase app with the config
-        const firebaseApp = await initializeApp(firebaseConfig);
-        
-        // Get the Firebase Auth instance
-        this.auth = getAuth(firebaseApp); // Assign to store property
-
-        // Create a GoogleAuthProvider instance
-        const provider = new GoogleAuthProvider();
-
-        // Sign in with Google popup
-        await signInWithPopup(this.auth, provider);
-
-        // Update isAuthenticated state after successful authentication
-        this.isAuthenticated = true; // Update state to true
-
-      } catch (error) {
-        sendLog(400,'Error signing in with Google.', 'error'. error.stack)
-      }
-    },
     async signOut() {
       try {
-        
-        axios.defaults.withCredentials = true;
+          axios.defaults.withCredentials = true;
+  
           // Call the backend to clear the session cookie
-        // await axios.post(import.meta.env.VITE_BACKEND_URL + '/v1/auth/logout',
-        //   {withCredentials: true} 
-        // );
-       
+          const response = await axios.post(import.meta.env.VITE_BACKEND_URL + '/v1/auth/logout', {}, {
+              withCredentials: true,
+          });
+  
+          if (response.status === 200 && response.data.success) {
+              this.setIsAuthenticated(false);
+              this.user = null;
+  
+              // Redirect to the Login page using Vue Router
+              router.push({ name: 'Login' });
+          }
       } catch (error) {
-        sendLog(400, 'Error signing out:', 'error', error.stack)
-        throw error;
+          sendLog(400, 'Error signing out:', 'error', error.stack);
+          throw error;
       }
     },
     async validateSession() {

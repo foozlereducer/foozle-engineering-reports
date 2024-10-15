@@ -1,51 +1,47 @@
 import express from 'express';
-
-/** Authentication */
-import session from 'express-session'
-import passport, { Passport } from 'passport';
+import session from 'express-session';
+import passport from 'passport';
 import GoogleStrategy from 'passport-google-oauth20';
-/** End Authentication */
-
 import * as path from 'path';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
-/** Logger */
 import { logger } from './services/logger.js';
-/** Database */
-import {connectDB} from './datatabase/db.js'
-
-/** Routes */
-import {indexRouter} from './routes/index.js';
-import {storyPointsRouter} from './routes/metrics.js';
-import {catalogRouter} from './routes/catalog.js';
+import { connectDB } from './datatabase/db.js';
+import { indexRouter } from './routes/index.js';
+import { storyPointsRouter } from './routes/metrics.js';
+import { catalogRouter } from './routes/catalog.js';
 import { authRouter } from './routes/auth.js';
 import { logRouter } from './routes/log.js';
-
-/** Plugins  */
 import { jiraMetricsRouter } from './plugins/Jira/routes/metricsRoutes.js';
-/** End Plugins */
 import cors from 'cors';
-import { createProxyMiddleware } from 'http-proxy-middleware';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
-dotenv.config()
+import MongoStore from 'connect-mongo';
+dotenv.config();
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const app = express();
-// CORS configuration
-const corsOptions = {
-  origin: process.env.FRONT_END_URL, // Allow requests from this origin
-  credentials: true, // Allow credentials (cookies, authorization headers, etc.)
-};
 
-// Enable CORS with the specified options
-app.use(cors(corsOptions));
+// Middleware Setup
+app.disable('x-powered-by');
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
 
 
+
+// Session configuration
 app.use(session({
-  secret: "$,x<b{s`_|ZCAW,",
+  secret: process.env.PASSPORT_SESSION_SECRET,
   resave: false,
   saveUninitialized: true,
-}))
+  store: MongoStore.create({ mongoUrl: process.env.DATABASE_URI }),
+  cookie: { 
+    secure: true, 
+    httpOnly: true,
+    sameSite: 'none'
+  }
+}));
 
 // Initialize Passport 
 app.use(passport.initialize());
@@ -58,56 +54,44 @@ passport.use(
     callbackURL: 'https://localhost:3000/google/auth/callback'
   }, 
   (accessToken, refreshToken, profile, done) => {
-    return done(null, profile)
-  }
-))
+    return done(null, profile);
+  })
+);
 
+// Serialize and Deserialize User
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((user, done) => done(null, user));
 
-// Handle preflight requests
+// Middleware to log cookies
+app.use((req, res, next) => {
+  console.log('Cookies:', req.cookies);
+  next();
+});
+
+// Static Files and View Engine Setup
+app.set('views', path.join(__dirname, 'views'));
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Connect to MongoDB
+connectDB();
+
+// CORS configuration
+app.use(cors({
+  origin: process.env.FRONT_END_URL,
+  credentials: true,
+}));
+
+// Define Routes
 app.use('/', indexRouter);
 app.use('/api/storyPoints', storyPointsRouter);
 app.use('/api/metrics', catalogRouter);
 app.use('/', authRouter);
 app.use('/', logRouter);
-// view engine setup
-app.disable('x-powered-by')
-app.set('views', path.join(__dirname, 'views'));
-app.use(express.static('views'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(cookieParser());
-
-
-
-/** Plugins */
-// Jira Plugin
-app.use('/', jiraMetricsRouter)
-/** End Plugins */
-
-// Middleware to log cookies
-app.use((req, res, next) => {
-  console.log('Cookies before handling request:', req.cookies);
-  next();
-});
-
-/**
- * Database - MongoDB using Mongoose ORM
- */
-// Connect to MongoDB
-connectDB();
-
+app.use('/', jiraMetricsRouter);
 
 // Catch-all route for undefined routes
 app.all('*', async (req, res) => {
-  res.status(404).send(`Route ${req.url} is not found`);
-  await logger(404, `Route ${req.url} is not found`, 'error', `Route ${req.url} is not found`)
+  const message = `Route ${req.url} is not found`;
+  res.status(404).send(message);
+  await logger(404, message, 'error', message);
 });
-
-
-
-
-
-
