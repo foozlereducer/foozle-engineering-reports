@@ -1,24 +1,25 @@
 <template>
+  <h2>{{ sizes.browserWidth }} pixels: Browser</h2>
+  <h2>{{ sizes.deviceWidth }} pixels: Device</h2>
+  <h2>{{ sizes.device.value }} type of Device</h2>
+  <hr />
   <h2>A bar chart</h2>
-   <h2>{{ sizes.browserWidth }} pixels: Browser</h2>
-    <h2>{{ sizes.deviceWidth  }} pixels: Device</h2>
-    <h2>{{ sizes.device.value }} type of Device </h2>
- <div class="chart-container">
-    <ChartComponent chartType="bar" :chartData="barChartData" :width="chartWidth"/>
-</div>
-<h2>A line chart</h2>
-<div class="chart-container">
-    <ChartComponent chartType="line" :chartData="lineChartData" :width="chartWidth"/>
-</div>
-
+  <div class="chart-container">
+    <ChartComponent chartType="bar" :chartData="barChartData" :chartWidth="chartWidth" :chartHeight="chartHeight" />
+  </div>
+  <h2>A line chart</h2>
+  <div class="chart-container">
+    <ChartComponent chartType="line" :chartData="lineChartData" :chartWidth="chartWidth" :chartHeight="chartHeight" />
+  </div>
 </template>
 
 <script setup>
-import { createDeviceSize } from '../composables/deviceSize.js'
-import {devices} from '../composables/devices.js'
-const sizes = createDeviceSize(devices);
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { createDeviceSize } from '../composables/deviceSize.js';
+import { devices } from '../composables/devices.js';
+import { ref, onMounted } from 'vue';
 import ChartComponent from '../components/Charts/ChartComponent.vue';
+
+const sizes = createDeviceSize(devices);
 
 // Define reactive data for the charts
 const barChartData = ref([
@@ -35,8 +36,18 @@ const lineChartData = ref([
   { date: new Date(2021, 3, 1), value: 60 }
 ]);
 
-const updateChartWidth = () => {
-  chartWidth.value = window.innerWidth;
+// Define chartWidth and chartHeight
+const chartWidth = ref(0);
+const chartHeight = ref(0);
+
+// Update chart dimensions on mount
+const updateChartDimensions = () => {
+  chartWidth.value = window.innerWidth * 0.9; // Set width to 90% of the window width
+  chartHeight.value = window.innerHeight * 0.5; // Set height to 50% of the window height
 };
 
+onMounted(() => {
+  updateChartDimensions();
+  window.addEventListener('resize', updateChartDimensions);
+});
 </script>
