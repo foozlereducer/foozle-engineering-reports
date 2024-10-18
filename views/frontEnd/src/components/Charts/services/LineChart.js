@@ -1,22 +1,21 @@
 import * as d3 from 'd3';
 
 class LineChartService {
-  static drawChart(element, data) {
-
+  static drawChart(element, data, width, height) {
     // Clear the previous chart
     d3.select(element).selectAll('*').remove();
-
+  
     const margin = { top: 20, right: 30, bottom: 40, left: 40 };
-    const width = element.clientWidth - margin.left - margin.right;
-    const height = element.clientHeight - margin.top - margin.bottom;
-
+    const adjustedWidth = width - margin.left - margin.right;
+    const adjustedHeight = height - margin.top - margin.bottom;
+  
     const svg = d3.select(element)
       .append('svg')
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
+      .attr('width', adjustedWidth + margin.left + margin.right)
+      .attr('height', adjustedHeight + margin.top + margin.bottom)
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
-
+  
     const x = d3.scaleTime()
       .domain(d3.extent(data, d => d.date))
       .range([0, width]);
