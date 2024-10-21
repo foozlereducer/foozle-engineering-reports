@@ -8,7 +8,6 @@
             <h1>ACTO P&E Metrics and Tools</h1>
             <p>A set of P&E metrics and helper tools</p>
         </article>
-        <Auth class="auth" />
     </header>
 </template>
 <script setup>
