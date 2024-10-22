@@ -1,17 +1,7 @@
 import { defineStore } from 'pinia';
-import { initializeApp } from 'firebase/app';
 import router from '../../router/index.js';
 
-import { 
-  getAuth, 
-  signInWithPopup, 
-  GoogleAuthProvider, 
-  signOut, 
-  signInWithRedirect
-} from 'firebase/auth';
 import axios from 'axios';
-import {getFirebase} from '../composables/firebaseInit.js';
-import { getRedirectRes } from '../composables/redirectResults.js';
 import { LocalStorage } from '../composables/localStorage.js';
 import { sendLog } from '../composables/sendLog.js';
 
@@ -78,26 +68,6 @@ export const useAuthStore = defineStore('auth', {
       } catch (error) {
           sendLog(400, 'Error signing out:', 'error', error.stack);
           throw error;
-      }
-    },
-    async validateSession() {
-      try {
-        axios.defaults.withCredentials = true;
-        const response = await axios.get(
-          import.meta.env.VITE_BACKEND_URL + '/v1/auth/validateSession',
-          {withCredentials: true}
-        );
-        if (response.data.isValid) {
-          this.isAuthenticated = true;
-          return { isValid: true, user: response.data.user };
-        } else {
-          this.isAuthenticated = false;
-          return { isValid: false, user: null };
-        }
-      } catch (error) {
-        sendLog(401,'Session validation failed:', 'error', error.stack)
-        this.isAuthenticated = false;
-        return { isValid: false, user: null };
       }
     },
   },
