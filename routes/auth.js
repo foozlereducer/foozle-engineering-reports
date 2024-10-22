@@ -1,13 +1,10 @@
 import express from 'express';
 import { 
     authSaveCookieController,
-    authIsAuthenticatedController,
-    authValidateSessionContoller,
-    authLogoutController
+    authIsAuthenticatedController
 } from '../controllers/authController.js';
 import { Auth } from '../services/auth/Auth.js'
 import { verifyUser } from '../controllers/authController.js';
-import { TokenModel } from '../models/token.js';
 import passport from 'passport';
 
 const router = express.Router();
@@ -50,12 +47,6 @@ router.post(
         res.redirect('/login');
     }
 })
-
-.get(
-    "/v1/auth/validateSession",
-    authValidateSessionContoller(AuthService),
-    (req, res) => res.status(200).json({ message: 'Session is valid', user: req.user })
-)
 
 .get(
     "/v1/auth/isAuthenticated",

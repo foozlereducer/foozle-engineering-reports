@@ -70,21 +70,6 @@ export class Auth {
         console.log(`Cookie set: sessionId=${sessionId}`);
         res.status(200).json({ message: 'Authentication data stored in cookie.' });
     }
-    async validateSession(req, res) {
-        try {
-            const { sessionId } = req.cookies;
-            if (!sessionId) {
-                return res.status(401).json({ isValid: false });
-            }
-            const session = await TokenModel.findOne({ sessionId });
-            if (!session) {
-                return res.status(401).json({ isValid: false });
-            }
-            res.status(200).json({ isValid: true, user: session.user });
-        } catch (error) {
-            res.status(500).json({ isValid: false, message: error.message });
-        }
-    }
 
     async validateSessionMiddleware(req, res, next) {
         const { sessionId } = req.cookies;

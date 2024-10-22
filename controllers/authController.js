@@ -16,14 +16,6 @@ export const authSaveCookieController = (Auth) => async (req, res, next) => {
     }
 };
 
-export const authValidateSessionContoller = (Auth) => async (req, res, next) => {
-    try {
-        Auth.validateSession(req, res, next);
-    } catch (error) {
-        next(error);
-    }
-}
-
 export const authLogoutController = (Auth) => async (req, res, next) => {
     try {
         Auth.logout(req, res, next);

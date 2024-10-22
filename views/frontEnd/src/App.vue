@@ -41,6 +41,7 @@ import { onMounted, onBeforeMount, onUnmounted, ref, watchEffect } from 'vue';
 import { LocalStorage } from './composables/localStorage.js';
 import axios from 'axios';
 import router from '../router';
+import { navigateTo } from './composables/navigation.js';
 
 const sizes = createDeviceSize(devices);
 const loaded = ref(false);
@@ -63,7 +64,7 @@ const checkAuthStatus = async () => {
     const response = await axios.get(import.meta.env.VITE_BACKEND_URL + '/api/check-auth', { withCredentials: true });
     if (!response.data.authenticated) {
       authStore.isAuthenticated = false;
-      router.push({ name: 'Login' }); // Redirect to login if not authenticated
+      navigateTo(router, 'Login'); // Redirect to login if not authenticated 
     }
   } catch (error) {
     console.error('Error checking auth status:', error);
@@ -80,11 +81,6 @@ onBeforeMount(() => {
 
 onMounted(async () => {
   checkForMobile();
-
-  // Periodic session validation every 15 minutes
-  intervalId = setInterval(async () => {
-    await authStore.validateSession();
-  }, 15 * 60 * 1000); // 15 minutes
 
   // Polling to check the auth status every minute
   authCheckInterval = setInterval(checkAuthStatus, 60000); // 60 seconds
