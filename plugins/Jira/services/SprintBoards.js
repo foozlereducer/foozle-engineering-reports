@@ -159,11 +159,11 @@ export class SprintBoards {
             
                
 
-            //     if ( 'undefined' === typeof this.sum ) {
-            //         this.sum = sum;
-            //     }
-            //     issue.storyPoints.completed = this.sum(this.completedStoryPoints);
-            //     storyPoints.committed = this.sum(this.committedStoryPoints)
+                if ( 'undefined' === typeof this.sum ) {
+                    this.sum = sum;
+                }
+                issue.storyPoints.completed = this.sum(this.completedStoryPoints);
+                storyPoints.committed = this.sum(this.committedStoryPoints)
 
                 sprintIssues.push(iss)
             }
@@ -207,29 +207,29 @@ export class SprintBoards {
               
                 let data = await this.getSprintIssues(sprint.sprints.values[0].id, boardIds[index])
               
-                // for( const issue of data.issues) {
-                //     if(isNaN(issue.fields.customfield_10023)) {
-                //         issue.fields.customfield_10023 = 0.0
-                //     }
+                for( const issue of data.issues) {
+                    if(isNaN(issue.fields.customfield_10023)) {
+                        issue.fields.customfield_10023 = 0.0
+                    }
                 
-                //     // customfield_10023 === story point field
-                //     if( 
-                //         issue.fields.status.name === 'Done' ||
-                //         issue.fields.status.name === 'Ready To Release'
-                //     ) {
-                //         this.completedStoryPoints.push(issue.fields.customfield_10023) 
+                    // customfield_10023 === story point field
+                    if( 
+                        issue.fields.status.name === 'Done' ||
+                        issue.fields.status.name === 'Ready To Release'
+                    ) {
+                        this.completedStoryPoints.push(issue.fields.customfield_10023) 
 
-                //     } else {
-                //         this.committedStoryPoints.push(issue.fields.customfield_10023) 
-                //     }
+                    } else {
+                        this.committedStoryPoints.push(issue.fields.customfield_10023) 
+                    }
 
-                //     if ( 'undefined' === typeof this.sum ) {
-                //         this.sum = sum;
-                //     }
+                    if ( 'undefined' === typeof this.sum ) {
+                        this.sum = sum;
+                    }
 
-                //     issue.storyPoints.completed = this.sum(this.completedStoryPoints);
-                //     issue.storyPoints.committed = this.sum(this.committedStoryPoints)
-                // }
+                    issue.storyPoints.completed = this.sum(this.completedStoryPoints);
+                    issue.storyPoints.committed = this.sum(this.committedStoryPoints)
+                }
                 
             }
         }

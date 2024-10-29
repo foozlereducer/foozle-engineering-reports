@@ -6,6 +6,9 @@ import {
 import { Auth } from '../services/auth/Auth.js'
 import { verifyUser } from '../controllers/authController.js';
 import passport from 'passport';
+import { generateToken } from '../services/auth/JWT.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const router = express.Router();
 const AuthService = new Auth();
@@ -19,10 +22,13 @@ router.post(
     "/v1/auth/saveCookie", 
     authSaveCookieController(AuthService)
 )
+
+
 .get(
     "/v1/auth/google",
     passport.authenticate('google', {scope: ["profile", "email"]})
 )
+
 
 .get('/api/check-auth', (req, res) => {
     if (req.isAuthenticated()) {
@@ -36,8 +42,16 @@ router.post(
     "/google/auth/callback",
     passport.authenticate('google', { failureRedirect: '/login' }), // Redirect to '/login' on failure
     (req, res) => {
+        const user = req.user;
+        const token = generateToken(user)
+        res.cookie('jwt', token, {
+            httpOnly: true,
+            secure: true, // Set to true in production
+            sameSite: 'strict'
+        });
+
         // On successful authentication, redirect to the desired page
-        res.redirect('https://localhost:5173/home');
+        res.redirect(`${process.env.FRONT_END_URL}/home`);
     }
 )
 .get('/profile', (req, res) => {
