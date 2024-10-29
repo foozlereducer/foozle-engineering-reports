@@ -5,13 +5,11 @@ import {
     index, 
     story_points_delete_post
 } from '../controllers/story_point_controller.js'
-import { firebaseConfigGet } from '../controllers/firebaseConfigController.js'
 import { verifyToken } from '../services/auth/JWT.js';
 
 const router = express.Router();
 
 router.get("/", index)
-.get("/firebaseConfig", firebaseConfigGet)
 
 .get(
     "/v1/story_points/create",

@@ -1,26 +1,31 @@
-import * as jwt from 'jsonwebtoken'
-import * as dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 dotenv.config();
 
+// Middleware to verify JWT
 export const verifyToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Expecting "Bearer <token>"
+    // ensure that the token begins with Bearer
+    const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
 
-    if (!token) return res.status(401).json({ message: 'Access Denied: No Token Provided' });
-
-    try {
-        const verified = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = verified; // Add decoded user info to the request object
-        next();
-    } catch (err) {
-        res.status(403).json({ message: 'Invalid Token' });
+    if (!token) {
+        return res.status(401).json({ message: 'Access Denied: No Token Provided' });
     }
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+            return res.status(403).json({ message: 'Invalid Token' });
+        }
+        req.user = { id: decoded.id, email: decoded.email }; // Select relevant information
+        next();
+    });
 };
 
+// Function to generate a JWT
 export const generateToken = (user) => {
     return jwt.sign(
-        {id: user.id, email: user.email}, 
+        { id: user.id, email: user.email }, 
         process.env.JWT_SECRET,
-        {expiresIn: '1hr'}
-    )
-}
+        { expiresIn: '1h' }
+    );
+};
