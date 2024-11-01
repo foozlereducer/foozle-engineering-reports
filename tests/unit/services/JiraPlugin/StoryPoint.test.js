@@ -1,13 +1,64 @@
 import test from 'ava';
 import { StoryPoints } from '../../../../plugins/Jira/services/StoryPoints.js';
-import { sum } from '../../../../services/utilities/Sum.js';
-import { Dates } from '../../../../services/utilities/Dates.js';
+import { JiraRest } from '../../../../plugins/Jira/services/jiraRest.js';
+import { ActoValidator } from '../../../../services/validators/ActoValidator.js';
+// Mock Data
 
+const jiraDomain = 'https://actocloud.atlassian.net';
+const sprintId = 123;
+let jiraRest = null;
+let validator = null;
+const issuesResponse = {
+  issues: [
+    {
+      fields: {
+        customfield_10016: 5, // Story Points field value
+        status: {
+          name: 'Done',
+        },
+      },
+    },
+    {
+      fields: {
+        customfield_10016: 8,
+        status: {
+          name: 'In Progress',
+        },
+      },
+    },
+    {
+      fields: {
+        customfield_10016: 3,
+        status: {
+          name: 'Accepted',
+        },
+      },
+    },
+  ],
+};
 
-test(`accepted, committed, completed and estimated story points 
-have summed story points`, async t=>{
-  const D  = new Dates();
-  const SP = new StoryPoints(sum, D)
+// Test case
+
+test.beforeEach(() => {
+  // Set up the mock for the Jira API response
+  nock(jiraDomain)
+    .get(`/rest/agile/1.0/sprint/${sprintId}/issue`)
+    .reply(200, issuesResponse);
+    validator = new ActoValidator()
+    jiraRest = new JiraRest(validator);
+
+});
+
+test.serial(`getStoryPoints should calculate estimated, comitted and completed story points`, async t=>{
+  const consoleLog = [];
+  const originalConsoleLog = console.log;
+
+  // Mock console.log to capture its output
+  console.log = (message, ...args) => {
+    consoleLog.push([message, ...args].join(' '));
+  };
+
+  const SP = new StoryPoints()
   const boardIds = [
       [ 'PAA', [ 178 ] ],
       [ 'TBP', [ 167 ] ],

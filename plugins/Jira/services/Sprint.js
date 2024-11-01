@@ -1,5 +1,6 @@
 import { JiraRest } from "./jiraRest.js";
 import { config } from "./config.js";
+import { Projects } from "../../../models/projects.js";
 
 export class Sprint {
     constructor(JiraRestInstance) {
@@ -10,6 +11,41 @@ export class Sprint {
             throw new Error('SprintCommitment requires a JiraRest instance as the first parameter');
         }
     }
+
+    /**
+     * 
+     * @param {string} isCore - JSON either { core: true } or { core: false } defined as false 
+     * will return all core plus non core projects.
+     * @returns {array} - JSON project objects that contain key, name,  expertise, core, 
+     * boardId and timestamps
+     */
+    async getProjects(isCore={ core: true }) {
+        try {
+          const coreProjects = await Projects.find(isCore);
+          return coreProjects;
+        } catch (error) {
+            if ( true === core ) {
+                console.error('Error finding core projects:', error);
+            } else {
+                console.error('Error finding projects', error);
+            }
+          
+        }
+    }
+
+    async getBoardIds(Validator, isCore={ core: true }) {
+        const projs = await this.getProjects(isCore);
+        let boardIds = [];
+        if (Validator.validate(projs).notEmpty()) {
+            for(const proj of projs) {
+                if ( proj.boardId[0]) {
+                    boardIds.push(proj.boardId[0])
+                }
+            }
+        }
+        return boardIds;
+    }
+
      /**
      * Get Sprints for the Board
      * Retrieve the sprints for a given board ID:
@@ -58,18 +94,11 @@ export class Sprint {
         }
     }
 
-    async createSprint(boardId) {
+    async consolidateSprint(boardId) {
         const activeSprintRawObj = await this.getSprint(boardId);
         const activeSprint = activeSprintRawObj.values[0]
         const sprintId = activeSprint.id;
-        const sprintName = activeSprint.name;
-        const startDate = activeSprint.startDate;
-        const endDate = activeSprint.endDate;
-        const createdDate = activeSprint.createdDate;
-        const goal = activeSprint.goal;
-
         const issues = await this.extractIssueData(sprintId);
-     
         return issues;
     }
 
@@ -97,5 +126,41 @@ export class Sprint {
                 storyPoints: issue.fields.customfield_10023 || 0
             };
         });
+    }
+
+    /**
+     * Get Sprint in a date range
+     * @param {string} boardIds - JSON array of boardIds
+     * @param {object} jiraRest - will handle the Jira auth and set / run routes
+     * @param {string} jiraDomain - the base jira domain
+     * @param {string} startDate - date formatted string like: '2024-01-01'
+     * @param {string} endDate - date formatted string like: '2024-12-31'
+     * @returns {array} Sprints - each full sprint objects
+     */
+    async getSprintsInRange(boardIds, jiraRest, jiraDomain, startDate, endDate) {
+        try {
+        let response;
+        let filteredSprints;
+        let Sprints = []
+    
+        for (const boardId of boardIds) {
+            jiraRest.setRoute(`${jiraDomain}/rest/agile/1.0/board/${boardId}/sprint`);
+            response = await jiraRest.runRoute();
+        
+            const sprints = response.data.values;
+            // Filter sprints that fall within the given range
+            filteredSprints = sprints.filter((sprint) => {
+            const startDateObj = new Date(sprint.startDate);
+            const endDateObj = new Date(sprint.endDate);
+            return startDateObj >= new Date(startDate) && endDateObj <= new Date(endDate);
+            });
+    
+            sprints.push(filteredSprints)
+        }
+        console.log('Filtered Sprints:', sprints);
+        return sprints;
+        } catch (error) {
+        console.error('Error fetching sprints:', error.message);
+        }
     }
 }

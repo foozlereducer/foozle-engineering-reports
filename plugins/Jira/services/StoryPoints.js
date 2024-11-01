@@ -1,38 +1,40 @@
-export class StoryPoints {
-    constructor(sum, Dates) {
-        this.sum = sum;
-        this.Dates = Dates;
-    }
 
-    categorieStoryPoints() {
-        const today = this.Dates.getNow();
-        if( 
-            issue.fields.status.name === 'Done' ||
-            issue.fields.status.name === 'Ready To Release'
-        ) {
-            this.completedStoryPoints.push(issue.fields.customfield_10023) 
 
-        } else {
-            this.committedStoryPoints.push(issue.fields.customfield_10023) 
+
+async function getStoryPoints(sprint, boardId, queryParams = { state: 'active' }) {
+  try {
+    
+    const response = await sprint.getSprint(boardId, queryParams)
+    const issues = response.data.issues;
+    let estimatedPoints = 0;
+    let committedPoints = 0;
+    let completedPoints = 0;
+    let acceptedPoints = 0;
+
+    issues.forEach((issue) => {
+      const storyPoints = issue.fields.customfield_10016; // Replace with your Story Points custom field ID
+      const status = issue.fields.status.name;
+
+      if (storyPoints != null) {
+        estimatedPoints += storyPoints;
+        committedPoints += storyPoints; // Assuming all issues in sprint are committed
+
+        if (status === 'Done') {
+          completedPoints += storyPoints;
         }
-        If ( )
-    }
-    /**
-     * 
-     * @param {obj} points - object literal like {
-        accepted: [1,2,8,3,5,5,3],
-        committed: [1,2,8,3,5,3,1],
-        completed: [1,2,3,5,1],
-        estimated: [2,2,5,3,5,3,1]
-    }
-     * @returns {obj} - the storypoints object literal with summed story points
-     */
-    tallyStoryPoints(points) {
-        return {
-            accepted: this.sum(points.accepted),
-            committed: this.sum(points.committed),
-            completed: this.sum(points.completed),
-            estimated: this.sum(points.estimated)
+
+        if (status === 'Accepted') { // Adjust based on your workflow
+          acceptedPoints += storyPoints;
         }
-    }
+      }
+    });
+
+    console.log('Estimated Story Points:', estimatedPoints);
+    console.log('Committed Story Points:', committedPoints);
+    console.log('Completed Story Points:', completedPoints);
+    console.log('Accepted Story Points:', acceptedPoints);
+  } catch (error) {
+    console.error('Error fetching sprint issues:', error);
+  }
 }
+
