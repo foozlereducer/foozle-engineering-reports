@@ -103,10 +103,7 @@ export class Sprint {
     }
 
     async extractSprintDetails(boardId) {
-        const activeSprintRawObj = await this.getSprint(boardId);
-        console.log(activeSprintRawObj)
-
-        return true;
+        return await this.getSprint(boardId);
     }
 
     async extractIssueData(sprintId) {

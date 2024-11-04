@@ -80,5 +80,31 @@ test(
     'extractSprintDetails(boardId) should get the extracted data that meets the Sprint schema',
     async t => {
         const res = await Sp.extractSprintDetails(boardId) 
-        t.true(res);
+       
+        const keys = Object.keys(res.values[0])
+        const expectedSchemaKeys = [
+            'id',
+            'self',
+            'state',
+            'name',
+            'startDate',
+            'endDate',
+            'createdDate',
+            'originBoardId',
+            'goal'
+        ]
+        t.deepEqual(keys, expectedSchemaKeys);
+        const obj = res.values[0]
+        t.true((typeof obj.id === 'number'))
+        const selfWithoutId = obj.self.substring(0, obj.self.lastIndexOf('/'));
+        t.deepEqual(selfWithoutId, 'https://actocloud.atlassian.net/rest/agile/1.0/sprint');
+        t.true(typeof obj.state === 'string');
+        const starDate = new Date(obj.startDate);
+        t.true(!isNaN(starDate.getTime()));
+        const endDate = new Date(obj.endDate);
+        t.true(!isNaN(endDate.getTime()));
+        const createdDate = new Date(obj.createdDate);
+        t.true(!isNaN(createdDate.getTime()));
+        t.true((typeof obj.originBoardId === 'number'));
+        t.true(typeof obj.goal === 'string');   
 })
