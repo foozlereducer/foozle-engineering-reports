@@ -4,102 +4,45 @@ import { Projects } from "../../../models/projects.js";
 
 export class Sprint {
     constructor(JiraRestInstance) {
-        // Ensure we have a Jira Rest instance passed
-        if (JiraRestInstance instanceof JiraRest) {
-            this.jr = JiraRestInstance; // Assign the passed instance, not the class
-        } else {
-            throw new Error('SprintCommitment requires a JiraRest instance as the first parameter');
+        if (!(JiraRestInstance instanceof JiraRest)) {
+            throw new Error('Sprint requires a valid JiraRest instance as the first parameter');
         }
+        this.jr = JiraRestInstance;
     }
 
-    /**
-     * 
-     * @param {string} isCore - JSON either { core: true } or { core: false } defined as false 
-     * will return all core plus non core projects.
-     * @returns {array} - JSON project objects that contain key, name,  expertise, core, 
-     * boardId and timestamps
-     */
-    async getProjects(isCore={ core: true }) {
-        try {
-          const coreProjects = await Projects.find(isCore);
-          return coreProjects;
-        } catch (error) {
-            if ( true === core ) {
-                console.error('Error finding core projects:', error);
-            } else {
-                console.error('Error finding projects', error);
-            }
-          
-        }
+    async getProjects(isCore = { core: true }) {
+        return await this._handleProjects(isCore, Projects.find);
     }
 
-    async getBoardIds(Validator, isCore={ core: true }) {
-        const projs = await this.getProjects(isCore);
-        let boardIds = [];
-        if (Validator.validate(projs).notEmpty()) {
-            for(const proj of projs) {
-                if ( proj.boardId[0]) {
-                    boardIds.push(proj.boardId[0])
-                }
-            }
-        }
-        return boardIds;
-    }
-
-     /**
-     * Get Sprints for the Board
-     * Retrieve the sprints for a given board ID:
-     * @param {number} boardId 
-     * @returns 
-     */
-     async getSprint(boardId, queryParams = { state: 'active' }) {
-        try {
-            const jiraBaseUri = process.env.JIRA_API_BASE_URI;
-            const uriPath = `/agile/1.0/board/${boardId}/sprint`;
-
-            // Handle query parameters
-            const queryString = new URLSearchParams(queryParams).toString();
-            const fullUri = `${jiraBaseUri}${uriPath}${queryString ? '?' + queryString : ''}`;
-
-            const response = await this.jr.call(fullUri);
-
-            return response;
-        } catch (error) {
-            console.error('Error fetching sprints:', error);
+    async getBoardIds(validator, isCore = { core: true }) {
+        const projects = await this.getProjects(isCore);
+        if (!validator.validate(projects).notEmpty()) {
             return [];
         }
+        return projects.map(proj => proj.boardId[0]).filter(boardId => boardId !== undefined);
     }
-   
-    /**
-     * Get Issues in the Identified Sprint
-     * Retrieve issues for a given sprint ID that will be used to get the story points:
-     * @param {number} sprintId 
-     * @returns 
-     */
+
+    async getSprint(boardId, queryParams = { state: 'active' }) {
+        const fullUri = this._constructUri(`/agile/1.0/board/${boardId}/sprint`, queryParams);
+        return await this._callJiraRest(fullUri, 'Error fetching sprints');
+    }
+
     async getIssuesInSprint(sprintId, queryParams = {}) {
-        try {
-            // Replace placeholders in the URI pattern with actual values
-            const uriPath = config.JIRA_API_SPRINT_ISSUES_PATH.replace('{sprintId}', sprintId);
-            
-            // Construct the full URI with the base and path
-            const uri = `${config.JIRA_API_BASE_URI}${uriPath}`;
-              // Handle query parameters
-            const queryString = new URLSearchParams(queryParams).toString();
-            const fullUri = `${uri}${queryString ? '?' + queryString : ''}`;
-            const response = await this.jr.call(fullUri);
-            return response.issues;
-        } catch (error) {
-            console.error('Error fetching issues:', error);
+        const uriPath = config.JIRA_API_SPRINT_ISSUES_PATH.replace('{sprintId}', sprintId);
+        const fullUri = this._constructUri(uriPath, queryParams);
+        const response = await this._callJiraRest(fullUri, 'Error fetching issues');
+        
+        // Ensure response.issues is an array or default to an empty array
+        if (!response || !Array.isArray(response.issues)) {
             return [];
         }
+        return response.issues;
     }
 
     async consolidateSprint(boardId) {
-        const activeSprintRawObj = await this.getSprint(boardId);
-        const activeSprint = activeSprintRawObj.values[0]
-        const sprintId = activeSprint.id;
-        const issues = await this.extractIssueData(sprintId);
-        return issues;
+        const activeSprint = (await this.getSprint(boardId)).values?.[0];
+        if (!activeSprint) return [];
+        return await this.extractIssueData(activeSprint.id);
     }
 
     async extractSprintDetails(boardId) {
@@ -107,57 +50,67 @@ export class Sprint {
     }
 
     async extractIssueData(sprintId) {
-        const issues = await this.getIssuesInSprint(sprintId)
-        return issues.map(issue => {
-            return {
-                id: issue.id,
-                name: issue.fields.summary,
-                link: issue.self,
-                key: issue.key,
-                assignee: issue.fields.assignee ? issue.fields.assignee.displayName : 'Unassigned',
-                engineer: issue.fields.customfield_10183 ? issue.fields.customfield_10183.displayName : 'N/A',
-                qualityEngineer: issue.fields.qe ? issue.fields.qe.map(qe => qe.displayName).join(', ') : 'N/A',
-                description: issue.fields.description,
-                status: issue.fields.status ? issue.fields.status.name : 'Unknown',
-                type: issue.fields.issuetype ? issue.fields.issuetype.name : 'Unknown',
-                storyPoints: issue.fields.customfield_10023 || 0
-            };
+        const issues = await this.getIssuesInSprint(sprintId);
+        if (!Array.isArray(issues)) {
+            throw new Error("Expected issues to be an array");
+        }
+        return issues.map(this._transformIssue);
+    }
+
+    async getSprintsInRange(boardIds, startDate, endDate) {
+        const promises = boardIds.map(boardId => this.getSprint(boardId));
+        const results = await Promise.allSettled(promises);
+        let sprints = [];
+
+        results.forEach(result => {
+            if (result.status === 'fulfilled') {
+                const filtered = result.value.values.filter(sprint => {
+                    const startDateObj = new Date(sprint.startDate);
+                    const endDateObj = new Date(sprint.endDate);
+                    return startDateObj >= new Date(startDate) && endDateObj <= new Date(endDate);
+                });
+                sprints.push(...filtered);
+            }
+        });
+
+        return sprints;
+    }
+
+    _constructUri(uriPath, queryParams) {
+        const jiraBaseUri = process.env.JIRA_API_BASE_URI;
+        const queryString = new URLSearchParams(queryParams).toString();
+        return `${jiraBaseUri}${uriPath}${queryString ? '?' + queryString : ''}`;
+    }
+
+    async _callJiraRest(fullUri, errorMsg) {
+        try {
+            return await this.jr.call(fullUri);
+        } catch (error) {
+            console.error(`${errorMsg}:`, error);
+            throw new Error(errorMsg);
+        }
+    }
+
+    _handleProjects(isCore, projectsFunction) {
+        return projectsFunction(isCore).catch(error => {
+            console.error('Error finding projects:', error);
+            throw error;
         });
     }
 
-    /**
-     * Get Sprint in a date range
-     * @param {string} boardIds - JSON array of boardIds
-     * @param {object} jiraRest - will handle the Jira auth and set / run routes
-     * @param {string} jiraDomain - the base jira domain
-     * @param {string} startDate - date formatted string like: '2024-01-01'
-     * @param {string} endDate - date formatted string like: '2024-12-31'
-     * @returns {array} Sprints - each full sprint objects
-     */
-    async getSprintsInRange(boardIds, jiraRest, jiraDomain, startDate, endDate) {
-        try {
-        let response;
-        let filteredSprints;
-        let Sprints = []
-    
-        for (const boardId of boardIds) {
-            jiraRest.setRoute(`${jiraDomain}/rest/agile/1.0/board/${boardId}/sprint`);
-            response = await jiraRest.runRoute();
-        
-            const sprints = response.data.values;
-            // Filter sprints that fall within the given range
-            filteredSprints = sprints.filter((sprint) => {
-            const startDateObj = new Date(sprint.startDate);
-            const endDateObj = new Date(sprint.endDate);
-            return startDateObj >= new Date(startDate) && endDateObj <= new Date(endDate);
-            });
-    
-            sprints.push(filteredSprints)
-        }
-        console.log('Filtered Sprints:', sprints);
-        return sprints;
-        } catch (error) {
-        console.error('Error fetching sprints:', error.message);
-        }
+    _transformIssue(issue) {
+        return {
+            id: issue.id,
+            name: issue.fields.summary,
+            link: issue.self,
+            key: issue.key,
+            assignee: issue.fields.assignee ? issue.fields.assignee.displayName : 'Unassigned',
+            engineer: issue.fields.customfield_10183 ? issue.fields.customfield_10183.displayName : 'N/A',
+            qualityEngineer: issue.fields.qe ? issue.fields.qe.map(qe => qe.displayName).join(', ') : 'N/A',
+            description: issue.fields.description,
+            status: issue.fields.status ? issue.fields.status.name : 'Unknown',
+            type: issue.fields.issuetype ? issue.fields.issuetype.name : 'Unknown',
+            storyPoints: issue.fields.customfield_10023 || 0
+        };
     }
 }
