@@ -2,12 +2,31 @@ import { JiraRest } from "./jiraRest.js";
 import { config } from "./config.js";
 import { Projects } from "../../../models/projects.js";
 
+export class IssueTransformer {
+    static transform(issue) {
+        return {
+            id: issue.id,
+            name: issue.fields.summary,
+            link: issue.self,
+            key: issue.key,
+            assignee: issue.fields.assignee ? issue.fields.assignee.displayName : 'Unassigned',
+            engineer: issue.fields.customfield_10183 ? issue.fields.customfield_10183.displayName : 'N/A',
+            qualityEngineer: issue.fields.qe ? issue.fields.qe.map(qe => qe.displayName).join(', ') : 'N/A',
+            description: issue.fields.description,
+            status: issue.fields.status ? issue.fields.status.name : 'Unknown',
+            type: issue.fields.issuetype ? issue.fields.issuetype.name : 'Unknown',
+            storyPoints: issue.fields.customfield_10023 || 0
+        };
+    }
+}
+
 export class Sprint {
-    constructor(JiraRestInstance) {
-        if (!(JiraRestInstance instanceof JiraRest)) {
-            throw new Error('Sprint requires a valid JiraRest instance as the first parameter');
+    constructor(jiraRest, issueTransformer = IssueTransformer) {
+        if (!(jiraRest instanceof JiraRest)) {
+            throw new Error('Sprint requires a valid JiraRest instance');
         }
-        this.jr = JiraRestInstance;
+        this.jiraRest = jiraRest;
+        this.transformer = issueTransformer;
     }
 
     async getProjects(isCore = { core: true }) {
@@ -24,19 +43,14 @@ export class Sprint {
 
     async getSprint(boardId, queryParams = { state: 'active' }) {
         const fullUri = this._constructUri(`/agile/1.0/board/${boardId}/sprint`, queryParams);
-        return await this._callJiraRest(fullUri, 'Error fetching sprints');
+        return await this.jiraRest.call(fullUri);
     }
 
     async getIssuesInSprint(sprintId, queryParams = {}) {
         const uriPath = config.JIRA_API_SPRINT_ISSUES_PATH.replace('{sprintId}', sprintId);
         const fullUri = this._constructUri(uriPath, queryParams);
-        const response = await this._callJiraRest(fullUri, 'Error fetching issues');
-        
-        // Ensure response.issues is an array or default to an empty array
-        if (!response || !Array.isArray(response.issues)) {
-            return [];
-        }
-        return response.issues;
+        const response = await this.jiraRest.call(fullUri);
+        return Array.isArray(response.issues) ? response.issues : [];
     }
 
     async consolidateSprint(boardId) {
@@ -51,10 +65,7 @@ export class Sprint {
 
     async extractIssueData(sprintId) {
         const issues = await this.getIssuesInSprint(sprintId);
-        if (!Array.isArray(issues)) {
-            throw new Error("Expected issues to be an array");
-        }
-        return issues.map(this._transformIssue);
+        return issues.map(issue => this.transformer.transform(issue));
     }
 
     async getSprintsInRange(boardIds, startDate, endDate) {
@@ -82,35 +93,10 @@ export class Sprint {
         return `${jiraBaseUri}${uriPath}${queryString ? '?' + queryString : ''}`;
     }
 
-    async _callJiraRest(fullUri, errorMsg) {
-        try {
-            return await this.jr.call(fullUri);
-        } catch (error) {
-            console.error(`${errorMsg}:`, error);
-            throw new Error(errorMsg);
-        }
-    }
-
     _handleProjects(isCore, projectsFunction) {
         return projectsFunction(isCore).catch(error => {
             console.error('Error finding projects:', error);
             throw error;
         });
-    }
-
-    _transformIssue(issue) {
-        return {
-            id: issue.id,
-            name: issue.fields.summary,
-            link: issue.self,
-            key: issue.key,
-            assignee: issue.fields.assignee ? issue.fields.assignee.displayName : 'Unassigned',
-            engineer: issue.fields.customfield_10183 ? issue.fields.customfield_10183.displayName : 'N/A',
-            qualityEngineer: issue.fields.qe ? issue.fields.qe.map(qe => qe.displayName).join(', ') : 'N/A',
-            description: issue.fields.description,
-            status: issue.fields.status ? issue.fields.status.name : 'Unknown',
-            type: issue.fields.issuetype ? issue.fields.issuetype.name : 'Unknown',
-            storyPoints: issue.fields.customfield_10023 || 0
-        };
     }
 }
