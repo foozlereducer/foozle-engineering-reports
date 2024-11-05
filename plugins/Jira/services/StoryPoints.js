@@ -1,5 +1,9 @@
-// Refactored getStoryPoints function with SOLID principles
-export async function getStoryPoints(sprint, boardId, queryParams = { state: 'active' }, calculatorClass = StoryPointCalculator) {
+export async function getStoryPoints(sprint, boardId, queryParams = { state: 'active' }, calculatorClass = StoryPointCalculator, logger = console) {
+  const cacheKey = JSON.stringify({ boardId, ...queryParams });
+  if (storyPointsCache.has(cacheKey)) {
+      return storyPointsCache.get(cacheKey);
+  }
+
   if (typeof boardId !== 'number' || !sprint || typeof sprint.getSprint !== 'function') {
       throw new Error('Invalid parameters');
   }
@@ -9,12 +13,17 @@ export async function getStoryPoints(sprint, boardId, queryParams = { state: 'ac
       const issues = response.data?.issues || [];
 
       const calculator = new calculatorClass(issues);
-      return calculator.calculate();
+      const result = calculator.calculate();
+      storyPointsCache.set(cacheKey, result);
+      return result;
   } catch (error) {
-      console.error('Error fetching sprint issues:', error);
+      logger.error('Error fetching sprint issues:', error);
       return StoryPointCalculator.defaultStoryPoints();
   }
 }
+
+// Cache for Story Points
+const storyPointsCache = new Map();
 
 // StoryPointCalculator class for calculating story points
 class StoryPointCalculator {
@@ -23,35 +32,25 @@ class StoryPointCalculator {
   }
 
   calculate() {
-      let estimatedPoints = 0;
-      let committedPoints = 0;
-      let completedPoints = 0;
-      let acceptedPoints = 0;
-
-      this.issues.forEach((issue) => {
+      return this.issues.reduce((acc, issue) => {
           const storyPoints = issue.fields?.customfield_10016;
           const status = issue.fields?.status?.name;
 
           if (storyPoints != null) {
-              estimatedPoints += storyPoints;
-              committedPoints += storyPoints;
+              acc.estimatedPoints += storyPoints;
+              acc.committedPoints += storyPoints;
 
               if (StoryPointCalculator.isCompleted(status)) {
-                  completedPoints += storyPoints;
+                  acc.completedPoints += storyPoints;
               }
 
               if (StoryPointCalculator.isAccepted(status)) {
-                  acceptedPoints += storyPoints;
+                  acc.acceptedPoints += storyPoints;
               }
           }
-      });
 
-      return {
-          estimatedPoints,
-          committedPoints,
-          completedPoints,
-          acceptedPoints
-      };
+          return acc;
+      }, StoryPointCalculator.defaultStoryPoints());
   }
 
   static isCompleted(status) {
