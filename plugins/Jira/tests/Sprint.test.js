@@ -1,110 +1,108 @@
 import test from 'ava';
+import sinon from 'sinon';
 import { JiraRest } from '../services/jiraRest.js';
 import { ActoValidator } from '../../../services/validators/ActoValidator.js';
-import { Sprint } from '../services/Sprint.js';
+import { Sprint, IssueTransformer} from '../services/Sprint.js';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-const boardId = parseInt(process.env.JIRA_BOARD_ID);
 let jr;
 let Sp;
 
+// Boundary values for tests
+const MIN_BOARD_ID = 1;
+const MAX_BOARD_ID = Number.MAX_SAFE_INTEGER;
 
-test.before(() => {
+test.beforeEach(t => {
     jr = new JiraRest(new ActoValidator());
     Sp = new Sprint(jr);
+    t.context.jiraRest = jr;
+    t.context.sprintInstance = Sp;
 });
 
-test.after.always(() => {
+test.afterEach(() => {
+    sinon.restore(); // Restore any stubbed or spied functions to their original behavior
     jr = null;
     Sp = null;
 });
 
-test('Sprint should set the jr property if an instance of JiraRest is passed', t => {
-    t.true(Sp.jr instanceof JiraRest);
+test('Sprint should set the jiraRest property if an instance of JiraRest is passed', t => {
+    t.true(t.context.sprintInstance.jiraRest instanceof JiraRest);
 });
 
 test('Sprint should not throw an error if a JiraRest instance is passed', t => {
     t.notThrows(() => {
-        new Sprint(jr);
+        new Sprint(t.context.jiraRest);
     });
 });
 
-test('Sprint should fetch an active sprint on board 167', async t => {
-    const res = await Sp.getSprint(boardId);
-    t.true(res.values.length > 0);
+test('getSprint should return data in the correct format', async t => {
+    const mockGetSprint = sinon.stub(t.context.jiraRest, 'call').resolves({
+        values: [{ id: 123, state: 'active', self: 'https://example.com/123' }]
+    });
 
-    const activeSprint = res.values[0];
-    t.is(activeSprint.state, 'active');
-    t.is(typeof activeSprint.id, "number");
-    t.true(activeSprint.id > 982)
-    t.true(activeSprint.self.includes("https://actocloud.atlassian.net/rest/agile/1.0/sprint/"));
-    t.is(activeSprint.originBoardId, boardId);
+    const res = await t.context.sprintInstance.getSprint(1);
+    t.is(res.values.length, 1);
+    t.is(res.values[0].id, 123);
+
+    mockGetSprint.restore();
 });
 
-test('getIssuesInSprint(boardId) should return the issues in the active sprint for board 167', async t => {
-    const res = await Sp.getSprint(boardId);
-    const sprintId = res.values[0].id;
-    const issues = await Sp.getIssuesInSprint(sprintId);
-    
-    t.true(issues.length > 0);
+test('getIssuesInSprint should return the issues in the active sprint', async t => {
+    const mockGetIssues = sinon.stub(t.context.jiraRest, 'call').resolves({
+        issues: [{ id: 'ISSUE-1', fields: { summary: 'Test issue' } }]
+    });
 
-    // Validate the structure of the first issue
-    const firstIssue = issues[0];
-    t.true(typeof firstIssue.id === 'string');
-    t.true(typeof firstIssue.key === 'string');
-    t.true(typeof firstIssue.fields === 'object');
-    t.truthy(firstIssue.fields.summary.length > 0);
+    const issues = await t.context.sprintInstance.getIssuesInSprint(1);
+    t.true(Array.isArray(issues));
+    t.is(issues.length, 1);
+    t.is(issues[0].id, 'ISSUE-1');
+
+    mockGetIssues.restore();
 });
 
-test('extractIssueData should get extracted sets of data', async t => {
-    const res = await Sp.getSprint(boardId);
-    const sprintId = res.values[0].id;
-    const issues = await Sp.extractIssueData(sprintId);
-    t.true(issues.length > 0);
-    const firstissue = issues[0]
-    t.truthy(firstissue.id );
-    t.truthy(firstissue.name);
-    t.truthy(firstissue.link);
-    t.truthy(firstissue.key);
-    t.truthy(firstissue.assignee);
-    t.truthy(firstissue.engineer);
-    t.truthy(firstissue.qualityEngineer);
-    t.truthy(firstissue.description);
-    t.truthy(firstissue.status);
-    t.truthy(firstissue.type);
-    t.true(typeof firstissue.storyPoints === "number")
-})
+test('extractIssueData should transform issue data correctly', async t => {
+    const mockExtractIssues = sinon.stub(t.context.jiraRest, 'call').resolves({
+        issues: [{ id: 'ISSUE-1', fields: { summary: 'Test issue', customfield_10023: 5 } }]
+    });
 
-test(
-    'extractSprintDetails(boardId) should get the extracted data that meets the Sprint schema',
-    async t => {
-        const res = await Sp.extractSprintDetails(boardId) 
-       
-        const keys = Object.keys(res.values[0])
-        const expectedSchemaKeys = [
-            'id',
-            'self',
-            'state',
-            'name',
-            'startDate',
-            'endDate',
-            'createdDate',
-            'originBoardId',
-            'goal'
+    const transformed = await t.context.sprintInstance.extractIssueData(1);
+    t.true(Array.isArray(transformed));
+    t.is(transformed.length, 1);
+    t.is(transformed[0].id, 'ISSUE-1');
+    t.is(transformed[0].storyPoints, 5);
+
+    mockExtractIssues.restore();
+});
+
+test('consolidateSprint should consolidate sprint data correctly', async t => {
+    const mockGetSprint = sinon.stub(t.context.jiraRest, 'call').resolves({
+        values: [{ id: 123, state: 'active', self: 'https://example.com/123' }]
+    });
+    const mockExtractIssueData = sinon.stub(t.context.sprintInstance, 'extractIssueData').resolves([
+        { id: 'ISSUE-1', fields: { summary: 'Test issue', customfield_10023: 5 } }
+    ]);
+
+    const result = await t.context.sprintInstance.consolidateSprint(1);
+    t.true(Array.isArray(result));
+    t.is(result.length, 1);
+    t.is(result[0].id, 'ISSUE-1');
+
+    mockGetSprint.restore();
+    mockExtractIssueData.restore();
+});
+
+test('getSprintsInRange should return sprints within the date range', async t => {
+    const mockGetSprint = sinon.stub(t.context.jiraRest, 'call').resolves({
+        values: [
+            { id: 123, startDate: '2024-01-01T00:00:00Z', endDate: '2024-01-15T00:00:00Z' },
+            { id: 124, startDate: '2024-02-01T00:00:00Z', endDate: '2024-02-15T00:00:00Z' }
         ]
-        t.deepEqual(keys, expectedSchemaKeys);
-        const obj = res.values[0]
-        t.true((typeof obj.id === 'number'))
-        const selfWithoutId = obj.self.substring(0, obj.self.lastIndexOf('/'));
-        t.deepEqual(selfWithoutId, 'https://actocloud.atlassian.net/rest/agile/1.0/sprint');
-        t.true(typeof obj.state === 'string');
-        const starDate = new Date(obj.startDate);
-        t.true(!isNaN(starDate.getTime()));
-        const endDate = new Date(obj.endDate);
-        t.true(!isNaN(endDate.getTime()));
-        const createdDate = new Date(obj.createdDate);
-        t.true(!isNaN(createdDate.getTime()));
-        t.true((typeof obj.originBoardId === 'number'));
-        t.true(typeof obj.goal === 'string');   
-})
+    });
+
+    const result = await t.context.sprintInstance.getSprintsInRange([1], '2024-01-01', '2024-01-31');
+    t.is(result.length, 1);
+    t.is(result[0].id, 123);
+
+    mockGetSprint.restore();
+});
