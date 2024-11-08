@@ -14,8 +14,8 @@ const Sp = new Sprint(jr);
 
 // Register the route handler
 router
-  .post("/v1/getSprint", (req, res) => getSprint(Sp)(req, res))
-  .get("/v1/getProjs", async (req, res) => {
+  .post("/api/v1/getSprint", (req, res) => getSprint(Sp)(req, res))
+  .get("/api/v1/getProjects", async (req, res) => {
     try {
       const projects = await Sp.getProjects();
       res.status(200).json(projects);
@@ -24,7 +24,7 @@ router
       res.status(500).json({ message: 'Error fetching projects', error });
     }
   })
-  .get("/v1/getBoardIds", async(req,res) => {
+  .get("/api/v1/getBoardIds", async(req,res) => {
     try {
         const boardIds = await Sp.getBoardIds(validator);
         res.status(200).json(boardIds);
@@ -34,5 +34,36 @@ router
     }
     
   })
+
+  // GET /api/sprints/storypoints?startDate=2024-01-01&endDate=2024-02-28&boardIds=1,2,3 (optional boardIds)
+  .get('/api/v1/sprints/storypoints', async (req, res) => {
+    const { boardIds, startDate, endDate, isCore } = req.query;
+   
+    let boardIdArray;
+    if (!boardIds) {
+        // If no boardIds are provided, get them dynamically
+        try {
+            const validator = new ActoValidator(); // Assuming you have a validator instance
+            boardIdArray = await Sp.getBoardIds(validator, { core: isCore === 'true' });
+        } catch (error) {
+            return res.status(500).send({ error: 'Error retrieving board IDs' });
+        }
+    } else {
+        // Split boardIds if they are provided
+        boardIdArray = boardIds.split(',').map(id => parseInt(id, 10));
+        if (!Array.isArray(boardIdArray) || boardIdArray.some(isNaN)) {
+            return res.status(400).send({ error: 'Invalid boardIds parameter' });
+        }
+    }
+
+    try {
+        console.log(boardIdArray, startDate, endDate, isCore)
+        const totalStoryPoints = await Sp.getStoryPointsForSprintsInRange(boardIdArray, startDate, endDate);
+        res.json({ totalStoryPoints });
+    } catch (error) {
+        res.status(500).send({ error: 'Error retrieving story points' });
+    }
+})
+
 
 export { router as jiraMetricsRouter };
