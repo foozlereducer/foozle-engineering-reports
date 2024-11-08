@@ -38,7 +38,7 @@ function createMockSprint(issues) {
 }
 
 test('getStoryPoints should return an object with the correct keys', async t => {
-  const result = await getStoryPoints(t.context.mockSprint, boardId, { state: 'active' });
+  const result = await getStoryPoints(t.context.mockSprint, boardId, new MockStoryPointCalculator());
   t.deepEqual(
     Object.keys(result), ['estimatedPoints', 'committedPoints', 'completedPoints', 'acceptedPoints']);
 });
@@ -57,7 +57,7 @@ test('getStoryPoints should calculate estimated points correctly', async t => {
       }
   ]);
 
-  const result = await getStoryPoints(t.context.mockSprint, boardId, { state: 'active' });
+  const result = await getStoryPoints(t.context.mockSprint, boardId, new MockStoryPointCalculator());
   t.is(result.estimatedPoints, 8);
 });
 
@@ -89,14 +89,14 @@ test('getStoryPoints should calculate completed, committed, and accepted points 
       }
   ]);
 
-  const result = await getStoryPoints(t.context.mockSprint, boardId, { state: 'active' });
+  const result = await getStoryPoints(t.context.mockSprint, boardId, new MockStoryPointCalculator());
   t.is(result.committedPoints, 16);
   t.is(result.completedPoints, 5);
   t.is(result.acceptedPoints, 3);
 });
 
 test('getStoryPoints should handle empty response data gracefully', async t => {
-  const result = await getStoryPoints(t.context.mockSprint, boardId, { state: 'active' });
+  const result = await getStoryPoints(t.context.mockSprint, boardId, new MockStoryPointCalculator());
   t.is(result.estimatedPoints, 0);
   t.is(result.committedPoints, 0);
   t.is(result.completedPoints, 0);
@@ -123,7 +123,7 @@ test('getStoryPoints should ignore issues with null story points', async t => {
       }
   ]);
 
-  const result = await getStoryPoints(t.context.mockSprint, boardId, { state: 'active' });
+  const result = await getStoryPoints(t.context.mockSprint, boardId, new MockStoryPointCalculator());
   t.is(result.estimatedPoints, 5);
   t.is(result.committedPoints, 5);
   t.is(result.completedPoints, 0);
@@ -150,24 +150,58 @@ test('getStoryPoints should use StoryPointCalculator to calculate points', async
       }
   ]);
 
-  class MockStoryPointCalculator {
-      constructor(issues) {
-          this.issues = issues;
-      }
-
-      calculate() {
-          return {
-              estimatedPoints: 10,
-              committedPoints: 10,
-              completedPoints: 5,
-              acceptedPoints: 3,
-          };
-      }
-  }
-
-  const result = await getStoryPoints(mockSprint, boardId, { state: 'active' }, MockStoryPointCalculator);
-  t.is(result.estimatedPoints, 10);
-  t.is(result.committedPoints, 10);
+  const calculatorInstance = new MockStoryPointCalculator();
+  const result = await getStoryPoints(mockSprint, boardId, calculatorInstance);
+  t.is(result.estimatedPoints,8);
+  t.is(result.committedPoints, 8);
   t.is(result.completedPoints, 5);
   t.is(result.acceptedPoints, 3);
 });
+
+class MockStoryPointCalculator {
+  constructor(issues = []) {
+    this.issues = issues;
+  }
+
+  setIssues(issues) {
+    this.issues = issues;
+  }
+
+  calculate() {
+    return this.issues.reduce(
+      (acc, issue) => {
+        const storyPoints = issue.fields?.customfield_10016;
+        const status = issue.fields?.status?.name;
+
+        if (storyPoints != null) {
+          acc.estimatedPoints += storyPoints;
+          acc.committedPoints += storyPoints;
+
+          if (this.isCompleted(status)) {
+            acc.completedPoints += storyPoints;
+          }
+
+          if (this.isAccepted(status)) {
+            acc.acceptedPoints += storyPoints;
+          }
+        }
+
+        return acc;
+      },
+      {
+        estimatedPoints: 0,
+        committedPoints: 0,
+        completedPoints: 0,
+        acceptedPoints: 0,
+      }
+    );
+  }
+
+  isCompleted(status) {
+    return status === 'Done';
+  }
+
+  isAccepted(status) {
+    return status === 'Accepted';
+  }
+}

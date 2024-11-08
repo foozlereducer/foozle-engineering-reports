@@ -1,6 +1,9 @@
 import { JiraRest } from "./jiraRest.js";
 import { config } from "./config.js";
 import { Projects } from "../../../models/projects.js";
+import { connectDB } from "../../../datatabase/db.js";
+import { StoryPointCalculator } from "./StoryPoints.js";
+import { getStoryPoints } from "./StoryPoints.js";
 
 export class IssueTransformer {
     static transform(issue) {
@@ -21,16 +24,23 @@ export class IssueTransformer {
 }
 
 export class Sprint {
-    constructor(jiraRest, issueTransformer = IssueTransformer) {
+    constructor(jiraRest, issueTransformer = IssueTransformer, storyPointCalculatorInstance = new StoryPointCalculator()) {
         if (!(jiraRest instanceof JiraRest)) {
             throw new Error('Sprint requires a valid JiraRest instance');
         }
         this.jiraRest = jiraRest;
-        this.transformer = issueTransformer;
+        this.transformer = issueTransformer; // Assign the transformer to a property
+        this.storyPointCalculator = storyPointCalculatorInstance; // Assign story point calculator
     }
 
     async getProjects(isCore = { core: true }) {
-        return await this._handleProjects(isCore, Projects.find);
+        try {
+            const coreProjects = await Projects.find(isCore);
+            return coreProjects;
+        } catch (error) {
+            console.error('Error finding projects:', error);
+            throw error;
+        }
     }
 
     async getBoardIds(validator, isCore = { core: true }) {
@@ -43,7 +53,11 @@ export class Sprint {
 
     async getSprint(boardId, queryParams = { state: 'active' }) {
         const fullUri = this._constructUri(`/agile/1.0/board/${boardId}/sprint`, queryParams);
-        return await this.jiraRest.call(fullUri);
+        const response = await this.jiraRest.call(fullUri);
+        if (!response.values || response.values.length === 0) {
+            throw new Error(`No sprints found for board ${boardId}`);
+        }
+        return response;
     }
 
     async getIssuesInSprint(sprintId, queryParams = {}) {
@@ -71,22 +85,85 @@ export class Sprint {
     async getSprintsInRange(boardIds, startDate, endDate) {
         const promises = boardIds.map(boardId => this.getSprint(boardId));
         const results = await Promise.allSettled(promises);
-        let sprints = [];
 
+        let sprints = [];
         results.forEach(result => {
             if (result.status === 'fulfilled') {
-                const filtered = result.value.values.filter(sprint => {
-                    const startDateObj = new Date(sprint.startDate);
-                    const endDateObj = new Date(sprint.endDate);
-                    return startDateObj >= new Date(startDate) && endDateObj <= new Date(endDate);
-                });
-                sprints.push(...filtered);
+                if (result.value && result.value.values && Array.isArray(result.value.values)) {
+                    const filtered = result.value.values.filter(sprint => {
+                        const sprintStartDate = new Date(sprint.startDate);
+                        const sprintEndDate = new Date(sprint.endDate);
+                        const filterStartDate = new Date(startDate);
+                        const filterEndDate = new Date(endDate);
+
+                        sprintStartDate.setHours(0, 0, 0, 0);
+                        sprintEndDate.setHours(0, 0, 0, 0);
+                        filterStartDate.setHours(0, 0, 0, 0);
+                        filterEndDate.setHours(0, 0, 0, 0);
+
+                        return sprintStartDate <= filterEndDate && sprintEndDate >= filterStartDate;
+                    });
+
+                    sprints.push(...filtered);
+                } else {
+                    console.warn('Unexpected structure in result.value:', result.value);
+                }
+            } else {
+                console.warn('Promise rejected:', result.reason);
             }
         });
 
         return sprints;
     }
 
+    async getStoryPointsForSprintsInRange(boardIds, startDate, endDate, calculatorClass = this.storyPointCalculator, logger = console) {
+        try {
+            // Fetch sprints in the range provided
+            const sprintsInRange = await this.getSprintsInRange(boardIds, startDate, endDate);
+            
+            // Initialize total story points with all categories
+            let totalStoryPoints = {
+                estimatedPoints: 0,
+                committedPoints: 0,
+                completedPoints: 0,
+                acceptedPoints: 0,
+            };
+
+            // Iterate over each sprint
+            for (let sprint of sprintsInRange) {
+                const issuesInSprint = await this.getIssuesInSprint(sprint.id);
+               
+                // Iterate over issues to calculate points
+                for (let issue of issuesInSprint) {
+                    const storyPoints = issue.fields.customfield_10023 || 0;
+    
+                    // Add to estimated points
+                    totalStoryPoints.estimatedPoints += storyPoints;
+    
+                    // Add to committed points if status is 'To Do', 'In Progress', or 'Done'
+                    if (['To Do', 'In Progress', 'Done'].includes(issue.fields.status.name)) {
+                        totalStoryPoints.committedPoints += storyPoints;
+                    }
+    
+                    // Add to completed points if status is 'Done'
+                    if (issue.fields.status.name === 'Done') {
+                        totalStoryPoints.completedPoints += storyPoints;
+                    }
+    
+                    // Add to accepted points if status is 'Accepted'
+                    if (issue.fields.status.name === 'Accepted') {
+                        totalStoryPoints.acceptedPoints += storyPoints;
+                    }
+                }
+            }
+    
+            return totalStoryPoints;
+        } catch (error) {
+            logger.error('Error fetching story points:', error);
+            throw error;
+        }
+    }    
+    
     _constructUri(uriPath, queryParams) {
         const jiraBaseUri = process.env.JIRA_API_BASE_URI;
         const queryString = new URLSearchParams(queryParams).toString();
@@ -94,6 +171,7 @@ export class Sprint {
     }
 
     _handleProjects(isCore, projectsFunction) {
+        connectDB;
         return projectsFunction(isCore).catch(error => {
             console.error('Error finding projects:', error);
             throw error;
