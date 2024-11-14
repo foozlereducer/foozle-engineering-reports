@@ -2,8 +2,8 @@ import { JiraRest } from "./jiraRest.js";
 import { config } from "./config.js";
 import { Projects } from "../../../models/projects.js";
 import { connectDB } from "../../../datatabase/db.js";
-import { StoryPointCalculator } from "./StoryPoints.js";
-import { getStoryPoints } from "./StoryPoints.js";
+import { StoryPoints } from "./StoryPoints.js";
+import { StoryPointCalculator } from "./StoryPointCalculator.js";
 
 export class IssueTransformer {
     static transform(issue) {
@@ -24,13 +24,35 @@ export class IssueTransformer {
 }
 
 export class Sprint {
-    constructor(jiraRest, issueTransformer = IssueTransformer, storyPointCalculatorInstance = new StoryPointCalculator()) {
+    constructor(jiraRest, issueTransformer = IssueTransformer, storyPointsInstance = new StoryPoints(new StoryPointCalculator())) {
         if (!(jiraRest instanceof JiraRest)) {
             throw new Error('Sprint requires a valid JiraRest instance');
         }
         this.jiraRest = jiraRest;
-        this.transformer = issueTransformer; // Assign the transformer to a property
-        this.storyPointCalculator = storyPointCalculatorInstance; // Assign story point calculator
+        this.transformer = issueTransformer;
+        this.storyPoints = storyPointsInstance; // Assigning the StoryPoints instance to this.storyPoints
+        // Status sets for different types
+        this.statusSets = {
+            committed: new Set(),
+            completed: new Set(),
+            accepted: new Set(),
+        };
+    }
+
+    addStatuses(type, statuses) {
+        if (this.statusSets[type]) {
+            statuses.forEach(status => this.statusSets[type].add(status));
+        } else {
+            throw new Error(`Invalid status type: ${type}`);
+        }
+    }
+
+    validateStatuses() {
+        for (const [type, set] of Object.entries(this.statusSets)) {
+            if (set.size === 0) {
+                throw new Error(`Status set for type '${type}' is empty. Please add necessary statuses.`);
+            }
+        }
     }
 
     async getProjects(isCore = { core: true }) {
@@ -83,87 +105,67 @@ export class Sprint {
     }
 
     async getSprintsInRange(boardIds, startDate, endDate) {
-        const promises = boardIds.map(boardId => this.getSprint(boardId));
-        const results = await Promise.allSettled(promises);
-
         let sprints = [];
-        results.forEach(result => {
-            if (result.status === 'fulfilled') {
-                if (result.value && result.value.values && Array.isArray(result.value.values)) {
-                    const filtered = result.value.values.filter(sprint => {
-                        const sprintStartDate = new Date(sprint.startDate);
-                        const sprintEndDate = new Date(sprint.endDate);
-                        const filterStartDate = new Date(startDate);
-                        const filterEndDate = new Date(endDate);
-
-                        sprintStartDate.setHours(0, 0, 0, 0);
-                        sprintEndDate.setHours(0, 0, 0, 0);
-                        filterStartDate.setHours(0, 0, 0, 0);
-                        filterEndDate.setHours(0, 0, 0, 0);
-
-                        return sprintStartDate <= filterEndDate && sprintEndDate >= filterStartDate;
-                    });
-
-                    sprints.push(...filtered);
+        try {
+            const promises = boardIds.map(boardId => this.getSprint(boardId).catch(error => ({ error, boardId })));
+            const results = await Promise.allSettled(promises);
+    
+            results.forEach(result => {
+                if (result.status === 'fulfilled' && !result.value.error) {
+                    if (result.value && result.value.values && Array.isArray(result.value.values)) {
+                        const filtered = this.filterSprintsByDate(result.value.values, startDate, endDate);
+                        sprints.push(...filtered);
+                    } else {
+                        console.warn('Unexpected structure in result.value:', result.value);
+                    }
+                } else if (result.status === 'fulfilled' && result.value.error) {
+                    console.warn(`No sprints found for board ${result.value.boardId}:`, result.value.error.message);
                 } else {
-                    console.warn('Unexpected structure in result.value:', result.value);
+                    console.warn('Promise rejected:', result.reason);
                 }
-            } else {
-                console.warn('Promise rejected:', result.reason);
-            }
-        });
-
+            });
+        } catch (e) {
+            console.error('Error processing sprints:', e);
+        }
         return sprints;
     }
-
-    async getStoryPointsForSprintsInRange(boardIds, startDate, endDate, calculatorClass = this.storyPointCalculator, logger = console) {
+    
+    filterSprintsByDate(sprints, startDate, endDate) {
+        const filterStartDate = new Date(startDate);
+        const filterEndDate = new Date(endDate);
+        filterStartDate.setHours(0, 0, 0, 0);
+        filterEndDate.setHours(0, 0, 0, 0);
+    
+        return sprints.filter(sprint => {
+            const sprintStartDate = new Date(sprint.startDate);
+            const sprintEndDate = new Date(sprint.endDate);
+            sprintStartDate.setHours(0, 0, 0, 0);
+            sprintEndDate.setHours(0, 0, 0, 0);
+    
+            return sprintStartDate <= filterEndDate && sprintEndDate >= filterStartDate;
+        });
+    }
+    async getTotalStoryPointsForSprintsInRange(boardIds, startDate, endDate, logger = console) {
         try {
+            // Validate if all status sets are correctly populated
+            this.validateStatuses();
+    
             // Fetch sprints in the range provided
             const sprintsInRange = await this.getSprintsInRange(boardIds, startDate, endDate);
-            
-            // Initialize total story points with all categories
-            let totalStoryPoints = {
-                estimatedPoints: 0,
-                committedPoints: 0,
-                completedPoints: 0,
-                acceptedPoints: 0,
-            };
-
-            // Iterate over each sprint
-            for (let sprint of sprintsInRange) {
-                const issuesInSprint = await this.getIssuesInSprint(sprint.id);
-               
-                // Iterate over issues to calculate points
-                for (let issue of issuesInSprint) {
-                    const storyPoints = issue.fields.customfield_10023 || 0;
     
-                    // Add to estimated points
-                    totalStoryPoints.estimatedPoints += storyPoints;
-    
-                    // Add to committed points if status is 'To Do', 'In Progress', or 'Done'
-                    if (['To Do', 'In Progress', 'Done'].includes(issue.fields.status.name)) {
-                        totalStoryPoints.committedPoints += storyPoints;
-                    }
-    
-                    // Add to completed points if status is 'Done'
-                    if (issue.fields.status.name === 'Done') {
-                        totalStoryPoints.completedPoints += storyPoints;
-                    }
-    
-                    // Add to accepted points if status is 'Accepted'
-                    if (issue.fields.status.name === 'Accepted') {
-                        totalStoryPoints.acceptedPoints += storyPoints;
-                    }
-                }
+            // Delegate the calculation of total story points to the StoryPoints instance
+            if (this instanceof Sprint) {
+                return await this.storyPoints.calculateTotalStoryPoints(this, sprintsInRange, logger);
+            } else {
+                throw 'this is not of type Sprint';
             }
-    
-            return totalStoryPoints;
         } catch (error) {
             logger.error('Error fetching story points:', error);
             throw error;
         }
-    }    
+    }
     
+
     _constructUri(uriPath, queryParams) {
         const jiraBaseUri = process.env.JIRA_API_BASE_URI;
         const queryString = new URLSearchParams(queryParams).toString();

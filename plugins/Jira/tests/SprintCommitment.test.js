@@ -1,7 +1,7 @@
 import test from 'ava';
-import { JiraRest } from '../../../../plugins/Jira/services/jiraRest.js';
-import { ActoValidator } from '../../../../services/validators/ActoValidator.js'
-import { SprintCommitment } from '../../../../plugins/Jira/services/SprintCommitment.js';
+import { JiraRest } from '../services/jiraRest.js';
+import { ActoValidator } from '../../../services/validators/ActoValidator.js'
+import { SprintCommitment } from '../services/SprintCommitment.js';
 
 test('SprintCommitment should set the jr property if an instance of JiraRest is passed', t => {
     const jr = new JiraRest(new ActoValidator());
