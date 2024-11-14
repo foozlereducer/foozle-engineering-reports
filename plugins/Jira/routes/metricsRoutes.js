@@ -58,7 +58,29 @@ router
 
     try {
         console.log(boardIdArray, startDate, endDate, isCore)
-        const totalStoryPoints = await Sp.getStoryPointsForSprintsInRange(boardIdArray, startDate, endDate);
+        const committedStatuses = [
+          'To Do',
+          'In Progress',
+          'Done',
+          'Completed',
+          'Released Into Pre-Production',
+          'Ready For Release'
+        ]
+        Sp.addStatuses('committed', committedStatuses)
+
+        const completedStatuses = [
+            'Done',
+            'Completed',
+            'Released Into Pre-Production',
+            'Ready For Release'
+        ]
+        Sp.addStatuses('completed', completedStatuses)
+        
+        const acceptedStatuses =['Accepted']
+        Sp.addStatuses('accepted', acceptedStatuses)
+        
+        const totalStoryPoints = 
+        await Sp.getTotalStoryPointsForSprintsInRange(boardIdArray,startDate, endDate);
         res.json({ totalStoryPoints });
     } catch (error) {
         res.status(500).send({ error: 'Error retrieving story points' });

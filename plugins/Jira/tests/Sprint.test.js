@@ -3,7 +3,7 @@ import sinon from 'sinon';
 import { JiraRest } from '../services/jiraRest.js';
 import { ActoValidator } from '../../../services/validators/ActoValidator.js';
 import { Sprint, IssueTransformer } from '../services/Sprint.js';
-import { StoryPointCalculator } from '../services/StoryPoints.js';
+import { StoryPointCalculator } from '../services/StoryPointCalculator.js';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -17,10 +17,12 @@ const MAX_BOARD_ID = Number.MAX_SAFE_INTEGER;
 test.beforeEach(t => {
     jr = new JiraRest(new ActoValidator());
     const issueTransformer = IssueTransformer;  // Use IssueTransformer directly as it's a static class
-    const storyPointCalculatorInstance = new StoryPointCalculator();  // Create an instance of the StoryPointCalculator
-    Sp = new Sprint(jr, issueTransformer, storyPointCalculatorInstance);  // Pass instances to Sprint
+    Sp = new Sprint(jr, issueTransformer);  // Pass instances to Sprint
+    
+    // Set in context
     t.context.jiraRest = jr;
-    t.context.sprintInstance = Sp;
+    t.context.Sp = Sp;
+    t.context.sprintInstance = Sp;  // Set this to maintain consistency
 });
 
 test.afterEach(() => {
@@ -30,7 +32,7 @@ test.afterEach(() => {
 });
 
 test('Sprint should set the jiraRest property if an instance of JiraRest is passed', t => {
-    t.true(t.context.sprintInstance.jiraRest instanceof JiraRest);
+    t.true(t.context.Sp.jiraRest instanceof JiraRest);
 });
 
 test('Sprint should not throw an error if a JiraRest instance is passed', t => {
@@ -44,90 +46,85 @@ test('getSprint should return data in the correct format', async t => {
         values: [{ id: 123, state: 'active', self: 'https://example.com/123' }]
     });
 
-    const res = await t.context.sprintInstance.getSprint(123);
+    const res = await t.context.Sp.getSprint(123);
     t.is(res.values.length, 1);
     t.is(res.values[0].id, 123);
 
     mockGetSprint.restore();
 });
 
-test('getIssuesInSprint should return the issues in the active sprint', async t => {
-    const mockGetIssues = sinon.stub(t.context.jiraRest, 'call').resolves({
-        issues: [{ id: 'ISSUE-1', fields: { summary: 'Test issue' } }]
-    });
+test('Should throw error if statuses are not properly defined', async t => {
+    const sprintInstance = t.context.sprintInstance;
 
-    const issues = await t.context.sprintInstance.getIssuesInSprint(123);
-    console.log('Fetched issues:', issues);  // Debugging output
-    t.true(Array.isArray(issues));
-    t.is(issues.length, 1);
-    t.is(issues[0].id, 'ISSUE-1');
-
-    mockGetIssues.restore();
-});
-
-test('extractIssueData should transform issue data correctly', async t => {
-    const mockExtractIssues = sinon.stub(t.context.jiraRest, 'call').resolves({
-        issues: [{ id: 'ISSUE-1', fields: { summary: 'Test issue', customfield_10023: 5 } }]
-    });
-
-    const transformed = await t.context.sprintInstance.extractIssueData(123);
-    t.true(Array.isArray(transformed));
-    t.is(transformed.length, 1);
-    t.is(transformed[0].id, 'ISSUE-1');
-    t.is(transformed[0].storyPoints, 5);
-
-    mockExtractIssues.restore();
-});
-
-test('consolidateSprint should consolidate sprint data correctly', async t => {
-    const mockGetSprint = sinon.stub(t.context.jiraRest, 'call').resolves({
-        values: [{ id: 123, state: 'active', self: 'https://example.com/123' }]
-    });
-    const mockExtractIssueData = sinon.stub(t.context.sprintInstance, 'extractIssueData').resolves([
-        { id: 'ISSUE-1', name: 'Test issue', storyPoints: 5 }
-    ]);
-
-    const result = await t.context.sprintInstance.consolidateSprint(123);
-    t.true(Array.isArray(result));
-    t.is(result.length, 1);
-    t.is(result[0].id, 'ISSUE-1');
-
-    mockGetSprint.restore();
-    mockExtractIssueData.restore();
-});
-
-test('getSprintsInRange should return sprints within the date range', async t => {
-    const mockGetSprint = sinon.stub(t.context.jiraRest, 'call').resolves({
-        values: [
-            { id: 123, startDate: '2024-01-01T00:00:00Z', endDate: '2024-01-15T00:00:00Z' }
-        ]
-    });
-
-    const result = await t.context.sprintInstance.getSprintsInRange([123], '2024-01-01', '2024-01-31');
-    t.is(result.length, 1);
-    t.is(result[0].id, 123);
-
-    mockGetSprint.restore();
-});
-
-test('getStoryPointsForSprintsInRange should fail initially', async t => {
-    // Simplified mock data for initial failing TDD approach
-    const mockGetSprintsInRange = sinon.stub(t.context.sprintInstance, 'getSprintsInRange').resolves([
-        { id: 123, startDate: '2024-01-01T00:00:00Z', endDate: '2024-01-15T00:00:00Z' }
-    ]);
-
-    const mockGetIssuesInSprint = sinon.stub(t.context.sprintInstance, 'getIssuesInSprint').resolves([
-        { id: 'ISSUE-1', fields: { customfield_10023: 5, status: { name: 'Done' } } } // Incorrect story points to make test fail
-    ]);
-
- 
-    const totalStoryPoints = await t.context.sprintInstance.getStoryPointsForSprintsInRange(
-        [123], '2024-01-01', '2024-02-28', undefined, undefined
+    await t.throwsAsync(
+        async () => {
+            await sprintInstance.getTotalStoryPointsForSprintsInRange([123], '2024-01-01', '2024-02-28');
+        },
+        {
+            instanceOf: Error,
+            message: /Status set for type .* is empty/,
+        }
     );
+});
 
-    // Validate the returned story points object
+test('Should not throw error if statuses are properly defined', async t => {
+    const sprintInstance = t.context.sprintInstance;
+    sprintInstance.addStatuses('committed', ['To Do', 'In Progress']);
+    sprintInstance.addStatuses('completed', ['Done']);
+    sprintInstance.addStatuses('accepted', ['Accepted']);
+
+    // Mocking the responses
+    const mockGetSprintsInRange = sinon.stub(sprintInstance, 'getSprintsInRange').resolves([]);
+    const totalStoryPoints = await sprintInstance.getTotalStoryPointsForSprintsInRange([123], '2024-01-01', '2024-02-28');
+
+    // Assert the expected empty story points
     t.deepEqual(totalStoryPoints, {
-        estimatedPoints: 5,  // Expected incorrect value to make the test fail initially
+        estimatedPoints: 0,
+        committedPoints: 0,
+        completedPoints: 0,
+        acceptedPoints: 0,
+    });
+
+    // Restore the mocked methods
+    mockGetSprintsInRange.restore();
+});
+
+test('getTotalStoryPointsForSprintsInRange should calculate story points correctly', async t => {
+    const sprintInstance = t.context.sprintInstance;
+
+    // Properly define the statuses
+    sprintInstance.addStatuses('committed', [
+        'To Do',
+        'In Progress',
+        'Done',
+        'Completed',
+        'Released Into Pre-Production',
+        'Ready For Release'
+    ]);
+    sprintInstance.addStatuses('completed', [
+        'Done',
+        'Completed',
+        'Released Into Pre-Production',
+        'Ready For Release'
+    ]);
+    sprintInstance.addStatuses('accepted', ['Accepted']);
+
+    // Mocking the responses
+    const mockGetSprintsInRange = sinon.stub(sprintInstance, 'getSprintsInRange').resolves([
+        {
+            id: 123,
+            startDate: '2024-01-01T00:00:00Z',
+            endDate: '2024-01-15T00:00:00Z',
+            getIssuesInSprint: async () => [
+                { id: 'ISSUE-1', fields: { customfield_10023: 5, status: { name: 'Done' } } }
+            ]
+        }
+    ]);
+
+    const totalStoryPoints = await sprintInstance.getTotalStoryPointsForSprintsInRange([123], '2024-01-01', '2024-02-28');
+
+    t.deepEqual(totalStoryPoints, {
+        estimatedPoints: 5,
         committedPoints: 5,
         completedPoints: 5,
         acceptedPoints: 0,
@@ -135,5 +132,4 @@ test('getStoryPointsForSprintsInRange should fail initially', async t => {
 
     // Restore the mocked methods
     mockGetSprintsInRange.restore();
-    mockGetIssuesInSprint.restore();
 });

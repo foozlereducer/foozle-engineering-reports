@@ -1,9 +1,9 @@
 import test from 'ava';
-import { ActoValidator } from '../../../../services/validators/ActoValidator.js';
-import { JiraRest } from './../../../../plugins/Jira/services/jiraRest.js';
-import { SprintBoards } from './../../../../plugins/Jira/services/SprintBoards.js';
-import { GetProjects } from './../../../../plugins/Jira/services/GetProjects.js';
-import { sum } from '../../../../services/utilities/Sum.js';
+import { ActoValidator } from '../../../services/validators/ActoValidator.js';
+import { JiraRest } from '../services/jiraRest.js';
+import { SprintBoards } from '../services/SprintBoards.js';
+import { GetProjects } from '../services/GetProjects.js';
+import { sum } from '../../../services/utilities/Sum.js';
 
 test('getSprintBoards returns a sprint object literal with 9 fields ', async t=> {
     const AV = new ActoValidator()
