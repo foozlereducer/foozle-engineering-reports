@@ -1,31 +1,43 @@
-import { LogSchema } from "../models/log.js";
-import { connectDB } from "../datatabase/db.js";
-
-export const logger = async (statusCode, errorMessage, severity, error) => {
-   
-    const severities = ['fatal', 'error', 'debug', 'info'];
-    
-    // Ensure the severity is one of the enumerated values.
-    if (!severities.includes(severity)) {
-        severity = 'error';
-    }
-    const createdAt =  new Date();
-    let log = new LogSchema({
-        statusCode: statusCode,
-        message: errorMessage,
-        severity: severity,
-        error: error,
-        createdAt:createdAt
-    });
-
+import { winstonInstance } from "./getWinston"
+import { ActoValidator } from "./validators/ActoValidator.js"
+const Validator = new ActoValidator();
+Validator.setChainable = false;
+const validateThis = Validator.notEmpty("issues");
+  
+export const logger = async (statusCode, errorMessage, severity, error, winstonInstance) => {
     try {
-        connectDB();
-        return await log.save();
+        Validator.notEmpty(errorMessage)
     } catch(e) {
-        console.log(e)
-    }   
-};
+        errorMessage = '-';
+    }
 
-export const getErrorSeverity = (status) => {
-    
-}
+    const logMsg = `${statusCode} | ${errorMessage}: ${error}`;
+    switch (severity) {
+        case 'emerg':
+            winstonInstance.log('emerg', logMsg)
+            break;
+        case 'alert':
+            winstonInstance.log('alert', logMsg)
+            break;
+        case 'crit':
+            winstonInstance.log('crit', logMsg)
+            break;
+        case 'error':
+            winstonInstance.log('error', logMsg)
+            break;
+        case 'warning':
+            winstonInstance.log('warning', logMsg)
+            break;
+        case 'notice':
+            winstonInstance.log('notice', logMsg)
+            break;
+        case 'info':
+            winstonInstance.log('info', logMsg)
+            break;
+        case 'debug':
+            winstonInstance.log('debug', logMsg)
+            break;
+        default:
+            break;
+    }    
+};

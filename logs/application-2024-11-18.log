@@ -1,0 +1,41 @@
+{"level":"info","message":"Cookies:undefined","timestamp":"2024-11-18T19:53:55.381Z"}
+{"level":"error","message":":Error: No sprints found for board 181","timestamp":"2024-11-18T19:53:56.084Z"}
+{"level":"error","message":":Error: No sprints found for board 170","timestamp":"2024-11-18T19:53:56.129Z"}
+{"level":"info","message":"No sprints found for board 170::No sprints found for board 170","timestamp":"2024-11-18T19:53:56.750Z"}
+{"level":"info","message":"No sprints found for board 181::No sprints found for board 181","timestamp":"2024-11-18T19:53:56.752Z"}
+{"level":"info","message":"Cookies:undefined","timestamp":"2024-11-18T19:55:14.500Z"}
+{"level":"error","message":":Error: No sprints found for board 181","timestamp":"2024-11-18T19:55:15.355Z"}
+{"level":"error","message":":Error: No sprints found for board 170","timestamp":"2024-11-18T19:55:15.383Z"}
+{"level":"info","message":"No sprints found for board 170::No sprints found for board 170","timestamp":"2024-11-18T19:55:15.384Z"}
+{"level":"info","message":"No sprints found for board 181::No sprints found for board 181","timestamp":"2024-11-18T19:55:15.385Z"}
+{"level":"info","message":"Cookies:undefined","timestamp":"2024-11-18T19:57:37.152Z"}
+{"level":"error","message":":Error: No sprints found for board 181","timestamp":"2024-11-18T19:57:37.847Z"}
+{"level":"error","message":":Error: No sprints found for board 170","timestamp":"2024-11-18T19:57:37.905Z"}
+{"level":"info","message":"No sprints found for board 170::No sprints found for board 170","timestamp":"2024-11-18T19:57:37.946Z"}
+{"level":"info","message":"No sprints found for board 181::No sprints found for board 181","timestamp":"2024-11-18T19:57:37.946Z"}
+{"level":"error","message":"500 | internal server error:TestError: internal server error","timestamp":"2024-11-18T20:06:42.755Z"}
+{"level":"error","message":"500 | internal server error:TestError: internal server error","timestamp":"2024-11-18T20:06:50.475Z"}
+{"level":"error","message":"500 | internal server error:TestError: internal server error","timestamp":"2024-11-18T20:06:57.336Z"}
+{"level":"error","message":"500 | internal server error:TestError: internal server error","timestamp":"2024-11-18T20:07:09.313Z"}
+{"level":"error","message":"500 | internal server error:TestError: internal server error","timestamp":"2024-11-18T20:07:16.483Z"}
+{"level":"error","message":"500 | internal server error:TestError: internal server error","timestamp":"2024-11-18T20:07:23.064Z"}
+{"level":"error","message":"500 | internal server error:TestError: internal server error","timestamp":"2024-11-18T20:07:29.590Z"}
+{"level":"error","message":"500 | internal server error:TestError: internal server error","timestamp":"2024-11-18T20:07:36.811Z"}
+{"level":"error","message":"500 | internal server error:TestError: internal server error","timestamp":"2024-11-18T20:07:43.457Z"}
+{"level":"error","message":"500 | internal server error:TestError: internal server error","timestamp":"2024-11-18T20:07:50.512Z"}
+{"level":"error","message":"500 | internal server error:TestError: internal server error","timestamp":"2024-11-18T20:07:57.145Z"}
+{"level":"error","message":"500 | internal server error:TestError: internal server error","timestamp":"2024-11-18T20:08:03.608Z"}
+{"level":"error","message":"500 | internal server error:TestError: internal server error","timestamp":"2024-11-18T20:08:10.342Z"}
+{"level":"error","message":"500 | internal server error:TestError: internal server error","timestamp":"2024-11-18T20:08:17.967Z"}
+{"level":"error","message":"500 | internal server error:TestError: internal server error","timestamp":"2024-11-18T20:08:26.759Z"}
+{"level":"error","message":"500 | internal server error:TestError: internal server error","timestamp":"2024-11-18T20:08:31.119Z"}
+{"level":"error","message":"500 | internal server error:TestError: internal server error","timestamp":"2024-11-18T20:09:10.175Z"}
+{"level":"error","message":"500 | internal server error:TestError: internal server error","timestamp":"2024-11-18T20:09:17.577Z"}
+{"level":"error","message":"500 | internal server error:TestError: internal server error","timestamp":"2024-11-18T20:09:24.612Z"}
+{"level":"error","message":"500 | internal server error:TestError: internal server error","timestamp":"2024-11-18T20:09:31.908Z"}
+{"level":"error","message":"500 | internal server error:TestError: internal server error","timestamp":"2024-11-18T20:09:40.516Z"}
+{"level":"error","message":"500 | internal server error:TestError: internal server error","timestamp":"2024-11-18T20:09:45.007Z"}
+{"level":"error","message":"500 | internal server error:TestError: internal server error","timestamp":"2024-11-18T20:09:51.287Z"}
+{"level":"error","message":"500 | internal server error:TestError: internal server error","timestamp":"2024-11-18T20:09:57.786Z"}
+{"level":"error","message":"500 | internal server error:TestError: internal server error","timestamp":"2024-11-18T20:10:07.017Z"}
+{"level":"error","message":"500 | internal server error:TestError: internal server error","timestamp":"2024-11-18T20:10:14.192Z"}
