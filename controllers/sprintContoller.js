@@ -8,7 +8,6 @@
  */
 export const triggerSprintCommittedStoryPoints = (Sp) => async (req, res) => {
     try {
-        console.log('just before call getSprint')
         const sprintData = await Sp.getSprints(167);
         res.send(sprintData);
     } catch (error) {

@@ -57,7 +57,6 @@ router
     }
 
     try {
-        console.log(boardIdArray, startDate, endDate, isCore)
         const committedStatuses = [
           'To Do',
           'In Progress',

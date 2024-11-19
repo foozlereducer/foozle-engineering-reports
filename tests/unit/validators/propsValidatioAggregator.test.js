@@ -60,7 +60,7 @@ test("PropsValidationAggregator's issueName in multiple props fail validation wi
     
     PVA.generatePropValidator('', "team")
     const validatorResult = PVA.processValidators();
-    console.log(validatorResult.errors)
+
     t.true(true)
     t.false(validatorResult.status);
     t.is(validatorResult.errors, 'issueName is wrong, it has zero length. team is wrong, it has zero length. ');

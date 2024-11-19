@@ -6,6 +6,7 @@ import * as path from 'path';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { logger } from './services/logger.js';
+import { winstonInstance } from './services/getWinston.js';
 import { connectDB } from './datatabase/db.js';
 import { indexRouter } from './routes/index.js';
 import { storyPointsRouter } from './routes/metrics.js';
@@ -16,7 +17,6 @@ import { jiraMetricsRouter } from './plugins/Jira/routes/metricsRoutes.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
-import MongoStore from 'connect-mongo';
 dotenv.config();
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -35,7 +35,6 @@ app.use(session({
   secret: process.env.PASSPORT_SESSION_SECRET,
   resave: false,
   saveUninitialized: true,
-  store: MongoStore.create({ mongoUrl: process.env.DATABASE_URI }),
   cookie: { 
     secure: true, 
     httpOnly: true,
@@ -64,7 +63,6 @@ passport.deserializeUser((user, done) => done(null, user));
 
 // Middleware to log cookies
 app.use((req, res, next) => {
-  console.log('Cookies:', req.cookies);
   next();
 });
 
@@ -92,6 +90,6 @@ app.use('/', jiraMetricsRouter);
 // Catch-all route for undefined routes
 app.all('*', async (req, res) => {
   const message = `Route ${req.url} is not found`;
+  await logger(404, '', 'error', message, winstonInstance);
   res.status(404).send(message);
-  await logger(404, message, 'error', message);
 });
