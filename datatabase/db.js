@@ -10,20 +10,14 @@ mongoose.set("strictQuery", false);
 
 const mongoDBConnect = async () => {
   try {
-    await mongoose.connect(process.env.DATABASE_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    });
-    console.log('Connected to MongoDB');
-    return 'Connected to MongoDB'
+    await mongoose.connect(process.env.DATABASE_URI);
+    console.log('Successfully connected to MongoDB Atlas');
   } catch (error) {
-    console.log('Error connecting to MongoDB:', error);
-    logger(500, error, 'fatal' )
-    return JSON.stringify(`Error connecting to MongoDB: ${error}`)
+      console.error('Error connecting to MongoDB Atlas:', error);
   }
- };
+}
 
- export const connectDB =  mongoDBConnect;
+ export const connectDB =  await mongoDBConnect;
 
  const mongoDBDisconnect = async () => {
   try {

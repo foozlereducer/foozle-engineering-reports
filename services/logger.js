@@ -1,4 +1,4 @@
-import { winstonInstance } from "./getWinston"
+import { winstonInstance } from "./getWinston.js"
 import { ActoValidator } from "./validators/ActoValidator.js"
 const Validator = new ActoValidator();
 Validator.setChainable = false;

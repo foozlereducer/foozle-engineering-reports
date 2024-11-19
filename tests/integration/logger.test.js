@@ -1,10 +1,11 @@
 import test from 'ava';
 import { logger } from '../../services/logger.js';
+import { winstonInstance } from '../../services/getWinston.js';
 
 test('A default error severity should be set to "error"', async (t) => {
     const statusCode = 401;
     const message = 'boo'
-    const logResults = await logger(statusCode, message);
+    const logResults = await logger(statusCode, message, 'info');
     t.is('error',logResults.severity)
 });
 

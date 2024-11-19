@@ -15,8 +15,6 @@ export const story_point_get = async (req, res) => {
 }
 
 export const story_points_create_post = async (req, res) => {
-    console.log('req', req)
-    console.log('res', res)
     connectDB();
     let storyPoints = new StoryPoints({
         sprint: req.body.sprint,

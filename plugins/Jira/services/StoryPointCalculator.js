@@ -5,12 +5,10 @@ export class StoryPointCalculator {
     }
   
     setIssues(issues) {
-        console.log('Setting issues:', issues);
         this.issues = issues;
     }
   
     calculate() {
-        console.log('Calculating points for issues:', this.issues);
         return this.issues.reduce((acc, issue) => {
             const storyPoints = issue.fields?.customfield_10016;
             const status = issue.fields?.status?.name;

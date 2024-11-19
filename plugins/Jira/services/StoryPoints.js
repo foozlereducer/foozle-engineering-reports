@@ -29,7 +29,7 @@ export class StoryPoints {
 
             // Iterate over sprints and calculate story points
             for (let sprint of sprintsInRange) {
-                const issuesInSprint = await sprint.getIssuesInSprint();
+                const issuesInSprint = await Sp.getIssuesInSprint(sprint.id);
                 logger.log(`Issues for sprint ${sprint.id}:`, issuesInSprint);
 
                 if (!issuesInSprint || issuesInSprint.length === 0) {

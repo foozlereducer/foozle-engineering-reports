@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import { Axios } from "axios";
-import {initializeApp} from "firebase/app"
+
 
 import { TokenModel } from "../../models/token.js";
 
@@ -8,17 +8,6 @@ import dotenv from 'dotenv';
 dotenv.config()
 
 export class Auth {
-    async initFirebaseAdmin() {
-         // Call your backend route to get the Firebase config
-        const response = await Axios.get(process.env.URL + '/api/metrics/firebaseConfig');
-                
-        // Assuming your backend returns the Firebase config in the response.data
-        let firebaseConfig = response.data;
-        
-
-        // Initialize Firebase app with the config
-        return await initializeApp(firebaseConfig);
-    }
 
     async isAuthenticated(req, res) {
         try {
@@ -67,7 +56,6 @@ export class Auth {
             domain: 'localhost',
             path: '/',
         });
-        console.log(`Cookie set: sessionId=${sessionId}`);
         res.status(200).json({ message: 'Authentication data stored in cookie.' });
     }
 
@@ -105,7 +93,6 @@ export class Auth {
                 sameSite: 'strict',
                 secure: true,
             });
-            console.log(`Cookie cleared: sessionId=${sessionId}`);
             let clearedSessionId = false;
             if (req.cookies.sessionId) {
                 clearedSessionId = true;
