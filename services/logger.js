@@ -1,14 +1,6 @@
-import { winstonInstance } from "./getWinston.js"
-import { ActoValidator } from "./validators/ActoValidator.js"
-const Validator = new ActoValidator();
-Validator.setChainable = false;
-const validateThis = Validator.notEmpty("issues");
-  
 export const logger = async (statusCode, errorMessage, severity, error, winstonInstance) => {
-    try {
-        Validator.notEmpty(errorMessage)
-    } catch(e) {
-        errorMessage = '-';
+    if (!errorMessage || errorMessage.trim() === "") {
+        errorMessage = "-";
     }
 
     const logMsg = `${statusCode} | ${errorMessage}: ${error}`;

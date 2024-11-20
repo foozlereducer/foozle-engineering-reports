@@ -6,7 +6,7 @@ import * as path from 'path';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { logger } from './services/logger.js';
-import { winstonInstance } from './services/getWinston.js';
+import { getWinston } from './services/getWinston.js';
 import { connectDB } from './datatabase/db.js';
 import { indexRouter } from './routes/index.js';
 import { storyPointsRouter } from './routes/metrics.js';
@@ -90,6 +90,7 @@ app.use('/', jiraMetricsRouter);
 // Catch-all route for undefined routes
 app.all('*', async (req, res) => {
   const message = `Route ${req.url} is not found`;
-  await logger(404, '', 'error', message, winstonInstance);
+
+  await logger(404, '', 'error', message, getWinston());
   res.status(404).send(message);
 });
