@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Home from '../src/views/Home.vue';
 import SampleMetric from '../src/views/SampleMetric.vue';
 import Login from '../src/views/Login.vue';
+import Logs from '../src/views/Logs.vue';
 // import Metrics from '../src/views/Metrics.vue';
 // import Tools from '../src/views/Tools.vue';
 import axios from 'axios';
@@ -36,6 +37,12 @@ const routes = [
     path: '/tools',
     name: 'Tools',
     component: '',
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/logs',
+    name: 'Logs',
+    component: Logs,
     meta: { requiresAuth: true },
   },
 ];

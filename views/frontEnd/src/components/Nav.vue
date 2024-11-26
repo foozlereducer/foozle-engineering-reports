@@ -9,6 +9,7 @@
       <li><router-link class="link" :to="{ name: 'sampleMetric' }">SampleMetric</router-link></li>
       <li><router-link class="link" :to="{ name: 'Metrics' }">Metrics</router-link></li>
       <li><router-link class="link" :to="{ name: 'Tools' }">Tools</router-link></li>
+      <li><router-link class="link" :to="{ name: 'Logs' }">Tools</router-link></li>
     </ul>
     <div class="icon" v-if="authStore.isMobile">
       <i
@@ -47,6 +48,13 @@
               @click="toggleMobileNav"
               class="link"
               :to="{ name: 'Tools' }"
+            >Tools</router-link>
+          </li>
+          <li v-if="isAuthenticated">
+            <router-link
+              @click="toggleMobileNav"
+              class="link"
+              :to="{ name: 'Logs' }"
             >Tools</router-link>
           </li>
         </ul>
