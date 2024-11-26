@@ -10,6 +10,7 @@
     "test": "vitest"
   },
   "dependencies": {
+    "@vueuse/core": "^11.3.0",
     "axios": "^1.6.7",
     "cors": "^2.8.5",
     "d3": "^7.9.0",
@@ -17,12 +18,13 @@
     "pinia": "^2.1.7",
     "vite-svg-loader": "^5.1.0",
     "vue": "^3.4.15",
-    "vue-router": "^4.2.5"
+    "vue-router": "^4.2.5",
+    "vue3-virtual-scroller": "^0.2.3"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.3",
     "@vue/test-utils": "^2.4.5",
-    "happy-dom": "^14.7.1",
+    "happy-dom": "^15.11.6",
     "supertest": "^6.3.4",
     "vite": "^5.1.0",
     "vitest": "^1.4.0",
