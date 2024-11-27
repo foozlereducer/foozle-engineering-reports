@@ -52,6 +52,7 @@ router.get('/api/logs/:date', (req, res) => {
 
           // Assign color based on level
           const color = customColors[level] || 'black';
+          console.log(color)
 
           return {
             id: `${date}-${index}`, // Generate a unique ID
