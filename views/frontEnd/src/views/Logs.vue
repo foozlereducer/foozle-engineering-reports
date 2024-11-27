@@ -1,7 +1,10 @@
 <template>
   <div @scroll="onScroll" ref="scrollContainer" class="scroll-container">
     <div v-for="(log, index) in logs" :key="log.id" class="log-entry" :style="{ color: log.color }">
-      <span>{{ log.timestamp }} [{{ log.level }}]: {{ log.message }}</span>
+      <span>
+        <div class="timestamp">{{ log.timestamp }}</div> 
+        <div class="level">[{{ log.level }}]</div> 
+        <div class="message">:{{ log.message }}</div></span>
     </div>
     <LoadingSpinner :loading="loading" />
   </div>
@@ -62,7 +65,18 @@ onMounted(() => {
   overflow-y: auto;
 }
 .log-entry {
-  padding: 10px;
-  border-bottom: 1px solid #ccc;
+  display:block;
+  white-space: pre-wrap;
+}
+
+.log-entry .timestamp {
+  color:rgb(250, 226, 170);
+}
+.log-entry .message {
+  color:rgb(250, 226, 170);
+}
+
+.log-entry span div {
+  margin-right: 10px;
 }
 </style>
