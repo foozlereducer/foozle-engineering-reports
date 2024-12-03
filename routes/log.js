@@ -49,10 +49,11 @@ router.get('/api/logs/:date', (req, res) => {
         const match = cleanedEntry.match(logRegex);
         if (match && match.groups) {
           const { timestamp, level, message } = match.groups;
+          console.log( timestamp, level, message)
 
           // Assign color based on level
           const color = customColors[level] || 'black';
-          console.log(color)
+          console.log( color)
 
           return {
             id: `${date}-${index}`, // Generate a unique ID

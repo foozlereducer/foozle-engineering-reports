@@ -33,7 +33,6 @@ severities.forEach(severity => {
         const statusCode = 500;
         const errorMessage = 'Test message';
         const error = 'Test error';
-
         await logger(statusCode, errorMessage, severity, error, winstonMock);
 
         t.true(winstonMock.log.calledOnce, `Winston's log method should be called once for severity "${severity}"`);

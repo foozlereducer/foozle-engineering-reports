@@ -6,12 +6,13 @@ import { connectDB } from '../datatabase/db.js';
 import { Allowed } from '../models/allowed.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from "bcrypt";
-import { sendLog } from '../views/frontEnd/src/composables/sendLog.js';
+import { logger } from '../services/logger.js';
 
 export const authSaveCookieController = (Auth) => async (req, res, next) => {
     try {
         Auth.storeAuthData(req, res, next);
     } catch (error) {
+        logger(400, 'error', error)
         next(error);
     }
 };
@@ -20,6 +21,7 @@ export const authLogoutController = (Auth) => async (req, res, next) => {
     try {
         Auth.logout(req, res, next);
     } catch (error) {
+        logger(400, 'error', error)
         next(error);
     }
 };
@@ -31,6 +33,7 @@ export const authIsAuthenticatedController = (Auth) => async (req, res, next) =>
         Auth.isAuthenticated(req, res, next);
         res.status(200).send('Made it to the Auth controller');
     } catch (error) {
+        logger(401, 'error', err)
         next(error);
     }
 }
@@ -53,7 +56,8 @@ export const googleLogin = async (req, res) => {
         res.json({ jwtToken });
     } catch (err) {
         console.error('Error verifying Google token:', err.message);
-        res.status(403).json({ message: 'Invalid Google token' });
+        logger(401, 'error', err)
+        res.status(401).json({ message: 'Invalid Google token' });
     }
 };
 
@@ -70,6 +74,7 @@ export const login = async (req, res) => {
             res.status(201).json({ message: 'User registered successfully' });
         }
     } catch (error) {
+        logger(500, 'error', 'Registration failed')
         res.status(500).json({ error: 'Registration failed' });
     }
 }
@@ -89,7 +94,7 @@ export const verifyUser = async (req, res) => {
         res.status(result.status).json({ user: result.message });
     } catch (error) {
         res.status(401);
-        sendLog(401, 'Verificating user failed', 'error', error.stack)
+        logger(401, 'error',  error.stack)
     }
     
 }

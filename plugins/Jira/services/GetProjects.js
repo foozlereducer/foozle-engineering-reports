@@ -1,6 +1,6 @@
 import { Projects } from '../../../models/Jira/projects.js';
 import { connectDB } from '../../../datatabase/db.js';
-
+import { logger } from '../../../services/logger.js';
 export class GetProjects {
     isCore;
 
@@ -18,23 +18,27 @@ export class GetProjects {
      * @returns 
      */
     async run() {
-        connectDB()
-        const projects = await Projects.find({})
-        
-        const targetBoardIds = [];
-        for(let proj of projects) {
+        try {
+            connectDB()
+            const projects = await Projects.find({})
             
-            if ( true === this.isCore) {
-                if (true === proj.core) {
+            const targetBoardIds = [];
+            for(let proj of projects) {
+                
+                if ( true === this.isCore) {
+                    if (true === proj.core) {
+                        targetBoardIds.push([proj.name, proj.boardId, proj.key])
+
+                    }
+                } else {
                     targetBoardIds.push([proj.name, proj.boardId, proj.key])
-
                 }
-            } else {
-                targetBoardIds.push([proj.name, proj.boardId, proj.key])
             }
-        }
 
-       return targetBoardIds;
+            return targetBoardIds;
+        } catch(error) {
+            logger(400, 'error', error)
+        }
     }
 
     /**

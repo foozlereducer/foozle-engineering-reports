@@ -7,6 +7,7 @@ import Logs from '../src/views/Logs.vue';
 // import Tools from '../src/views/Tools.vue';
 import axios from 'axios';
 import { useAuthStore } from '../src/stores/authStore';
+import RadioPlayer from '../src/views/RadioPlayer.vue';
 
 const routes = [
   {
@@ -36,7 +37,7 @@ const routes = [
   {
     path: '/tools',
     name: 'Tools',
-    component: '',
+    component: RadioPlayer,
     meta: { requiresAuth: true },
   },
   {

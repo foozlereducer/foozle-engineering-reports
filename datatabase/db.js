@@ -25,7 +25,7 @@ const mongoDBConnect = async () => {
     console.log('Disconnected from MongoDB');
   } catch (error) {
     console.log('Error disconnecting the MongoDB:', error);
-    logger(500, 'Error disconnecting the MongoDB:', 'crit', error  )
+    logger(500, 'crit', error)
     return JSON.stringify(`Error disconnecting the MongoDB: ${error}`)
   }
  };

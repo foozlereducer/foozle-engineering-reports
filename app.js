@@ -14,6 +14,7 @@ import { catalogRouter } from './routes/catalog.js';
 import { authRouter } from './routes/auth.js';
 import { logRouter } from './routes/log.js';
 import { jiraMetricsRouter } from './plugins/Jira/routes/metricsRoutes.js';
+import { radioRouter } from './routes/radio.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
@@ -86,6 +87,7 @@ app.use('/api/metrics', catalogRouter);
 app.use('/', authRouter);
 app.use('/', logRouter);
 app.use('/', jiraMetricsRouter);
+app.use('/', radioRouter);
 
 // Catch-all route for undefined routes
 app.all('*', async (req, res) => {
