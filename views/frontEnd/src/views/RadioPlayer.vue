@@ -28,6 +28,7 @@
       <h2>Now Playing: {{ currentStation.name }}</h2>
       <p>Track Info: {{ trackInfo !== 'Unknown' ? trackInfo : 'Metadata not available' }}</p>
       <p>Progress %: {{ progressPercentage.toFixed(2) }}</p> <!-- Rounded to two decimal places -->
+
       <!-- Custom Progress Bar -->
       <div class="progress-bar-container">
         <div class="progress-bar" :style="{ width: progressPercentage + '%' }"></div>
@@ -41,7 +42,7 @@
         <input type="range" min="0" max="1" step="0.01" v-model="volume" @input="updateVolume" class="volume-slider" />
       </div>
 
-      <audio ref="audioPlayer" autoplay>
+      <audio ref="audioPlayer" :volume="volume">
         <source :src="streamUrl" type="audio/mpeg" />
         Your browser does not support the audio element.
       </audio>
@@ -50,7 +51,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onBeforeUnmount, nextTick } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 import axios from 'axios';
 
 // Create an axios instance for the client-side
@@ -64,14 +65,14 @@ const searchQuery = ref('');
 const stations = ref([]);
 const currentStation = ref(null);
 const streamUrl = ref('');
-const trackInfo = ref('Loading...');
+const trackInfo = ref('Unknown, attempting to load...');
 const trackDuration = ref(0); // Duration of the track in seconds
 const trackElapsed = ref(0); // Time elapsed for the current track in seconds
 let progressInterval = null; // Interval to update the progress
 let ws = null; // WebSocket instance
 
 // Volume control state
-const volume = ref(0.25); // Default volume set to 25%
+const volume = ref(0.05); // Default volume set to 5%
 const isPlaying = ref(false); // State to manage if audio is playing
 
 // Ref to the audio player element
@@ -119,9 +120,12 @@ const playStation = (station) => {
     audioPlayer.value.load();
     audioPlayer.value.oncanplay = () => {
       audioPlayer.value.volume = volume.value; // Set the volume to the current slider value
-      audioPlayer.value.play(); // Play the audio once it's ready
-      isPlaying.value = true; // Update state to playing
+      audioPlayer.value.muted = false; // Ensure the player is unmuted after load
+      isPlaying.value = false; // Initially paused state, so not playing right away
     };
+
+    audioPlayer.value.onplaying = startProgressTracking;
+    audioPlayer.value.onpause = stopProgressTracking;
   }
 
   setupWebSocket(station);
@@ -143,7 +147,6 @@ const setupWebSocket = (station) => {
 
   ws.onmessage = (event) => {
     const metadata = JSON.parse(event.data);
-    console.log('Received WebSocket event:', metadata);
 
     if (metadata.currentTrack && metadata.currentTrack !== 'Unknown') {
       trackInfo.value = metadata.currentTrack;
@@ -152,20 +155,10 @@ const setupWebSocket = (station) => {
         trackDuration.value = metadata.duration; // Update duration when received from metadata
         trackElapsed.value = 0; // Reset elapsed time for new track
 
-        // Clear previous interval if exists
-        if (progressInterval) {
-          clearInterval(progressInterval);
+        // Start progress tracking when playing
+        if (isPlaying.value) {
+          startProgressTracking();
         }
-
-        // Start progress tracking
-        progressInterval = setInterval(() => {
-          if (trackElapsed.value < trackDuration.value) {
-            trackElapsed.value += 1;
-            console.log(`Track elapsed: ${trackElapsed.value}, Progress: ${progressPercentage.value}%`);
-          } else {
-            clearInterval(progressInterval); // Stop when track ends
-          }
-        }, 1000); // Update every second
       }
     } else {
       trackInfo.value = 'Metadata not available for this station';
@@ -197,31 +190,58 @@ const togglePlayPause = () => {
       audioPlayer.value.pause();
     } else {
       audioPlayer.value.play();
-      setupWebSocket(currentStation.value); // Ensure WebSocket connection is established on play
     }
     isPlaying.value = !isPlaying.value; // Toggle play state
   }
 };
 
-// Update volume using the slider
+// Update volume using the slider without affecting the play state
 const updateVolume = () => {
   if (audioPlayer.value) {
-    audioPlayer.value.volume = volume.value; // Update the audio element's volume based on the slider
+    audioPlayer.value.volume = volume.value; // Update the audio element's volume
   }
 };
 
-// Clear the WebSocket connection when the component is destroyed
+// Function to start progress tracking
+const startProgressTracking = () => {
+  if (progressInterval) {
+    clearInterval(progressInterval);
+  }
+
+  progressInterval = setInterval(() => {
+    if (trackElapsed.value < trackDuration.value) {
+      trackElapsed.value += 1;
+    } else {
+      clearInterval(progressInterval);
+    }
+  }, 1000);
+};
+
+// Function to stop progress tracking
+const stopProgressTracking = () => {
+  if (progressInterval) {
+    clearInterval(progressInterval);
+  }
+};
+
+// Set initial volume when the component is mounted
+onMounted(() => {
+  if (audioPlayer.value) {
+    audioPlayer.value.volume = volume.value; // Set initial volume to avoid starting at 100%
+  }
+});
+
+// Clear the WebSocket connection and progress interval when the component is destroyed
 onBeforeUnmount(() => {
   if (ws) {
     ws.close();
   }
-  if (progressInterval) {
-    clearInterval(progressInterval);
-  }
+  stopProgressTracking();
 });
 </script>
 
 <style scoped>
+/* Styles remain unchanged */
 h2, p, input {
   display: block;
 }
@@ -235,14 +255,16 @@ h2, p, input {
   margin: 0 auto;
 }
 
-.header {
-  text-align: center;
+h1 {
+  text-align: left; 
+  margin-bottom: 10px;
 }
 
 .search-bar {
   display: flex;
   gap: 10px;
   justify-content: flex-start;
+  align-items: center;
 }
 
 .search-field {
