@@ -2,6 +2,41 @@
   <div class="radio-container">
     <h1>Radio Player</h1>
 
+    <div v-if="currentStation" class="now-playing">
+      <h2>Now Playing: {{ currentStation.name }}</h2>
+      <p>Track Info: {{ trackInfo !== 'Unknown' ? trackInfo : 'Metadata not available' }}</p>
+
+      <!-- Album Art -->
+      <div v-if="albumArtUrl" class="album-art-container">
+        <img :src="albumArtUrl" alt="Album Art" class="album-art" />
+      </div>
+
+      <p v-if="!isLiveStream && trackDuration > 0">
+        Progress %: {{ progressPercentage ? progressPercentage.toFixed(2) : 0 }}
+      </p>
+
+      <!-- Custom Progress Bar -->
+      <div v-if="!isLiveStream && trackDuration > 0" class="progress-bar-container">
+        <div class="progress-bar" :style="{ width: progressPercentage + '%' }"></div>
+      </div>
+
+      <!-- Timer for Live Stream -->
+      <p v-if="isLiveStream">Playing Time: {{ formattedElapsedTime }}</p>
+
+      <!-- Custom Controls -->
+      <div class="audio-controls">
+        <button @click="togglePlayPause">
+          <i :class="isPlaying ? 'fas fa-pause' : 'fas fa-play'"></i>
+        </button>
+        <input type="range" min="0" max="1" step="0.01" v-model="volume" @input="updateVolume" class="volume-slider" />
+      </div>
+
+      <audio ref="audioPlayer">
+        <source :src="streamUrl" type="audio/mpeg" />
+        Your browser does not support the audio element.
+      </audio>
+    </div>
+
     <div class="search-bar">
       <div class="search-field">
         <input v-model="searchCountry" class="searchCountry" placeholder="Enter country (e.g., Canada)" />
@@ -12,7 +47,7 @@
       <button @click="fetchStations">Search</button>
     </div>
 
-    <div class="station-list" v-if="stations.length > 0">
+    <div class="station-list" v-if="stations && stations.length > 0">
       <div
         v-for="station in filteredStations"
         :key="station.stationuuid"
@@ -23,35 +58,11 @@
         <p>Country: {{ station.country }}</p>
       </div>
     </div>
-
-    <div v-if="currentStation" class="now-playing">
-      <h2>Now Playing: {{ currentStation.name }}</h2>
-      <p>Track Info: {{ trackInfo !== 'Unknown' ? trackInfo : 'Metadata not available' }}</p>
-      <p>Progress %: {{ progressPercentage.toFixed(2) }}</p> <!-- Rounded to two decimal places -->
-
-      <!-- Custom Progress Bar -->
-      <div class="progress-bar-container">
-        <div class="progress-bar" :style="{ width: progressPercentage + '%' }"></div>
-      </div>
-
-      <!-- Custom Controls -->
-      <div class="audio-controls">
-        <button @click="togglePlayPause">
-          <i :class="isPlaying ? 'fas fa-pause' : 'fas fa-play'"></i>
-        </button>
-        <input type="range" min="0" max="1" step="0.01" v-model="volume" @input="updateVolume" class="volume-slider" />
-      </div>
-
-      <audio ref="audioPlayer" :volume="volume">
-        <source :src="streamUrl" type="audio/mpeg" />
-        Your browser does not support the audio element.
-      </audio>
-    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import axios from 'axios';
 
 // Create an axios instance for the client-side
@@ -66,24 +77,30 @@ const stations = ref([]);
 const currentStation = ref(null);
 const streamUrl = ref('');
 const trackInfo = ref('Unknown, attempting to load...');
-const trackDuration = ref(0); // Duration of the track in seconds
-const trackElapsed = ref(0); // Time elapsed for the current track in seconds
-let progressInterval = null; // Interval to update the progress
-let ws = null; // WebSocket instance
+const trackDuration = ref(0);
+const trackElapsed = ref(0);
+const albumArtUrl = ref(''); // Holds the URL for the album art
+let progressInterval = null;
+let elapsedTimer = null;
+let ws = null;
 
-// Volume control state
-const volume = ref(0.05); // Default volume set to 5%
-const isPlaying = ref(false); // State to manage if audio is playing
+const volume = ref(0.05);
+const isPlaying = ref(false);
+const isLiveStream = ref(true);
 
-// Ref to the audio player element
 const audioPlayer = ref(null);
 
-// Computed property for progress percentage
 const progressPercentage = computed(() => {
   if (trackDuration.value > 0) {
     return Math.min((trackElapsed.value / trackDuration.value) * 100, 100);
   }
   return 0;
+});
+
+const formattedElapsedTime = computed(() => {
+  const minutes = Math.floor(trackElapsed.value / 60);
+  const seconds = Math.floor(trackElapsed.value % 60);
+  return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 });
 
 // Function to fetch stations
@@ -101,39 +118,111 @@ const fetchStations = async () => {
   }
 };
 
-// Computed property to filter stations by name
 const filteredStations = computed(() =>
   stations.value.filter((station) =>
     station.name.toLowerCase().includes(searchQuery.value.toLowerCase())
   )
 );
 
-// Function to play a selected station
-const playStation = (station) => {
+const playStation = async (station) => {
   currentStation.value = station;
   streamUrl.value = `${import.meta.env.VITE_BACKEND_URL}/api/stream?url=${encodeURIComponent(station.url_resolved)}`;
-  trackElapsed.value = 0; // Reset elapsed time for new track
-  trackDuration.value = 240; // Temporarily setting a default duration
+  trackElapsed.value = 0;
+  trackDuration.value = 0;
+  albumArtUrl.value = ''; // Reset album art URL
 
-  // Load the audio element with the new stream
+  await nextTick();
+
   if (audioPlayer.value) {
+    audioPlayer.value.pause();
+    audioPlayer.value.currentTime = 0;
     audioPlayer.value.load();
+
     audioPlayer.value.oncanplay = () => {
-      audioPlayer.value.volume = volume.value; // Set the volume to the current slider value
-      audioPlayer.value.muted = false; // Ensure the player is unmuted after load
-      isPlaying.value = false; // Initially paused state, so not playing right away
+      audioPlayer.value.volume = volume.value;
+      audioPlayer.value.muted = false;
+      isPlaying.value = false;
+      console.log('Audio can play now.');
     };
 
-    audioPlayer.value.onplaying = startProgressTracking;
-    audioPlayer.value.onpause = stopProgressTracking;
+    audioPlayer.value.addEventListener('timeupdate', handleTimeUpdate);
+    audioPlayer.value.addEventListener('playing', handlePlaying);
+    audioPlayer.value.addEventListener('pause', handlePause);
+    audioPlayer.value.addEventListener('loadedmetadata', handleLoadedMetadata);
+  } else {
+    console.error("Audio player reference is NOT available after nextTick.");
   }
 
   setupWebSocket(station);
 };
 
-// Function to setup WebSocket for metadata
+const handleTimeUpdate = () => {
+  if (audioPlayer.value && audioPlayer.value.duration && audioPlayer.value.duration !== Infinity) {
+    trackDuration.value = audioPlayer.value.duration;
+    trackElapsed.value = audioPlayer.value.currentTime;
+    console.log(`Current Time: ${audioPlayer.value.currentTime}, Duration: ${audioPlayer.value.duration}`);
+    isLiveStream.value = false;
+  }
+};
+
+const handlePlaying = () => {
+  console.log("Audio started playing.");
+  isPlaying.value = true;
+
+  if (isLiveStream.value) {
+    startElapsedTimer();
+  } else {
+    startProgressTracking();
+  }
+};
+
+const handlePause = () => {
+  console.log("Audio paused.");
+  isPlaying.value = false;
+
+  if (isLiveStream.value) {
+    stopElapsedTimer();
+  } else {
+    stopProgressTracking();
+  }
+};
+
+const handleLoadedMetadata = () => {
+  if (audioPlayer.value && audioPlayer.value.duration !== Infinity) {
+    trackDuration.value = audioPlayer.value.duration;
+    console.log(`Loaded metadata: Duration set to ${audioPlayer.value.duration}`);
+    isLiveStream.value = false;
+  } else {
+    isLiveStream.value = true;
+  }
+};
+
+const togglePlayPause = async () => {
+  await nextTick();
+  if (audioPlayer.value) {
+    if (isPlaying.value) {
+      audioPlayer.value.pause();
+    } else {
+      audioPlayer.value.play().catch(error => {
+        console.error("Failed to play audio:", error);
+      });
+    }
+  } else {
+    console.error("Audio player reference is NOT available when toggling play/pause.");
+  }
+};
+
+const updateVolume = async () => {
+  await nextTick();
+  if (audioPlayer.value) {
+    audioPlayer.value.volume = volume.value;
+    console.log(`Volume updated to: ${audioPlayer.value.volume}`);
+  } else {
+    console.error("Audio player reference is NOT available when updating volume.");
+  }
+};
+
 const setupWebSocket = (station) => {
-  // Close any existing WebSocket connection
   if (ws) {
     ws.close();
   }
@@ -147,18 +236,13 @@ const setupWebSocket = (station) => {
 
   ws.onmessage = (event) => {
     const metadata = JSON.parse(event.data);
-
     if (metadata.currentTrack && metadata.currentTrack !== 'Unknown') {
       trackInfo.value = metadata.currentTrack;
-
       if (metadata.duration) {
-        trackDuration.value = metadata.duration; // Update duration when received from metadata
-        trackElapsed.value = 0; // Reset elapsed time for new track
-
-        // Start progress tracking when playing
-        if (isPlaying.value) {
-          startProgressTracking();
-        }
+        trackDuration.value = metadata.duration;
+      }
+      if (metadata.albumArt) {
+        albumArtUrl.value = metadata.albumArt; // Update album art URL if available
       }
     } else {
       trackInfo.value = 'Metadata not available for this station';
@@ -173,7 +257,6 @@ const setupWebSocket = (station) => {
     console.log('WebSocket connection closed');
   };
 
-  // Make a request to start monitoring metadata for this station
   axiosInstance.post('/api/monitor', {
     url: station.url_resolved,
   }).then(() => {
@@ -183,26 +266,6 @@ const setupWebSocket = (station) => {
   });
 };
 
-// Function to toggle play/pause
-const togglePlayPause = () => {
-  if (audioPlayer.value) {
-    if (isPlaying.value) {
-      audioPlayer.value.pause();
-    } else {
-      audioPlayer.value.play();
-    }
-    isPlaying.value = !isPlaying.value; // Toggle play state
-  }
-};
-
-// Update volume using the slider without affecting the play state
-const updateVolume = () => {
-  if (audioPlayer.value) {
-    audioPlayer.value.volume = volume.value; // Update the audio element's volume
-  }
-};
-
-// Function to start progress tracking
 const startProgressTracking = () => {
   if (progressInterval) {
     clearInterval(progressInterval);
@@ -217,31 +280,69 @@ const startProgressTracking = () => {
   }, 1000);
 };
 
-// Function to stop progress tracking
 const stopProgressTracking = () => {
   if (progressInterval) {
     clearInterval(progressInterval);
   }
 };
 
-// Set initial volume when the component is mounted
-onMounted(() => {
+const startElapsedTimer = () => {
+  if (elapsedTimer) {
+    clearInterval(elapsedTimer);
+  }
+
+  elapsedTimer = setInterval(() => {
+    trackElapsed.value += 1;
+  }, 1000);
+};
+
+const stopElapsedTimer = () => {
+  if (elapsedTimer) {
+    clearInterval(elapsedTimer);
+  }
+};
+
+onMounted(async () => {
+  await nextTick();
   if (audioPlayer.value) {
-    audioPlayer.value.volume = volume.value; // Set initial volume to avoid starting at 100%
+    audioPlayer.value.volume = volume.value;
+    console.log(`Initial volume set to: ${audioPlayer.value.volume}`);
+  } else {
+    console.error("Audio player reference is NOT available on mounted");
   }
 });
 
-// Clear the WebSocket connection and progress interval when the component is destroyed
 onBeforeUnmount(() => {
   if (ws) {
     ws.close();
   }
+  if (audioPlayer.value) {
+    audioPlayer.value.removeEventListener('timeupdate', handleTimeUpdate);
+    audioPlayer.value.removeEventListener('playing', handlePlaying);
+    audioPlayer.value.removeEventListener('pause', handlePause);
+    audioPlayer.value.removeEventListener('loadedmetadata', handleLoadedMetadata);
+  }
   stopProgressTracking();
+  stopElapsedTimer();
 });
 </script>
 
 <style scoped>
 /* Styles remain unchanged */
+.album-art-container {
+  margin: 15px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.album-art {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
 h2, p, input {
   display: block;
 }
