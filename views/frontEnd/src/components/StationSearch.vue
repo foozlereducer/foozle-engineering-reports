@@ -4,17 +4,31 @@
         <input v-model="searchCountry" class="searchCountry" placeholder="Enter country (e.g., Canada)" />
       </div>
       <div class="search-field search-field-station">
-        <input v-model="searchQuery" placeholder="Search stations by name..." />
+        <input v-model="searchQuery" placeholder="Search stations by name..." @input="updateSearchQuery" />
       </div>
-      <button @click="fetchStations">Search</button>
+      <button @click="searchStations">Search</button>
     </div>
   </template>
   
   <script setup>
-  import { ref } from 'vue';
   import useStationSearch from '../composables/useStationSearch';
   
-  const { searchCountry, searchQuery, fetchStations } = useStationSearch();
+  // Import station search composable
+  const { searchCountry, searchQuery, fetchStations, filteredStations } = useStationSearch();
+  
+  const emit = defineEmits(['stationsFetched', 'searchQueryUpdated']);
+  
+  // Function to handle search and fetch stations
+  const searchStations = async () => {
+    await fetchStations();
+    console.log("Emitting fetched stations:", filteredStations.value);
+    emit('stationsFetched', filteredStations.value);
+  };
+  
+  // Emit search query whenever it changes
+  const updateSearchQuery = () => {
+    emit('searchQueryUpdated', searchQuery.value);
+  };
   </script>
   
   <style scoped>
@@ -34,3 +48,4 @@
     margin-right: 5px;
   }
   </style>
+  

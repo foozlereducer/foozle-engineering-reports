@@ -1,10 +1,10 @@
 <template>
-    <div class="station-list" v-if="stations && stations.length > 0">
+    <div class="station-list">
       <div
-        v-for="station in filteredStations"
+        v-for="station in stations"
         :key="station.stationuuid"
         class="station-card"
-        @click="playStation(station)"
+        @click="selectStation(station)"
       >
         <h3>{{ station.name }}</h3>
         <p>Country: {{ station.country }}</p>
@@ -13,16 +13,20 @@
   </template>
   
   <script setup>
-  import { computed } from 'vue';
-  import useStationSearch from '../composables/useStationSearch';
+  import { defineProps, defineEmits } from 'vue';
   
-  const { stations, searchQuery, playStation } = useStationSearch();
+  const props = defineProps({
+    stations: {
+      type: Array,
+      required: true,
+    },
+  });
   
-  const filteredStations = computed(() =>
-    stations.value.filter((station) =>
-      station.name.toLowerCase().includes(searchQuery.value.toLowerCase())
-    )
-  );
+  const emit = defineEmits(['playStation']);
+  
+  const selectStation = (station) => {
+    emit('playStation', station);
+  };
   </script>
   
   <style scoped>
@@ -33,15 +37,12 @@
   }
   
   .station-card {
+    display: block;
     background: #333;
     padding: 15px;
     border-radius: 8px;
     cursor: pointer;
     transition: background 0.3s, transform 0.2s;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
     text-align: center;
   }
   

@@ -1,8 +1,9 @@
-// useAudioControls.js - A composable for handling audio playback and controls
 import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
 
-export default function useAudioControls(audioPlayer, volume) {
+export default function useAudioControls() {
+  const audioPlayer = ref(null);
   const isPlaying = ref(false);
+  const volume = ref(0.05); // Set initial volume to 5%
   const trackDuration = ref(0);
   const trackElapsed = ref(0);
   const isLiveStream = ref(true);
@@ -113,12 +114,17 @@ export default function useAudioControls(audioPlayer, volume) {
   };
 
   onMounted(() => {
-    if (audioPlayer.value) {
-      audioPlayer.value.addEventListener('timeupdate', handleTimeUpdate);
-      audioPlayer.value.addEventListener('playing', handlePlaying);
-      audioPlayer.value.addEventListener('pause', handlePause);
-      audioPlayer.value.addEventListener('loadedmetadata', handleLoadedMetadata);
-    }
+    nextTick(() => {
+      if (audioPlayer.value) {
+        audioPlayer.value.volume = volume.value; // Set the initial volume
+        audioPlayer.value.addEventListener('timeupdate', handleTimeUpdate);
+        audioPlayer.value.addEventListener('playing', handlePlaying);
+        audioPlayer.value.addEventListener('pause', handlePause);
+        audioPlayer.value.addEventListener('loadedmetadata', handleLoadedMetadata);
+      } else {
+        console.error('Audio player reference is NOT available on mounted.');
+      }
+    });
   });
 
   onBeforeUnmount(() => {
@@ -133,7 +139,9 @@ export default function useAudioControls(audioPlayer, volume) {
   });
 
   return {
+    audioPlayer,
     isPlaying,
+    volume,
     trackDuration,
     trackElapsed,
     isLiveStream,
