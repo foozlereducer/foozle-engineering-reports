@@ -9,7 +9,6 @@ export default function useAudioControls() {
   const isLiveStream = ref(true);
 
   let progressInterval = null;
-  let elapsedTimer = null;
 
   const togglePlayPause = async () => {
     await nextTick();
@@ -49,9 +48,7 @@ export default function useAudioControls() {
     console.log('Audio started playing.');
     isPlaying.value = true;
 
-    if (isLiveStream.value) {
-      startElapsedTimer();
-    } else {
+    if (!isLiveStream.value) {
       startProgressTracking();
     }
   };
@@ -60,9 +57,7 @@ export default function useAudioControls() {
     console.log('Audio paused.');
     isPlaying.value = false;
 
-    if (isLiveStream.value) {
-      stopElapsedTimer();
-    } else {
+    if (!isLiveStream.value) {
       stopProgressTracking();
     }
   };
@@ -83,8 +78,8 @@ export default function useAudioControls() {
     }
 
     progressInterval = setInterval(() => {
-      if (trackElapsed.value < trackDuration.value) {
-        trackElapsed.value += 1;
+      if (audioPlayer.value && trackElapsed.value < trackDuration.value) {
+        trackElapsed.value = audioPlayer.value.currentTime;
       } else {
         clearInterval(progressInterval);
       }
@@ -94,22 +89,6 @@ export default function useAudioControls() {
   const stopProgressTracking = () => {
     if (progressInterval) {
       clearInterval(progressInterval);
-    }
-  };
-
-  const startElapsedTimer = () => {
-    if (elapsedTimer) {
-      clearInterval(elapsedTimer);
-    }
-
-    elapsedTimer = setInterval(() => {
-      trackElapsed.value += 1;
-    }, 1000);
-  };
-
-  const stopElapsedTimer = () => {
-    if (elapsedTimer) {
-      clearInterval(elapsedTimer);
     }
   };
 
@@ -135,7 +114,6 @@ export default function useAudioControls() {
       audioPlayer.value.removeEventListener('loadedmetadata', handleLoadedMetadata);
     }
     stopProgressTracking();
-    stopElapsedTimer();
   });
 
   return {
