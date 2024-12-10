@@ -4,6 +4,7 @@ import NodeCache from 'node-cache';
 import https from 'https';
 import { wss } from '../bin/www.js';
 import WebSocket from 'ws'; // Import WebSocket
+import { fetchSpotifyTrackMetadata } from '../services/spotifyTrackSearch.js';
 
 const router = express.Router();
 
@@ -42,7 +43,7 @@ const monitorMetadata = async (streamUrl) => {
       let streamData = [];
       let currentTrack = null;
 
-      response.data.on('data', (chunk) => {
+      response.data.on('data', async(chunk) => {
         streamData.push(chunk);
         if (Buffer.concat(streamData).length >= icyMetaInt) {
           const metadataChunk = Buffer.concat(streamData).slice(icyMetaInt, icyMetaInt + 4080).toString();
@@ -52,7 +53,12 @@ const monitorMetadata = async (streamUrl) => {
             currentTrack = metadata.currentTrack;
             metadata.duration = 240; // Assuming a fixed 4-minute track duration for demonstration
             console.log(`Broadcasting metadata: ${metadata.currentTrack}`);
+            
             broadcastMetadata(metadata);
+            const metadataWithArtist = addArtistToMetadata(metadata)
+            console.log(metadataWithArtist)
+            const enrichedMetaData = await enrichMetadata(metadataWithArtist)
+            console.log(enrichedMetaData)
           }
 
           // Reset stream data to prevent excessive memory usage
@@ -65,6 +71,13 @@ const monitorMetadata = async (streamUrl) => {
   }
 };
 
+const addArtistToMetadata = (metadata) => {
+  if (metadata.currentTrack) {
+    const trackVals = metadata.currentTrack.split(" - ")
+    metadata.artist = trackVals[0]
+  }
+  return metadata;
+}
 /**
  * Broadcast metadata to all WebSocket clients.
  */
@@ -90,6 +103,29 @@ function extractMetadata(metadataChunk) {
     }
 }
 
+/**
+ * Enrich Meta Data
+ * @param {object} metadata 
+ * @returns obj - metadata enriched with track duration and album art
+ */
+const enrichMetadata = async (metadata) => {
+  if (!metadata.currentTrack || !metadata.artist) {
+    console.warn('Metadata is missing currentTrack or artist. Skipping enrichment.');
+    return metadata;
+  }
+
+  try {
+    const spotifyData = await fetchSpotifyTrackMetadata(metadata.currentTrack, metadata.artist);
+    if (spotifyData) {
+      return { ...metadata, ...spotifyData }; // Add duration and album art
+    }
+  } catch (error) {
+    console.error('Failed to enrich metadata:', error.message);
+  }
+
+  // Fallback to original metadata with default duration if enrichment fails
+  return { ...metadata, duration: 0 }; // Default to 4 minutes
+};
 /**
  * Route to initiate metadata monitoring for a stream URL.
  */
