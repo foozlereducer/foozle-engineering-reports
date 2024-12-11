@@ -206,5 +206,11 @@
     font-weight: bold;
     font-size: 1.2em;
   }
+
+  .audio-controls img {
+    width: 320px;
+    height: auto;
+    border-radius: 10%;
+  }
   </style>
   

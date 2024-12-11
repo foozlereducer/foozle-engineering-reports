@@ -42,23 +42,30 @@ const monitorMetadata = async (streamUrl) => {
       icyMetaInt = parseInt(icyMetaInt);
       let streamData = [];
       let currentTrack = null;
-
+      let startTime = 0;
       response.data.on('data', async(chunk) => {
         streamData.push(chunk);
         if (Buffer.concat(streamData).length >= icyMetaInt) {
+          startTime = Date.now();
           const metadataChunk = Buffer.concat(streamData).slice(icyMetaInt, icyMetaInt + 4080).toString();
           const metadata = extractMetadata(metadataChunk);
 
           if (metadata.currentTrack && metadata.currentTrack !== currentTrack) {
             currentTrack = metadata.currentTrack;
-            metadata.duration = 240; // Assuming a fixed 4-minute track duration for demonstration
-            console.log(`Broadcasting metadata: ${metadata.currentTrack}`);
+
+            broadcastMetadata(metadata)
+  
+            // const metadataWithArtist = addArtistToMetadata(metadata)
+            // // immediately broadcast
+            // broadcastMetadata(metadataWithArtist);
+            // console.log(`Broadcasting metadata:`);
+            // console.log(metadataWithArtist)
+           
+            // const enrichedMetaData = await enrichMetadata(metadataWithArtist)
+            // console.log(`Broadcasting enriched metadata:`);
+            // console.log(enrichedMetaData)
+            // broadcastMetadata(enrichedMetaData)
             
-            broadcastMetadata(metadata);
-            const metadataWithArtist = addArtistToMetadata(metadata)
-            console.log(metadataWithArtist)
-            const enrichedMetaData = await enrichMetadata(metadataWithArtist)
-            console.log(enrichedMetaData)
           }
 
           // Reset stream data to prevent excessive memory usage
@@ -73,8 +80,9 @@ const monitorMetadata = async (streamUrl) => {
 
 const addArtistToMetadata = (metadata) => {
   if (metadata.currentTrack) {
-    const trackVals = metadata.currentTrack.split(" - ")
-    metadata.artist = trackVals[0]
+    const trackParts = metadata.currentTrack.split(' - ');
+    metadata.artist = trackParts[0] ? trackParts[0].trim() : 'Unknown Artist';
+    metadata.currentTrack = trackParts[1] ? trackParts[1].trim() : metadata.currentTrack.trim();
   }
   return metadata;
 }
@@ -103,29 +111,37 @@ function extractMetadata(metadataChunk) {
     }
 }
 
+
 /**
- * Enrich Meta Data
- * @param {object} metadata 
- * @returns obj - metadata enriched with track duration and album art
+ * Enrich Metadata
+ * @param {object} metadata - The original metadata object
+ * @param {number} startTime - The start time of the track (optional)
+ * @returns {object} - Metadata enriched with duration and album art
  */
-const enrichMetadata = async (metadata) => {
+const enrichMetadata = async (metadata, startTime = Date.now()) => {
   if (!metadata.currentTrack || !metadata.artist) {
     console.warn('Metadata is missing currentTrack or artist. Skipping enrichment.');
-    return metadata;
+    return { ...metadata, startTime }; // Return metadata with startTime added
   }
 
   try {
+    // Fetch additional data from Spotify
     const spotifyData = await fetchSpotifyTrackMetadata(metadata.currentTrack, metadata.artist);
-    if (spotifyData) {
-      return { ...metadata, ...spotifyData }; // Add duration and album art
-    }
+
+    // Combine original metadata with Spotify data
+    return {
+      ...metadata,
+      startTime,
+      ...spotifyData,
+    };
   } catch (error) {
     console.error('Failed to enrich metadata:', error.message);
-  }
 
-  // Fallback to original metadata with default duration if enrichment fails
-  return { ...metadata, duration: 0 }; // Default to 4 minutes
+    // Return original metadata with startTime in case of an error
+    return { ...metadata, startTime };
+  }
 };
+
 /**
  * Route to initiate metadata monitoring for a stream URL.
  */
