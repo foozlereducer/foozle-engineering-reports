@@ -27,6 +27,7 @@
     "express-validator": "^7.0.1",
     "helmet": "^8.0.0",
     "http-errors": "^2.0.0",
+    "icy": "^2.1.0",
     "jsonwebtoken": "^9.0.2",
     "luxon": "^3.4.3",
     "mixwith": "^0.1.1",

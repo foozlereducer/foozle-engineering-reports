@@ -2,6 +2,7 @@ import express from 'express';
 import axios from 'axios';
 import NodeCache from 'node-cache';
 import https from 'https';
+import icy from 'icy'; // Import the icy module
 import { wss } from '../bin/www.js';
 import WebSocket from 'ws'; // Import WebSocket
 import { fetchSpotifyTrackMetadata } from '../services/spotifyTrackSearch.js';
@@ -21,68 +22,80 @@ const axiosInstance = axios.create({
 /**
  * Monitor metadata and broadcast to WebSocket clients.
  */
-const monitorMetadata = async (streamUrl) => {
-  try {
-    const agent = new https.Agent({
-      rejectUnauthorized: false,
+const monitorMetadata = (streamUrl) => {
+  icy.get(streamUrl, (res) => {
+    console.log(`Connected to stream: ${streamUrl}`);
+
+    let currentTrack = null;
+    let isConnectionAlive = true;
+
+    setInterval(() => {
+      if (!isConnectionAlive) {
+        console.warn('Stream connection lost. Reconnecting...');
+        res.destroy();
+        monitorMetadata(streamUrl);
+      }
+      isConnectionAlive = false;
+    }, 30000);
+
+    res.on('data', (chunk) => {
+      isConnectionAlive = true; // Connection is alive if data is received
+      console.log('Data chunk received, length:', chunk.length);
     });
 
-    const response = await axios({
-      method: 'get',
-      url: streamUrl,
-      headers: {
-        'Icy-MetaData': '1',
-      },
-      responseType: 'stream',
-      httpsAgent: agent,
-    });
+    res.on('metadata', (metadata) => {
+      console.log('Metadata event triggered');
+      try {
+        const parsedMetadata = icy.parse(metadata);
+        console.log('Parsed metadata:', parsedMetadata);
 
-    let icyMetaInt = response.headers['icy-metaint'];
-    if (icyMetaInt) {
-      icyMetaInt = parseInt(icyMetaInt);
-      let streamData = [];
-      let currentTrack = null;
-      let startTime = 0;
-      response.data.on('data', async(chunk) => {
-        streamData.push(chunk);
-        if (Buffer.concat(streamData).length >= icyMetaInt) {
-          startTime = Date.now();
-          const metadataChunk = Buffer.concat(streamData).slice(icyMetaInt, icyMetaInt + 4080).toString();
-          const metadata = extractMetadata(metadataChunk);
+        const trackInfo = parsedMetadata?.StreamTitle || 'Unknown';
+        if (trackInfo !== currentTrack) {
+          currentTrack = trackInfo;
+          const metadataObj = extractMetadata(trackInfo);
 
-          if (metadata.currentTrack && metadata.currentTrack !== currentTrack) {
-            currentTrack = metadata.currentTrack;
+          console.log('Broadcasting metadata:', metadataObj);
+          broadcastMetadata(metadataObj);
 
-            broadcastMetadata(metadata)
-  
-            // const metadataWithArtist = addArtistToMetadata(metadata)
-            // // immediately broadcast
-            // broadcastMetadata(metadataWithArtist);
-            // console.log(`Broadcasting metadata:`);
-            // console.log(metadataWithArtist)
-           
-            // const enrichedMetaData = await enrichMetadata(metadataWithArtist)
-            // console.log(`Broadcasting enriched metadata:`);
-            // console.log(enrichedMetaData)
-            // broadcastMetadata(enrichedMetaData)
-            
-          }
-
-          // Reset stream data to prevent excessive memory usage
-          streamData = [];
+          enrichMetadata(metadataObj).then((enrichedMetadata) => {
+            console.log('Broadcasting enriched metadata:', enrichedMetadata);
+            broadcastMetadata(enrichedMetadata);
+          }).catch((error) => {
+            console.error('Error enriching metadata:', error.message);
+          });
+        } else {
+          console.log('Duplicate metadata detected, skipping broadcast');
         }
-      });
-    }
-  } catch (error) {
-    console.error('Failed to monitor metadata:', error.message);
-  }
+      } catch (error) {
+        console.error('Error processing metadata:', error.message);
+      }
+    });
+
+    res.on('end', () => {
+      console.log('Stream ended. Reconnecting...');
+      setTimeout(() => monitorMetadata(streamUrl), 5000);
+    });
+
+    res.on('error', (err) => {
+      console.error('Stream error:', err.message);
+      setTimeout(() => monitorMetadata(streamUrl), 5000);
+    });
+  }).on('error', (err) => {
+    console.error('Failed to connect to stream:', err.message);
+    setTimeout(() => monitorMetadata(streamUrl), 5000);
+  });
 };
 
+
+const log = (action, data) => {
+  console.log(action)
+  console.log(data)
+}
 const addArtistToMetadata = (metadata) => {
   if (metadata.currentTrack) {
     const trackParts = metadata.currentTrack.split(' - ');
-    metadata.artist = trackParts[0] ? trackParts[0].trim() : 'Unknown Artist';
-    metadata.currentTrack = trackParts[1] ? trackParts[1].trim() : metadata.currentTrack.trim();
+    const artist = trackParts[0] ? trackParts[0].trim() : 'Unknown Artist';
+    return {artist: artist};
   }
   return metadata;
 }
@@ -90,58 +103,93 @@ const addArtistToMetadata = (metadata) => {
  * Broadcast metadata to all WebSocket clients.
  */
 const broadcastMetadata = (metadata) => {
-    if (metadata.currentTrack && metadata.currentTrack !== 'Unknown') {
-      wss.clients.forEach((client) => {
-        if (client.readyState === WebSocket.OPEN) {
-          client.send(JSON.stringify(metadata));
-        }
-      });
+  if (!metadata.currentTrack || metadata.currentTrack === 'Unknown') {
+    console.warn('No valid metadata to broadcast');
+    return;
+  }
+
+  metadata.startTime = metadata.startTime || Date.now(); // Ensure startTime is set
+
+  console.log('Broadcasting metadata:', metadata);
+
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      try {
+        client.send(JSON.stringify(metadata));
+      } catch (error) {
+        console.error('Failed to send metadata to WebSocket client:', error.message);
+      }
     }
+  });
+};
+
+ 
+function extractMetadata(streamTitle) {
+  console.log('Parsing StreamTitle:', streamTitle);
+
+  if (!streamTitle || typeof streamTitle !== 'string') {
+    console.warn('Invalid StreamTitle received. Returning fallback metadata.');
+    return { currentTrack: 'Unknown', artist: 'Unknown Artist' };
+  }
+
+  const [artist, track] = streamTitle.split(' - ').map((part) => part.trim());
+  return {
+    currentTrack: track || 'Unknown',
+    artist: artist || 'Unknown Artist',
   };
-   
-/**
- * Helper function to extract metadata from the stream.
- */
-function extractMetadata(metadataChunk) {
-    const matches = metadataChunk.match(/StreamTitle='([^']*)';/);
-    if (matches && matches[1]) {
-      return { currentTrack: matches[1] };
-    } else {
-      return { currentTrack: 'Unknown' };
-    }
 }
 
+const enrichMetadataCache = new NodeCache({ stdTTL: 600, checkperiod: 120 }); // Cache enriched metadata for 10 minutes
 
 /**
  * Enrich Metadata
  * @param {object} metadata - The original metadata object
- * @param {number} startTime - The start time of the track (optional)
  * @returns {object} - Metadata enriched with duration and album art
  */
-const enrichMetadata = async (metadata, startTime = Date.now()) => {
-  if (!metadata.currentTrack || !metadata.artist) {
-    console.warn('Metadata is missing currentTrack or artist. Skipping enrichment.');
-    return { ...metadata, startTime }; // Return metadata with startTime added
+const enrichMetadata = async (metadata) => {
+  const { currentTrack, artist } = metadata;
+
+  if (!currentTrack || !artist || currentTrack === 'Unknown' || artist === 'Unknown Artist') {
+    console.warn('Metadata is missing valid currentTrack or artist. Skipping enrichment.');
+    return metadata; // Return original metadata if enrichment isn't possible
+  }
+
+  const cacheKey = `${artist}-${currentTrack}`;
+  const cachedData = enrichMetadataCache.get(cacheKey);
+
+  if (cachedData) {
+    console.log(`Returning cached enriched metadata for ${cacheKey}`);
+    return cachedData;
   }
 
   try {
-    // Fetch additional data from Spotify
-    const spotifyData = await fetchSpotifyTrackMetadata(metadata.currentTrack, metadata.artist);
+    console.log(`Fetching enriched metadata for ${cacheKey} from Spotify...`);
+    const spotifyData = await fetchSpotifyTrackMetadata(currentTrack, artist);
 
-    // Combine original metadata with Spotify data
-    return {
-      ...metadata,
-      startTime,
-      ...spotifyData,
-    };
+    if (spotifyData) {
+      const enrichedData = {
+        ...metadata,
+        ...spotifyData,
+      };
+
+      enrichMetadataCache.set(cacheKey, enrichedData); // Cache enriched metadata
+      return enrichedData;
+    }
   } catch (error) {
     console.error('Failed to enrich metadata:', error.message);
-
-    // Return original metadata with startTime in case of an error
-    return { ...metadata, startTime };
   }
+
+  // Return original metadata with a default duration if enrichment fails
+  return { ...metadata, duration: 240 }; // Default to 4 minutes
 };
 
+
+const mergeObjs = (aObj, bObj) =>{
+  return {
+    ...aObj,
+    ...bObj,
+  };
+}
 /**
  * Route to initiate metadata monitoring for a stream URL.
  */
