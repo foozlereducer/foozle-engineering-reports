@@ -40,7 +40,6 @@ const monitorMetadata = (streamUrl) => {
 
     res.on('data', (chunk) => {
       isConnectionAlive = true; // Connection is alive if data is received
-      console.log('Data chunk received, length:', chunk.length);
     });
 
     res.on('metadata', (metadata) => {
@@ -54,11 +53,9 @@ const monitorMetadata = (streamUrl) => {
           currentTrack = trackInfo;
           const metadataObj = extractMetadata(trackInfo);
 
-          console.log('Broadcasting metadata:', metadataObj);
           broadcastMetadata(metadataObj);
 
           enrichMetadata(metadataObj).then((enrichedMetadata) => {
-            console.log('Broadcasting enriched metadata:', enrichedMetadata);
             broadcastMetadata(enrichedMetadata);
           }).catch((error) => {
             console.error('Error enriching metadata:', error.message);
@@ -109,8 +106,6 @@ const broadcastMetadata = (metadata) => {
   }
 
   metadata.startTime = metadata.startTime || Date.now(); // Ensure startTime is set
-
-  console.log('Broadcasting metadata:', metadata);
 
   wss.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {

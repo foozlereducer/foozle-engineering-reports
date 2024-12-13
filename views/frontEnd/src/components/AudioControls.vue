@@ -30,8 +30,26 @@
     <div class="middle-row">
       <img v-if="albumArtUrl" :src="albumArtUrl" alt="Album Art" />
       <div class="now-playing">
-        <p>Now Playing: {{ trackInfo }}</p>
-        <p v-if="artistName">Artist: {{ artistName }}</p>
+        <div class="metadata">
+          <div class="track">
+            <h4>Track:</h4>
+            <p>{{ trackInfo }}</p>
+          </div>
+          <div class="artist">
+            <h4>Artist:</h4>
+            <p>{{ artist }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Neon Progress Bar -->
+    <div class="progress-bar-container">
+      <div class="progress-bar">
+        <div
+          class="progress-bar-fill"
+          :style="{ width: progressPercentage.toFixed(2).toString() + '%' }"
+        ></div>
       </div>
     </div>
 
@@ -59,7 +77,7 @@ const props = defineProps({
 });
 
 // Reactive state for "ON AIR" neon sign
-const isNeonActive = ref(false); // Tracks whether the neon light is on
+const isNeonActive = ref(false);
 
 // Using the audio player composable
 const {
@@ -72,55 +90,67 @@ const {
 
 // Reactive state for track metadata
 const trackInfo = ref('Metadata not available for this station');
-const artistName = ref('');
+const artist = ref('Artist Unknown');
 const albumArtUrl = ref('');
+const duration = ref(0);
+const startTime = ref(0);
+const progressPercentage = ref(0);
 
-// WebSocket instance
 let ws = null;
+let progressInterval = null;
 
 // Watch the stream URL prop and update the audio source
 watch(
   () => props.streamUrl,
   (newUrl) => {
     if (audioPlayer.value) {
-      isNeonActive.value = false; // Turn off the neon light initially
+      isNeonActive.value = false;
       audioPlayer.value.src = newUrl;
-      audioPlayer.value.load(); // Load the new audio source
+      audioPlayer.value.load();
       if (newUrl) {
-        // Automatically attempt to play the new stream
-        setupWebSocket({ url_resolved: newUrl, name: 'Station' }); // Assuming station name is 'Station'
+        setupWebSocket({ url_resolved: newUrl, name: 'Station' });
       }
     }
   }
 );
 
-// Function to attempt autoplay with user gesture fallback
+// Start progress bar updates
+const startProgressBar = () => {
+  if (progressInterval) clearInterval(progressInterval);
+
+  progressInterval = setInterval(() => {
+    const currentTime = Date.now();
+    const elapsedTime = currentTime - startTime.value;
+
+    if (elapsedTime >= duration.value) {
+      clearInterval(progressInterval);
+      progressPercentage.value = 100;
+    } else {
+      progressPercentage.value = Math.min(((elapsedTime / duration.value) * 100).toFixed(2), 100);
+    }
+  }, 1000);
+};
+
 const autoPlayStream = () => {
   audioPlayer.value
     .play()
     .then(() => {
-      isNeonActive.value = true; // Keep the neon light on during auto-play
-      console.log('Stream started automatically.');
+      isNeonActive.value = true;
     })
     .catch((error) => {
       console.error('Auto-play failed. User interaction required:', error);
     });
 };
 
-// Function to handle metadata loading (e.g., track duration)
-const onMetadataLoaded = () => {
-  if (audioPlayer.value) {
-    console.log('Audio metadata loaded:', audioPlayer.value.duration);
-  }
-};
-
-// Event handlers for a udio playback
+// Audio playback events
 const onStreamPlay = () => {
-  isNeonActive.value = true; // Turn on the neon light when playing
+  isNeonActive.value = true;
+  startProgressBar();
 };
 
 const onStreamPause = () => {
-  isNeonActive.value = false; // Turn off the neon light when paused
+  isNeonActive.value = false;
+  clearInterval(progressInterval);
 };
 
 // Setup WebSocket to listen for metadata updates
@@ -133,18 +163,9 @@ const setupWebSocket = (station) => {
   ws = new WebSocket(`${wsProtocol}//localhost:3000`);
 
   ws.onopen = () => {
-    console.log('WebSocket connection established');
     axiosInstance
-      .post('/api/monitor', {
-        url: station.url_resolved,
-      })
-      .then(() => {
-        autoPlayStream();
-        console.log('Metadata monitoring started for:', station.name);
-      })
-      .catch((error) => {
-        console.error('Failed to start metadata monitoring:', error);
-      });
+      .post('/api/monitor', { url: station.url_resolved })
+      .then(() => autoPlayStream());
   };
 
   ws.onmessage = (event) => {
@@ -152,10 +173,11 @@ const setupWebSocket = (station) => {
       const metadata = JSON.parse(event.data);
       if (metadata.currentTrack && metadata.currentTrack !== 'Unknown') {
         trackInfo.value = metadata.currentTrack;
-
-        if (metadata.albumArt) {
-          albumArtUrl.value = metadata.albumArt;
-        }
+        artist.value = metadata.artist || 'Artist Unknown';
+        albumArtUrl.value = metadata.albumArt || '';
+        duration.value = (metadata.duration || 0) * 1000;
+        startTime.value = metadata.startTime || 0;
+        startProgressBar();
       } else {
         trackInfo.value = 'Metadata not available for this station';
       }
@@ -164,20 +186,15 @@ const setupWebSocket = (station) => {
     }
   };
 
-  ws.onerror = (error) => {
-    console.error('WebSocket error:', error);
-  };
-
   ws.onclose = () => {
-    console.log('WebSocket connection closed');
+    if (progressInterval) clearInterval(progressInterval);
   };
 };
 
-// Cleanup WebSocket on unmount
+// Cleanup WebSocket and interval on unmount
 onBeforeUnmount(() => {
-  if (ws) {
-    ws.close();
-  }
+  if (ws) ws.close();
+  if (progressInterval) clearInterval(progressInterval);
 });
 </script>
 
@@ -214,6 +231,7 @@ onBeforeUnmount(() => {
   border-radius: 10%;
 }
 
+/* Neon Sign */
 .neon-sign {
   display: flex;
   flex-direction: column;
@@ -264,5 +282,61 @@ onBeforeUnmount(() => {
   font-family: 'Arial', sans-serif;
   font-weight: bold;
   text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+}
+
+/* Neon Progress Bar */
+.progress-bar-container {
+  width: 100%;
+  max-width: 500px;
+  height: 20px;
+  background-color: #111;
+  border: 2px solid red;
+  border-radius: 10px;
+  margin: 10px 0;
+  overflow: hidden;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.progress-bar-fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(255, 0, 0, 0.8), rgba(173, 1, 1, 0.8));
+  width: 0%;
+  transition: width 0.2s ease-in-out;
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.8), 0 0 40px rgba(255, 0, 0, 0.6); /* Neon red glow */
+}
+
+/* Metadata grid */
+.metadata {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.track,
+.artist {
+  text-align: center;
+}
+
+.track h4,
+.artist h4 {
+  display: block;
+  margin: 0;
+  font-size: 16px;
+  color: #fff;
+}
+
+.track p,
+.artist p {
+  margin: 0;
+  font-size: 14px;
+  color: #aaa;
+  word-wrap: break-word;
+  text-align: center;
 }
 </style>
