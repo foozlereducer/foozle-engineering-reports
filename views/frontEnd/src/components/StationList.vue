@@ -6,8 +6,7 @@
         class="station-card"
         @click="selectStation(station)"
       >
-        <h3>{{ station.name }}</h3>
-        <p>Country: {{ station.country }}</p>
+        <p><span class="title">{{ station.name }}</span> - {{ station.country }}</p>
       </div>
     </div>
   </template>
@@ -49,6 +48,10 @@
   .station-card:hover {
     background: #444;
     transform: scale(1.05);
+  }
+  .title {
+    font-weight: bold;
+    font-size: 1.2em;
   }
   </style>
   

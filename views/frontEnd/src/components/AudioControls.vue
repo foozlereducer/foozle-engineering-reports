@@ -49,7 +49,8 @@
         <div
           class="progress-bar-fill"
           :style="{ width: progressPercentage.toFixed(2).toString() + '%' }"
-        ></div>
+        
+        ><span class="pPercent">{{progressPercentage}}%</span></div>
       </div>
     </div>
 
@@ -310,7 +311,11 @@ onBeforeUnmount(() => {
   transition: width 0.2s ease-in-out;
   box-shadow: 0 0 20px rgba(255, 0, 0, 0.8), 0 0 40px rgba(255, 0, 0, 0.6); /* Neon red glow */
 }
-
+.pPercent {
+  display:block;
+  font-size: 0.6em;
+  text-align: center;
+}
 /* Metadata grid */
 .metadata {
   display: grid;
