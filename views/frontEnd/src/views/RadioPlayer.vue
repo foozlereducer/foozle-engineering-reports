@@ -53,6 +53,16 @@ const playStation = (station) => {
 </script>
 
 <style scoped>
+h1 {
+  text-align: left;
+  margin-bottom: 10px;
+}
+
+.station-card {
+  max-width: 90%;
+  display: block;
+}
+
 .radio-container {
   display: grid;
   grid-template-rows: auto auto 1fr auto;
@@ -63,12 +73,36 @@ const playStation = (station) => {
   margin: 0 auto;
 }
 
-h1 {
-  text-align: left;
-  margin-bottom: 10px;
+/* Desktop (1025px to 1200px) */
+@media all and (min-width: 1025px) and (max-width: 1200px) {
+  .radio-container {
+    max-width: 90%;
+    gap: 15px;
+  }
 }
 
-.station-card {
-  display: block;
+/* Large Tablets and Small Computers (768px to 1024px) */
+@media all and (min-width: 768px) and (max-width: 1024px) {
+  .radio-container {
+    max-width: 95%;
+    gap: 15px;
+  }
+}
+
+/* Small Tablets and Large Phones (481px to 768px) */
+@media all and (min-width: 481px) and (max-width: 768px) {
+  .radio-container {
+    grid-template-rows: auto auto auto;
+    gap: 10px;
+    padding: 10px;
+  }
+}
+
+/* Mobile (480px and below) */
+@media all and (max-width: 480px) {
+  .radio-container {
+    padding: 8px;
+    gap: 8px;
+  }
 }
 </style>

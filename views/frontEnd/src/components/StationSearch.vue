@@ -56,20 +56,6 @@ const updateSearchQuery = () => {
 </script>
 
 <style scoped>
-/* Container for the search section */
-.search-container {
-  width: 100%;
-  margin-top: 20px;
-}
-
-/* Styling for search fields */
-.search-fields {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
-}
-
 /* Group for each label and input */
 .search-group {
   display: flex;
@@ -99,7 +85,6 @@ const updateSearchQuery = () => {
 /* Styling for the search button */
 .search-button {
   display: flex;
-  align-items: center;
 }
 
 .search-btn {
@@ -115,5 +100,57 @@ const updateSearchQuery = () => {
 
 .search-btn:hover {
   background-color: darkred;
+}
+
+
+/* Container for the search section */
+.search-container {
+  width: 100%;
+  margin-top: 20px;
+}
+/* Styling for search fields */
+.search-fields {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Desktop (1025px to 1200px) */
+@media all and (min-width: 1025px) and (max-width: 1200px) {
+  .search-fields {
+    gap: 15px;
+  }
+}
+
+/* Large Tablets and Small Computers (768px to 1024px) */
+@media all and (min-width: 768px) and (max-width: 1024px) {
+  .search-fields {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .search-group {
+    width: 100%;
+  }
+}
+
+/* Small Tablets and Large Phones (481px to 768px) */
+@media all and (min-width: 481px) and (max-width: 768px) {
+  .search-fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile (480px and below) */
+@media all and (max-width: 480px) {
+  .search-fields {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .search-btn {
+    width: 100%;
+  }
 }
 </style>

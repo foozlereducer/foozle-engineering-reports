@@ -200,13 +200,6 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.audio-controls {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  align-items: center;
-}
-
 .top-row {
   display: flex;
   justify-content: space-between;
@@ -343,5 +336,61 @@ onBeforeUnmount(() => {
   color: #aaa;
   word-wrap: break-word;
   text-align: center;
+}
+
+.audio-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+}
+
+/* Desktop (1025px to 1200px) */
+@media all and (min-width: 1025px) and (max-width: 1200px) {
+  .audio-controls {
+    gap: 15px;
+  }
+}
+
+/* Large Tablets and Small Computers (768px to 1024px) */
+@media all and (min-width: 768px) and (max-width: 1024px) {
+  .audio-controls {
+    gap: 10px;
+  }
+
+  .top-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .middle-row {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+/* Small Tablets and Large Phones (481px to 768px) */
+@media all and (min-width: 481px) and (max-width: 768px) {
+  .audio-controls img {
+    width: 80%;
+    max-width: 250px;
+  }
+}
+
+/* Mobile (480px and below) */
+@media all and (max-width: 480px) {
+  .audio-controls img {
+    width: 100%;
+    max-width: 200px;
+  }
+
+  .progress-bar-container {
+    width: 100%;
+  }
+
+  .neon-sign {
+    flex-direction: column;
+    align-items: center;
+  }
 }
 </style>
