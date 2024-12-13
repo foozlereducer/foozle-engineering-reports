@@ -46,7 +46,7 @@ const monitorMetadata = (streamUrl) => {
       console.log('Metadata event triggered');
       try {
         const parsedMetadata = icy.parse(metadata);
-        console.log('Parsed metadata:', parsedMetadata);
+        
 
         const trackInfo = parsedMetadata?.StreamTitle || 'Unknown';
         if (trackInfo !== currentTrack) {
