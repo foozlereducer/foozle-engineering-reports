@@ -5,9 +5,14 @@ import { createTestApp } from './testApp.js';
 import { radioRouter } from '../../../routes/radio.js';
 
 export const startTestServer = (port) => {
+    
+    // Resolve __dirname for ES modules
+    const __dirname = path.dirname(fileURLToPath(import.meta.url));
+    console.log('__dirname for the bin dir', __dirname)
+    // Load HTTPS options
     const options = {
-      key: fs.readFileSync('../../../bin/localhost-key.pem'), // Update path
-      cert: fs.readFileSync('../../../bin/localhost.pem'),
+      key: fs.readFileSync(`${__dirname}/localhost-key.pem`),
+      cert: fs.readFileSync(`${__dirname}/localhost.pem`),
     };
   
     const app = createTestApp(); // Use the test-specific app instance

@@ -3,15 +3,29 @@ import { createServer } from 'https';
 import getPort from 'get-port';
 import { createTestWebSocketServer } from './testWebSocketServer.js';
 import { setWebSocketServer, getWebSocketServer } from '../../../services/utilities/webSocketUtils.js';
-import { extractMetadata, broadcastMetadata } from '../../../routes/radio.js';
+import { broadcastMetadata } from '../../../services/utilities/webSocketUtils.js';
 import WebSocket from 'ws';
+import fs from 'fs'
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Resolve the current directory (__dirname equivalent for ESM)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 let server, testPort;
 
 test.before(async () => {
   // Dynamically allocate a free port for the test server
   testPort = await getPort();
-  server = createServer(); // Create an HTTPS server instance
+
+
+  // Load HTTPS options
+  const options = {
+    key: fs.readFileSync(path.resolve(__dirname, '../../../bin/localhost-key.pem')),
+    cert: fs.readFileSync(path.resolve(__dirname, '../../../bin/localhost.pem')),
+  };
+  server = createServer(options); // Create an HTTPS server instance
   const wss = createTestWebSocketServer(server); // Create a WebSocket server bound to the HTTPS server
 
   setWebSocketServer(wss); // Dynamically inject the WebSocket server for broadcasting
@@ -21,6 +35,9 @@ test.before(async () => {
 test.after.always(() => {
   server.close(); // Ensure the server shuts down after tests
 });
+test('a', (t)=> {
+  t.true(true)
+})
 
 // Test: WebSocket server accepts client connections
 test('WebSocket server accepts client connections', async (t) => {
@@ -91,4 +108,4 @@ test('WebSocket server handles messages correctly', async (t) => {
 
   await messagePromise;
   wsClient.close();
-});
+}); 
