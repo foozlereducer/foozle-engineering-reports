@@ -1,99 +1,73 @@
 #!/usr/bin/env node
 
 import { app } from '../app.js';
-import { debug } from 'console';
-import https from 'https';
 import { logger } from '../services/logger.js';
+import { createServer } from 'https';
+import * as fs from 'fs';
 import * as path from 'path';
-import { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import fs from 'fs';
-import WebSocket, { WebSocketServer } from 'ws';
+import { createWebSocketServer } from '../services/webSocketServer.js';
+import { setWebSocketServer } from '../services/utilities/webSocketUtils.js';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+// Resolve __dirname for ES modules
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// Load HTTPS options
 const options = {
   key: fs.readFileSync(`${__dirname}/localhost-key.pem`),
-  cert: fs.readFileSync(`${__dirname}/localhost.pem`)
+  cert: fs.readFileSync(`${__dirname}/localhost.pem`),
 };
 
+// Normalize port
 const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
-const server = https.createServer(options, app);
+// Create HTTPS server
+const server = createServer(options, app);
 
-// Set up a new WebSocket server bound to the existing HTTPS server
-export const wss = new WebSocketServer({ server });
+// Create WebSocket server and integrate with the app
+export const wss = createWebSocketServer(server);
+app.locals.wss = wss; // Attach WebSocket server to app.locals for routes or modules
+setWebSocketServer(wss); // Dynamically provide WebSocket server reference to modules
 
-wss.onopen = () => {
-  console.log('WebSocket connection established');
-};
-
-wss.onmessage = (event) => {
-  console.log('Received WebSocket message:', event.data);
-  const metadata = JSON.parse(event.data);
-  trackInfo.value = metadata.currentTrack || 'Metadata not available for this station';
-};
-
-wss.onerror = (error) => {
-  console.error('WebSocket error:', error);
-};
-
-wss.onclose = () => {
-  console.log('WebSocket connection closed');
-};
-
-wss.on('connection', (ws) => {
-  console.log('New client connected via WebSocket');
-  ws.on('message', (message) => {
-    console.log('Received message:', message);
-  });
-  ws.on('close', () => {
-    console.log('Client disconnected');
-  });
-});
-
-server.listen(port);
+// Start HTTPS server
+server.listen(port, () => console.log(`Server listening on port ${port}`));
 server.on('error', onError);
 server.on('listening', onListening);
 
-// Handle uncaught exceptions
-process.on('uncaughtException', (err) => {
-  console.log('Uncaught exception, application is attempting to exit gracefully');
-  logger(500, 'Uncaught exception, application is attempting to exit gracefully', 'fatal');
-  server.close(() => {
-    console.log('Graceful shutdown success');
-    process.exit(1);
-  });
+// Graceful shutdown for uncaught exceptions
+process.on('uncaughtException', (err) => handleUncaughtException(err, server));
 
-  setTimeout(() => {
-    console.log('Graceful shutdown failed, app crashed, core dump created');
-    process.abort();
-  }, 1000).unref();
-});
+// ----------------------------- Utility Functions -----------------------------
 
+/**
+ * Normalize a port into a number, string, or false.
+ */
 function normalizePort(val) {
   const port = parseInt(val, 10);
-  if (isNaN(port)) return val;
-  if (port >= 0) return port;
+  if (isNaN(port)) return val; // named pipe
+  if (port >= 0) return port; // port number
   return false;
 }
 
+/**
+ * Handle errors during server startup.
+ */
 function onError(error) {
   if (error.syscall !== 'listen') {
     logger(500, error, 'fatal');
     throw error;
   }
 
-  const bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
+  const bind = typeof port === 'string' ? `Pipe ${port}` : `Port ${port}`;
 
   switch (error.code) {
     case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
+      console.error(`${bind} requires elevated privileges`);
       process.exit(1);
       break;
     case 'EADDRINUSE':
-      const errorMsg = bind + ' is already in use';
+      const errorMsg = `${bind} is already in use`;
       console.error(errorMsg);
       logger(500, errorMsg, 'fatal');
       process.exit(1);
@@ -103,8 +77,28 @@ function onError(error) {
   }
 }
 
+/**
+ * Handle the server "listening" event.
+ */
 function onListening() {
   const addr = server.address();
-  const bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+  const bind = typeof addr === 'string' ? `pipe ${addr}` : `port ${addr.port}`;
+  console.log(`Listening on ${bind}`);
+}
+
+/**
+ * Gracefully handle uncaught exceptions.
+ */
+function handleUncaughtException(err, server) {
+  console.error('Uncaught exception occurred, attempting graceful shutdown');
+  logger(500, 'Uncaught exception, shutting down', 'fatal');
+  server.close(() => {
+    console.log('Graceful shutdown completed');
+    process.exit(1);
+  });
+
+  setTimeout(() => {
+    console.error('Graceful shutdown failed, forcing process exit');
+    process.abort();
+  }, 1000).unref();
 }

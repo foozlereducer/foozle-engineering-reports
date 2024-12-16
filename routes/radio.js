@@ -4,8 +4,8 @@ import NodeCache from 'node-cache';
 import https from 'https';
 import icy from 'icy'; // Import the icy module
 import { wss } from '../bin/www.js';
-import WebSocket from 'ws'; // Import WebSocket
 import { fetchSpotifyTrackMetadata } from '../services/spotifyTrackSearch.js';
+import { broadcastMetadata } from '../services/utilities/webSocketUtils.js';
 
 const router = express.Router();
 
@@ -96,29 +96,7 @@ const addArtistToMetadata = (metadata) => {
   }
   return metadata;
 }
-/**
- * Broadcast metadata to all WebSocket clients.
- */
-const broadcastMetadata = (metadata) => {
-  if (!metadata.currentTrack || metadata.currentTrack === 'Unknown') {
-    console.warn('No valid metadata to broadcast');
-    return;
-  }
 
-  metadata.startTime = metadata.startTime || Date.now(); // Ensure startTime is set
-
-  wss.clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      try {
-        client.send(JSON.stringify(metadata));
-      } catch (error) {
-        console.error('Failed to send metadata to WebSocket client:', error.message);
-      }
-    }
-  });
-};
-
- 
 function extractMetadata(streamTitle) {
   console.log('Parsing StreamTitle:', streamTitle);
 
@@ -317,4 +295,5 @@ router.get('/api/metadata', async (req, res) => {
     }
   });
 
+export {extractMetadata, broadcastMetadata, enrichMetadata, monitorMetadata}
 export { router as radioRouter };
