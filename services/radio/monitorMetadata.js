@@ -1,4 +1,6 @@
 import icy from 'icy'; // Import the icy module
+import { enrichMetadata, extractMetadata } from '../../routes/radio.js';
+import { broadcastMetadata } from '../utilities/webSocketUtils.js';
 /**
  * Monitor metadata and broadcast to WebSocket clients.
  */
