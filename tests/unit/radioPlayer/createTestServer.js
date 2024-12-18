@@ -9,3 +9,4 @@ const createTestApp = () => {
 };
 
 export { createTestApp };
+export {radioRouter}

@@ -25,15 +25,14 @@ export default function useAudioControls() {
     }
   };
 
-  const updateVolume = async () => {
-    await nextTick();
+  const updateVolume = async (event) => {
+    const newVolume = parseFloat(event.target.value); // Convert value to number
+    volume.value = newVolume; // Update the reactive state
     if (audioPlayer.value) {
-      audioPlayer.value.volume = volume.value;
+      audioPlayer.value.volume = newVolume;
       console.log(`Volume updated to: ${audioPlayer.value.volume}`);
-    } else {
-      console.error('Audio player reference is NOT available when updating volume.');
     }
-  };
+  };  
 
   const handleTimeUpdate = () => {
     if (audioPlayer.value && audioPlayer.value.duration && audioPlayer.value.duration !== Infinity) {
@@ -95,7 +94,7 @@ export default function useAudioControls() {
   onMounted(() => {
     nextTick(() => {
       if (audioPlayer.value) {
-        audioPlayer.value.volume = volume.value; // Set the initial volume
+        audioPlayer.value.volume = parseFloat(volume.value); // Set the initial volume
         audioPlayer.value.addEventListener('timeupdate', handleTimeUpdate);
         audioPlayer.value.addEventListener('playing', handlePlaying);
         audioPlayer.value.addEventListener('pause', handlePause);

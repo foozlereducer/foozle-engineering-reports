@@ -1,7 +1,7 @@
 import https from 'https';
 import fs from 'fs';
 import WebSocket, { WebSocketServer } from 'ws';
-import { createTestApp } from './testApp.js';
+import { createTestApp } from './createTestServer.js';
 import { radioRouter } from '../../../routes/radio.js';
 
 export const startTestServer = (port) => {

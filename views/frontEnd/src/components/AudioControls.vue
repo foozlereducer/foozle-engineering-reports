@@ -12,7 +12,7 @@
           max="1"
           step="0.01"
           v-model="volume"
-          @input="updateVolume"
+          @input="updateVolume($event)"
           class="volume-slider"
         />
       </div>
@@ -50,7 +50,7 @@
           class="progress-bar-fill"
           :style="{ width: progressPercentage.toFixed(2).toString() + '%' }"
         
-        ><span class="pPercent">{{progressPercentage}}%</span></div>
+        ><span class="pPercent">{{progressPercentage}}% - {{ formatElapsedTime(elapsedTime)  }}</span></div>
       </div>
     </div>
 
@@ -96,6 +96,7 @@ const albumArtUrl = ref('');
 const duration = ref(0);
 const startTime = ref(0);
 const progressPercentage = ref(0);
+const elapsedTime = ref(0.00)
 
 let ws = null;
 let progressInterval = null;
@@ -121,13 +122,13 @@ const startProgressBar = () => {
 
   progressInterval = setInterval(() => {
     const currentTime = Date.now();
-    const elapsedTime = currentTime - startTime.value;
+    elapsedTime.value = currentTime - startTime.value;
 
-    if (elapsedTime >= duration.value) {
+    if (elapsedTime.value >= duration.value) {
       clearInterval(progressInterval);
       progressPercentage.value = 100;
     } else {
-      progressPercentage.value = Math.min(((elapsedTime / duration.value) * 100).toFixed(2), 100);
+      progressPercentage.value = Math.min(((elapsedTime.value / duration.value) * 100).toFixed(2), 100);
     }
   }, 1000);
 };
@@ -197,6 +198,13 @@ onBeforeUnmount(() => {
   if (ws) ws.close();
   if (progressInterval) clearInterval(progressInterval);
 });
+
+const formatElapsedTime = (elapsedMs) => {
+  const totalSeconds = Math.floor(elapsedMs / 1000); // Convert to total seconds
+  const minutes = Math.floor(totalSeconds / 60);     // Extract minutes
+  const seconds = totalSeconds % 60;                 // Extract remaining seconds
+  return `${minutes}.${seconds < 10 ? '0' : ''}${seconds}`;
+};
 </script>
 
 <style scoped>
