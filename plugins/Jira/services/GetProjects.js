@@ -3,7 +3,6 @@ import { connectDB } from '../../../datatabase/db.js';
 import { logger } from '../../../services/logger.js';
 export class GetProjects {
     isCore;
-
     constructor(
         jiraRest, 
         baseRoutePath = 'https://actocloud.atlassian.net', 

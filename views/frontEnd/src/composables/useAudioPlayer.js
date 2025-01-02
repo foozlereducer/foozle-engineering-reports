@@ -45,7 +45,7 @@ export function useAudioPlayer() {
         // Use currentTime and duration from the audio element itself
         const elapsed = audioPlayer.value.currentTime;
         const duration = audioPlayer.value.duration;
-        
+        console.log(elapsed, duration)
         // If duration is available, calculate the percentage
         if (duration && duration > 0) {
           progressPercentage.value = Math.min((elapsed / duration) * 100, 100);

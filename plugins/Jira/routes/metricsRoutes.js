@@ -35,7 +35,6 @@ router
         logger(500, 'error', 'Failed to fetch boardIds: ' + error.message)
         res.status(500).json({ message: 'Error fetching boardIds', error });
     }
-    
   })
 
   // GET /api/sprints/storypoints?startDate=2024-01-01&endDate=2024-02-28&boardIds=1,2,3 (optional boardIds)
