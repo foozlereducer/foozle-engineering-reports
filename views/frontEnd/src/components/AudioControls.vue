@@ -22,7 +22,8 @@
       </button>
 
       <div class="progress-bar-container">
-        <div class="progress-bar" :style="{ width: progressPercentage.toFixed(2) + '%' }"></div><div>{{ elapsedT.toFixed(0)}}sec</div>
+        <div class="progress-bar" :style="{ width: progressPercentage.toFixed(2) + '%' }"></div>
+        <div>{{ elapsedT}}</div>
       </div>
 
       <div class="volume-control">
@@ -67,11 +68,12 @@ const albumArtUrl = ref('');
 const duration = ref(0);
 const trackStartTime = ref(0);
 const progressPercentage = ref(0);
-const elapsedT = ref(0)
+const elapsedT = ref(0); // Correct reactive variable for elapsed time
 
 let ws = null;
 let progressInterval = null;
 
+// Watch for changes in the stream URL
 watch(
   () => props.streamUrl,
   (newUrl) => {
@@ -85,6 +87,7 @@ watch(
   }
 );
 
+// Start the progress bar updates
 const startProgressBar = () => {
   if (progressInterval) clearInterval(progressInterval);
 
@@ -101,10 +104,24 @@ const startProgressBar = () => {
     } else {
       progressPercentage.value = 0;
     }
-    elapsedT.value = elapsedTime
-    console.log(`Elapsed Time: ${elapsedTime}s, Total Duration: ${totalDuration}s, Progress: ${progressPercentage.value}%`);
+    elapsedT.value = formatTime(elapsedTime); // Update elapsed time
   }, 500);
 };
+
+// Utility to format time
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+
+    // Handle different cases
+    if (minutes === 0) {
+        // Seconds only
+        return `${remainingSeconds}s`;
+    } else {
+        // Minutes and seconds
+        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}m`;
+    }
+}
 
 const onStreamPlay = () => {
   startProgressBar();
@@ -115,6 +132,7 @@ const onStreamPause = () => {
   progressPercentage.value = 0;
 };
 
+// Setup WebSocket for metadata updates
 const setupWebSocket = (station) => {
   if (ws) ws.close();
 
@@ -139,7 +157,7 @@ const setupWebSocket = (station) => {
         const startTimeFromMetadata = metadata.startTime || Date.now() / 1000;
         trackStartTime.value = typeof startTimeFromMetadata === 'number' ? startTimeFromMetadata / 1000 : startTimeFromMetadata;
 
-        // Reset and start progress bar for the new track
+        // Reset progress for the new track
         progressPercentage.value = 0;
         startProgressBar();
       }
