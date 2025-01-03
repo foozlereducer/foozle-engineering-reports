@@ -23,7 +23,7 @@
 
       <div class="progress-bar-container">
         <div class="progress-bar" :style="{ width: progressPercentage.toFixed(2) + '%' }"></div>
-        <div>{{ elapsedT}}</div>
+        <span class="elapsed-time">{{ elapsedT}} of {{ durationStr }}</span> 
       </div>
 
       <div class="volume-control">
@@ -68,7 +68,8 @@ const albumArtUrl = ref('');
 const duration = ref(0);
 const trackStartTime = ref(0);
 const progressPercentage = ref(0);
-const elapsedT = ref(0); // Correct reactive variable for elapsed time
+const elapsedT = ref(0);
+const durationStr = ref('');
 
 let ws = null;
 let progressInterval = null;
@@ -104,7 +105,8 @@ const startProgressBar = () => {
     } else {
       progressPercentage.value = 0;
     }
-    elapsedT.value = formatTime(elapsedTime); // Update elapsed time
+    elapsedT.value = formatTime(elapsedTime); 
+    durationStr.value = formatTime(duration.value);
   }, 500);
 };
 
@@ -284,4 +286,8 @@ onBeforeUnmount(() => {
   display: block;
 }
 
+.elapsed-time {
+  font-size: 0.8em;
+  color: #dfdfdf
+}
 </style>
