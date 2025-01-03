@@ -8,8 +8,10 @@
           v-model="searchCountry"
           class="search-input"
           placeholder="Enter country"
+          @input="emitStations"
         />
       </div>
+      <button @click="searchStations" class="search-btn">Search</button>
       <div class="search-group">
         <label for="station">Station:</label>
         <input
@@ -17,9 +19,9 @@
           v-model="searchQuery"
           class="search-input"
           placeholder="Filter stations..."
+          @input="emitStations"
         />
       </div>
-      <button @click="searchStations" class="search-btn">Search</button>
     </div>
   </div>
 </template>
@@ -31,11 +33,17 @@ const { searchCountry, searchQuery, fetchStations, filteredStations } =
   useStationSearch();
 const emit = defineEmits(['stationsFetched']);
 
-const searchStations = async () => {
-  await fetchStations();
+// Emit filtered stations on input
+const emitStations = () => {
   emit('stationsFetched', filteredStations.value);
 };
+
+const searchStations = async () => {
+  await fetchStations();
+  emitStations(); // Ensure filtered results are emitted after fetch
+};
 </script>
+
 
 <style scoped>
 .search-container {
@@ -47,18 +55,23 @@ const searchStations = async () => {
 
 .search-fields {
   display: grid;
-  grid-template-columns: auto auto auto;
+  grid-template-columns: auto auto auto; /* Ensure 3 columns */
+  grid-template-areas: 
+    "country search station"; /* Define grid areas for alignment */
   gap: 10px;
   align-items: center;
 }
 
-.search-group {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+.search-group:nth-child(1) {
+  grid-area: country; /* Assign "Country" field to the grid area */
+}
+
+.search-group:nth-child(2) {
+  grid-area: station; /* Assign "Station" field to the grid area */
 }
 
 .search-btn {
+  grid-area: search; /* Assign "Search" button to the grid area */
   background-color: #ff4444;
   color: #fff;
   border: none;
@@ -66,11 +79,13 @@ const searchStations = async () => {
   cursor: pointer;
   border-radius: 5px;
   font-size: 14px;
+  justify-self: start; /* Align the button next to "Country" */
 }
 
 .search-btn:hover {
   background-color: #e63b3b;
 }
+
 .search-input {
   background-color: #333; /* Match the dark theme */
   color: #fff; /* White text for contrast */

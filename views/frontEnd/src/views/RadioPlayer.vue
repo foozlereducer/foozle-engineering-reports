@@ -11,10 +11,7 @@
     <!-- Middle Section: Search Filters -->
     <div class="search-section">
       <!-- StationSearch Component -->
-      <StationSearch
-        @stationsFetched="setStations"
-        @searchQueryUpdated="updateSearchQuery"
-      />
+      <StationSearch @stationsFetched="updateStations" />
     </div>
 
     <!-- Bottom Section: Station List -->
@@ -35,7 +32,10 @@ import StationList from '../components/StationList.vue';
 const stations = ref([]);
 const searchQuery = ref('');
 const selectedStreamUrl = ref('');
-
+const filteredStations = ref([]);
+const updateStations = (stations) => {
+  filteredStations.value = stations;
+};
 // Handle fetched stations from StationSearch component
 const setStations = (fetchedStations) => {
   stations.value = fetchedStations;
@@ -45,15 +45,6 @@ const setStations = (fetchedStations) => {
 const updateSearchQuery = (query) => {
   searchQuery.value = query;
 };
-
-// Computed property to filter stations by search query
-const filteredStations = computed(() => {
-  return Array.isArray(stations.value)
-    ? stations.value.filter((station) =>
-        station.name.toLowerCase().includes(searchQuery.value.toLowerCase())
-      )
-    : [];
-});
 
 // Set the stream URL to play a station
 const playStation = (station) => {

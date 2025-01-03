@@ -24,18 +24,24 @@ export default function useStationSearch() {
     }
   };
 
-  // Computed property to filter stations by name
-  const filteredStations = computed(() =>
-    stations.value.filter((station) =>
-      station.name.toLowerCase().includes(searchQuery.value.toLowerCase())
-    )
-  );
+  // Computed property to filter stations by country and name
+  const filteredStations = computed(() => {
+    return stations.value.filter((station) => {
+      const matchesCountry = searchCountry.value
+        ? station.country.toLowerCase().includes(searchCountry.value.toLowerCase())
+        : true;
+      const matchesQuery = searchQuery.value
+        ? station.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+        : true;
+      return matchesCountry && matchesQuery;
+    });
+  });
 
   return {
     searchCountry,
     searchQuery,
     stations,
-    fetchStations, // Ensure this is included
+    fetchStations,
     filteredStations,
   };
 }
