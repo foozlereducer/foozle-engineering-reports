@@ -1,3 +1,7 @@
+<script setup>
+import logo from '@/assets/logo.svg';
+</script>
+
 <template>
-   <-- your logo image to go into the header. Preferrably a .svg so you can nicely scale your logo -/>
+  <Logo :logoSrc="logo" alt="Company Logo" class="logo"/>
 </template>
