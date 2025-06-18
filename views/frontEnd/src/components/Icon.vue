@@ -1,7 +1,7 @@
-<script setup>
-import logo from '@/assets/logo.svg';
-</script>
-
 <template>
-  <Logo :logoSrc="logo" alt="Company Logo" class="logo"/>
+  <img :src="logoUrl" alt="Company Logo" class="logo" />
 </template>
+
+<script setup>
+  import logoUrl from '@/assets/images/logo.svg';
+</script>

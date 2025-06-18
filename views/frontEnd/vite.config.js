@@ -7,6 +7,11 @@ import { defineConfig as defineTestConfig } from 'vitest/config';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, 'src'),
+    }
+  },
   plugins: [vue()],
   test: {
     // Enables Vitest
