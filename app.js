@@ -1,7 +1,7 @@
 import express from 'express';
-import session from 'express-session';
-import passport from 'passport';
-import GoogleStrategy from 'passport-google-oauth20';
+//import session from 'express-session';
+// import passport from 'passport';
+// import GoogleStrategy from 'passport-google-oauth20';
 import * as path from 'path';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -28,8 +28,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-
-
+/*
 // Session configuration
 app.use(session({
   secret: process.env.PASSPORT_SESSION_SECRET,
@@ -60,6 +59,7 @@ passport.use(
 // Serialize and Deserialize User
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((user, done) => done(null, user));
+*/
 
 // Middleware to log cookies
 app.use((req, res, next) => {
