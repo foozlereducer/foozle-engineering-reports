@@ -83,15 +83,17 @@ onMounted(async () => {
   checkForMobile();
 
   // Polling to check the auth status every minute
+  /*
   authCheckInterval = setInterval(checkAuthStatus, 60000); // 60 seconds
   checkAuthStatus(); // Initial check on mount
+  */
 });
 
 onUnmounted(() => {
   // Clear intervals when the component is unmounted
-  if (authCheckInterval) {
-    clearInterval(authCheckInterval);
-  }
+  // if (authCheckInterval) {
+  //   clearInterval(authCheckInterval);
+  // }
   if (intervalId) {
     clearInterval(intervalId);
   }

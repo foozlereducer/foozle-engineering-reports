@@ -19,31 +19,31 @@ const routes = [
     path: '/home',
     name: 'Home',
     component: Home,
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: false },
   },
   {
     path: '/sampleMetric',
     name: 'sampleMetric',
     component: SampleMetric,
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: false },
   },
   {
     path: '/metrics',
     name: 'Metrics',
     component: '',
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: false },
   },
   {
     path: '/tools',
     name: 'Tools',
     component: '',
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: false },
   },
   {
     path: '/logs',
     name: 'Logs',
     component: Logs,
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: false },
   },
 ];
 
@@ -53,36 +53,36 @@ const router = createRouter({
 });
 
 // Navigation guard to check for authenticated users
-router.beforeEach(async (to, from, next) => {
-  const authStore = useAuthStore();
-
+// router.beforeEach(async (to, from, next) => {
+//   const authStore = useAuthStore();
+//   authStore.setIsAuthenticated(true);
   // Check if the route requires authentication
-  if (to.matched.some(record => record.meta.requiresAuth)) {
-    if (!authStore.isAuthenticated) {
-      try {
-        // Make a request to the backend to verify the user's session
-        const response = await axios.get(import.meta.env.VITE_BACKEND_URL + '/api/check-auth', { withCredentials: true });
-        if (response.data.authenticated) {
-          // If authenticated, update store and proceed to the route
-          authStore.setIsAuthenticated(true);
-          next();
-        } else {
-          // If not authenticated, redirect to login
-          authStore.setIsAuthenticated(false);
-          next({ name: 'Login' });
-        }
-      } catch (error) {
-        // If an error occurs, redirect to login
-        authStore.setIsAuthenticated(false);
-        next({ name: 'Login' });
-      }
-    } else {
-      next();
-    }
-  } else {
-    // If the route does not require authentication, proceed as normal
-    next();
-  }
-});
+//   if (to.matched.some(record => record.meta.requiresAuth)) {
+//     if (!authStore.isAuthenticated) {
+//       try {
+//         // Make a request to the backend to verify the user's session
+//         const response = await axios.get(import.meta.env.VITE_BACKEND_URL + '/api/check-auth', { withCredentials: true });
+//         if (response.data.authenticated) {
+//           // If authenticated, update store and proceed to the route
+//           authStore.setIsAuthenticated(true);
+//           next();
+//         } else {
+//           // If not authenticated, redirect to login
+//           authStore.setIsAuthenticated(false);
+//           next({ name: 'Login' });
+//         }
+//       } catch (error) {
+//         // If an error occurs, redirect to login
+//         authStore.setIsAuthenticated(false);
+//         next({ name: 'Login' });
+//       }
+//     } else {
+//       next();
+//     }
+//   } else {
+//     // If the route does not require authentication, proceed as normal
+//     next();
+//   }
+// });
 
 export default router;

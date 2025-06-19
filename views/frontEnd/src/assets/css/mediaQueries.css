@@ -65,9 +65,11 @@ header.main-header {
 header .logo {
    grid-column: col-start -3 / span 2;
    margin-right: 10px;
+   padding-top: 10px;
+   padding-right: 10px;
    justify-items: center;
-   width: 100px;
-   gap: 5px;
+   width: 75px;
+   gap: 10px;
    object-fit: cover;
 }
 
@@ -78,6 +80,9 @@ header h1 {
 /**
  * Navigation
  */
+ .navigation {
+   margin-top:30px;
+ }
  nav {
    grid-area: nav;
    position: fixed;
