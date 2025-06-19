@@ -1,15 +1,15 @@
 <template>
   <!-- Always render the LoadingSpinner but control its visibility with the loading prop -->
-  <LoadingSpinner :loading="isLoading" />
+  <!-- <LoadingSpinner :loading="isLoading" /> -->
 
   <!-- Main nav content, only visible when loading is finished -->
-  <nav v-if="!isLoading">
-    <ul v-if="isAuthenticated && !authStore.isMobile" class="navigation">
+  <nav>
+    <ul v-if="!authStore.isMobile" class="navigation">
       <li><router-link class="link" :to="{ name: 'Home' }">Home</router-link></li>
       <li><router-link class="link" :to="{ name: 'sampleMetric' }">SampleMetric</router-link></li>
       <li><router-link class="link" :to="{ name: 'Metrics' }">Metrics</router-link></li>
       <li><router-link class="link" :to="{ name: 'Tools' }">Tools</router-link></li>
-      <li><router-link class="link" :to="{ name: 'Logs' }">Tools</router-link></li>
+      <li><router-link class="link" :to="{ name: 'Logs' }">Logs</router-link></li>
     </ul>
     <div class="icon" v-if="authStore.isMobile">
       <i
@@ -22,35 +22,35 @@
           <li>
             <Auth @click="toggleMobileNav" class="link" />
           </li>
-          <li v-if="isAuthenticated">
+          <li>
             <router-link
               @click="toggleMobileNav"
               class="link"
               :to="{ name: 'Home' }"
             >Home</router-link>
           </li>
-          <li v-if="isAuthenticated">
+          <li>
             <router-link
               @click="toggleMobileNav"
               class="link"
               :to="{ name: 'sampleMetric' }"
             >SampleMetric</router-link>
           </li>
-          <li v-if="isAuthenticated">
+          <li>
             <router-link
               @click="toggleMobileNav"
               class="link"
               :to="{ name: 'Metrics' }"
             >Metrics</router-link>
           </li>
-          <li v-if="isAuthenticated">
+          <li>
             <router-link
               @click="toggleMobileNav"
               class="link"
               :to="{ name: 'Tools' }"
             >Tools</router-link>
           </li>
-          <li v-if="isAuthenticated">
+          <li>
             <router-link
               @click="toggleMobileNav"
               class="link"
@@ -66,7 +66,6 @@
 <script setup>
 import { useAuthStore } from '../stores/authStore';
 import { ref, onMounted, onUnmounted, watch } from 'vue';
-import Auth from './Auth.vue';
 import { LocalStorage } from '../composables/localStorage.js';
 import LoadingSpinner from './LoadingSpinner.vue';
 
@@ -79,18 +78,18 @@ const windowHeight = ref(window.innerHeight);
 const LS = new LocalStorage(authStore);
 let mobileNav = ref(false);
 let isAuthenticated = ref(authStore.isAuthenticated);
-
+isAuthenticated.value = true;
 // Watch for changes in authentication status
-watch(
-  () => authStore.isAuthenticated,
-  (newValue) => {
-    isAuthenticated.value = newValue;
-    if (newValue) {
-      isLoading.value = false; // Stop loading spinner once authenticated
-    }
-  },
-  { immediate: true }
-);
+// watch(
+//   () => authStore.isAuthenticated,
+//   (newValue) => {
+//     isAuthenticated.value = newValue;
+//     if (newValue) {
+//       isLoading.value = false; // Stop loading spinner once authenticated
+//     }
+//   },
+//   { immediate: true }
+// );
 
 // Toggles the mobile navigation state
 function toggleMobileNav() {
@@ -127,8 +126,8 @@ function useWindowResize() {
 
 // Set loading state to false after mounted lifecycle to prevent spinner on resize
 onMounted(() => {
-  if (authStore.isAuthenticated) {
-    isLoading.value = false;
-  }
+  // if (authStore.isAuthenticated) {
+  //   isLoading.value = false;
+  // }
 });
 </script>
