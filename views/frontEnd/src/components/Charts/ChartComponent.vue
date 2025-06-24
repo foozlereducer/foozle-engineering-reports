@@ -4,8 +4,8 @@
 
 <script setup>
 import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
-import BarChartService from '../Charts/services/BarChart.js';
-import LineChartService from '../Charts/services/LineChart.js';
+import BarChartService from '../Charts/shared/services/BarChart.js';
+import LineChartService from '../Charts/shared/services/LineChart.js';
 
 // Define props
 const props = defineProps({
